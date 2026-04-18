@@ -13,6 +13,42 @@ from sync_copilot_exports import SURFACES, supported_surfaces
 
 BLOCK_START = "# BEGIN agent-customizations global ignores"
 BLOCK_END = "# END agent-customizations global ignores"
+KNOWN_CUSTOMIZATION_PATTERNS = [
+    "**/.agents/",
+    "**/.claude/",
+    "**/.codex/",
+    "**/.continue/",
+    "**/.cursor/",
+    "**/.github/agents/",
+    "**/.github/instructions/",
+    "**/.github/prompts/",
+    "**/.github/skills/",
+    "**/.github/hooks/",
+    "**/.copilot/agents/",
+    "**/.copilot/instructions/",
+    "**/.copilot/skills/",
+    "**/.copilot/hooks/",
+    "**/.roo/",
+    "**/.windsurf/",
+]
+KNOWN_TRACKED_PATHS = [
+    ".agents",
+    ".claude",
+    ".codex",
+    ".continue",
+    ".cursor",
+    ".github/agents",
+    ".github/instructions",
+    ".github/prompts",
+    ".github/skills",
+    ".github/hooks",
+    ".copilot/agents",
+    ".copilot/instructions",
+    ".copilot/skills",
+    ".copilot/hooks",
+    ".roo",
+    ".windsurf",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -23,7 +59,7 @@ def parse_args() -> argparse.Namespace:
         "--surface",
         action="append",
         choices=sorted(supported_surfaces("workspace")),
-        help="Workspace export surfaces to ignore globally. Defaults to agents.",
+        help="Workspace export surfaces to include in compatibility warnings. Defaults to all workspace surfaces.",
     )
     parser.add_argument(
         "--repo",
@@ -41,7 +77,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def selected_surfaces(requested: list[str] | None) -> list[str]:
-    return requested if requested else ["agents"]
+    return requested if requested else sorted(supported_surfaces("workspace"))
 
 
 def default_excludes_file() -> Path:
@@ -91,16 +127,18 @@ def ensure_git_config(path: Path, dry_run: bool) -> None:
 
 
 def ignore_patterns(surfaces: list[str]) -> list[str]:
-    patterns: list[str] = []
+    patterns = list(KNOWN_CUSTOMIZATION_PATTERNS)
     for surface in surfaces:
         target = SURFACES[surface]["workspace_target"]
         if target is not None:
-            patterns.append(f"**/{target}/")
+            pattern = f"**/{target}/"
+            if pattern not in patterns:
+                patterns.append(pattern)
     return patterns
 
 
 def managed_block(surfaces: list[str]) -> str:
-    lines = [BLOCK_START, "# Generated workspace export folders from agent-customizations."]
+    lines = [BLOCK_START, "# Generated hidden customization roots managed by agent-customizations."]
     lines.extend(ignore_patterns(surfaces))
     lines.append(BLOCK_END)
     return "\n".join(lines) + "\n"
@@ -138,6 +176,12 @@ def repo_root(path: Path) -> Path | None:
 
 def tracked_paths(root: Path, surfaces: list[str]) -> dict[str, list[str]]:
     tracked: dict[str, list[str]] = {}
+    for tracked_path in KNOWN_TRACKED_PATHS:
+        result = run_git_command(["-C", str(root), "ls-files", "--", tracked_path])
+        files = [line for line in result.stdout.splitlines() if line.strip()]
+        if files:
+            tracked[tracked_path] = files
+
     for surface in surfaces:
         target = SURFACES[surface]["workspace_target"]
         if target is None:
@@ -145,7 +189,7 @@ def tracked_paths(root: Path, surfaces: list[str]) -> dict[str, list[str]]:
         result = run_git_command(["-C", str(root), "ls-files", "--", target])
         files = [line for line in result.stdout.splitlines() if line.strip()]
         if files:
-            tracked[surface] = files
+            tracked[f"surface:{surface}"] = files
     return tracked
 
 
@@ -162,8 +206,9 @@ def warn_for_repo(path: Path, surfaces: list[str]) -> None:
 
     print(f"Warning: {root} already tracks files in ignored export paths.", file=sys.stderr)
     print("Global ignore will not affect tracked files. Review these paths:", file=sys.stderr)
-    for surface, files in tracked.items():
-        print(f"  - {surface}:", file=sys.stderr)
+    for tracked_key, files in tracked.items():
+        label = tracked_key.removeprefix("surface:")
+        print(f"  - {label}:", file=sys.stderr)
         for file_path in files[:10]:
             print(f"    {file_path}", file=sys.stderr)
         if len(files) > 10:

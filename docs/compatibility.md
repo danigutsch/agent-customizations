@@ -165,14 +165,31 @@ Example:
 python3 scripts/configure_global_copilot_gitignore.py --repo ../ViajantesTurismo
 ```
 
-By default this manages the standard generated agent path:
+By default this manages the common hidden customization roots used by this repository's workflow and
+the broader agent-tool ecosystem:
 
 ```text
+**/.agents/
+**/.claude/
+**/.codex/
+**/.continue/
+**/.cursor/
 **/.github/agents/
+**/.github/instructions/
+**/.github/prompts/
+**/.github/skills/
+**/.github/hooks/
+**/.copilot/agents/
+**/.copilot/instructions/
+**/.copilot/skills/
+**/.copilot/hooks/
+**/.roo/
+**/.windsurf/
 ```
 
-You can extend it later with repeated `--surface ...` flags if you also want global ignores for
-other generated workspace export folders.
+You can still pass repeated `--surface ...` flags when you want the compatibility warnings scoped to
+specific workspace export surfaces, but the managed ignore block now covers all known hidden
+customization directories by default.
 
 ### Maintenance expectations
 
