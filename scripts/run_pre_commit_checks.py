@@ -6,7 +6,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_EXTENSIONS = {".json", ".jsonc", ".md", ".toml", ".yaml", ".yml"}
 REPO_VALIDATION_FILES = {
@@ -73,8 +72,8 @@ def main() -> None:
 
     python_files = staged_script_python_files(paths)
     if python_files:
-        run(["python3", "-m", "ruff", "check", *python_files])
-        run(["python3", "-m", "pyright", "scripts"])
+        run(["ruff", "check", *python_files])
+        run(["pyright", "scripts"])
 
     if needs_repo_validation(paths):
         run(["python3", "scripts/validate_repo_files.py"])

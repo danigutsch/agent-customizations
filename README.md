@@ -69,11 +69,36 @@ python3 scripts/validate_repo_files.py
 
 Use the `Makefile` as the main local entrypoint for routine repository work.
 
+For this repository, the recommended packaging split is:
+
+- use **`pipx`** for standalone developer tools such as `ruff` and `pyright`
+- use **`pip`** only inside a project virtual environment when you are managing project-local Python
+  dependencies
+
 Install the local Python tools once:
 
 ```bash
 make install-dev
 ```
+
+On Debian/Ubuntu and other PEP 668 environments, install `pipx` first instead of using system `pip`
+for user installs:
+
+```bash
+sudo apt-get install -y pipx
+```
+
+Then make sure `~/.local/bin` is on your `PATH`.
+
+On Windows, install `pipx` with the Python launcher and add its bin directory to your `PATH`:
+
+```powershell
+py -m pip install --user pipx
+py -m pipx ensurepath
+```
+
+If you want to use the `Makefile` on Windows, run it from an environment that provides GNU Make, such
+as Git Bash, MSYS2, or WSL. Otherwise, run the underlying commands directly.
 
 Run the full repository baseline locally:
 
@@ -91,6 +116,7 @@ Helpful maintenance commands:
 
 - `make validate-repo`
 - `make validate-plugins`
+- `make smoke-exports`
 - `make sync-user`
 - `make sync-workspace`
 - `make configure-global-ignore`
