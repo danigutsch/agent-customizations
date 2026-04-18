@@ -1,0 +1,16 @@
+{
+  "name": "example-python-stdio-server",
+  "transport": "stdio",
+  "command": "python3",
+  "args": [
+    "-m",
+    "example_mcp_server"
+  ],
+  "env": {
+    "EXAMPLE_MODE": "development"
+  },
+  "notes": [
+    "Replace the module name with the real MCP server entry point.",
+    "Keep machine-specific paths out of shared manifests."
+  ]
+}
