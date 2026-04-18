@@ -100,6 +100,8 @@ supporting analyzers with a strong emphasis on:
 - Push expensive work later in the pipeline and only after cheap filtering.
 - Use immutable, equatable intermediate models and explicit comparers when needed.
 - Carry only the minimal data required for emission.
+- Prefer `var` for local declarations when the initializer makes the type obvious; use an explicit
+  local type only when it materially improves clarity or is required.
 
 ### Emission and diagnostics
 
@@ -122,6 +124,13 @@ supporting analyzers with a strong emphasis on:
   so the generator runs during normal development builds.
 - Treat setup, testability, and CI validation as part of the generator lifecycle, not as separate
   afterthoughts.
+
+### Pairing guidance
+
+- Pair with `ci-workflows` when generated artifacts need automated validation in build, test, or pack
+  workflows.
+- Pair with `repository-setup` when generator work also establishes repository structure, validation
+  commands, or contributor guidance.
 
 ## Output format
 

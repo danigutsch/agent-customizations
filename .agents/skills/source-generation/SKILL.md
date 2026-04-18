@@ -60,6 +60,8 @@ packaging, or CI validation.
 - Extract only the data needed for generation.
 - Prefer immutable, value-equatable models (`record`, `record struct`,
   or explicit comparers when collections are involved).
+- Prefer `var` for local declarations when the initializer already makes the type obvious. Switch to
+  an explicit local type only when it improves readability.
 - Avoid carrying `ISymbol`, `SyntaxNode`, `Location`, or semantic models
   through long-lived pipeline models.
 - Keep ordering explicit and stable before emission.

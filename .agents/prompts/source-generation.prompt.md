@@ -54,6 +54,8 @@ with aligned setup, testing, and packaging guidance.
 
 - Keep the generator additive-only.
 - Keep output deterministic.
+- Prefer `var` for obvious local declarations in generator code and tests unless an explicit type
+  makes the code clearer.
 - Prefer diagnostics over hidden failures.
 - Keep parser/model/emitter responsibilities clear.
 - Do not recommend runtime-reflection workarounds for compile-time generation.

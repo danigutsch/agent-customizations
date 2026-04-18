@@ -49,6 +49,8 @@ or supporting generator infrastructure.
 
 - Intermediate models must be immutable and value-equatable.
 - Prefer `record` or `record struct` for generator models.
+- Prefer `var` for local declarations when the initializer already makes the type obvious. Use an
+  explicit local type only when it materially improves readability or is required by the API shape.
 - Do not carry `ISymbol`, `SyntaxNode`, `Location`, `Compilation`, or semantic models in
   long-lived pipeline data.
 - Extract stable identifiers instead:
