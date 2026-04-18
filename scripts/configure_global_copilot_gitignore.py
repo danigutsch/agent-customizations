@@ -19,11 +19,14 @@ KNOWN_CUSTOMIZATION_PATTERNS = [
     "**/.codex/",
     "**/.continue/",
     "**/.cursor/",
+    "**/.github/copilot-instructions.md",
     "**/.github/agents/",
     "**/.github/instructions/",
     "**/.github/prompts/",
     "**/.github/skills/",
     "**/.github/hooks/",
+    "**/CLAUDE.md",
+    "**/GEMINI.md",
     "**/.copilot/agents/",
     "**/.copilot/instructions/",
     "**/.copilot/skills/",
@@ -37,11 +40,14 @@ KNOWN_TRACKED_PATHS = [
     ".codex",
     ".continue",
     ".cursor",
+    ".github/copilot-instructions.md",
     ".github/agents",
     ".github/instructions",
     ".github/prompts",
     ".github/skills",
     ".github/hooks",
+    "CLAUDE.md",
+    "GEMINI.md",
     ".copilot/agents",
     ".copilot/instructions",
     ".copilot/skills",
@@ -138,7 +144,7 @@ def ignore_patterns(surfaces: list[str]) -> list[str]:
 
 
 def managed_block(surfaces: list[str]) -> str:
-    lines = [BLOCK_START, "# Generated hidden customization roots managed by agent-customizations."]
+    lines = [BLOCK_START, "# Generated and agent-specific customization paths managed by agent-customizations."]
     lines.extend(ignore_patterns(surfaces))
     lines.append(BLOCK_END)
     return "\n".join(lines) + "\n"

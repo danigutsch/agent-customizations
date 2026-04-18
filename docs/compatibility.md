@@ -165,8 +165,8 @@ Example:
 python3 scripts/configure_global_copilot_gitignore.py --repo ../ViajantesTurismo
 ```
 
-By default this manages the common hidden customization roots used by this repository's workflow and
-the broader agent-tool ecosystem:
+By default this manages the common hidden customization roots and standalone agent-specific
+instruction files used by this repository's workflow and the broader agent-tool ecosystem:
 
 ```text
 **/.agents/
@@ -174,11 +174,14 @@ the broader agent-tool ecosystem:
 **/.codex/
 **/.continue/
 **/.cursor/
+**/.github/copilot-instructions.md
 **/.github/agents/
 **/.github/instructions/
 **/.github/prompts/
 **/.github/skills/
 **/.github/hooks/
+**/CLAUDE.md
+**/GEMINI.md
 **/.copilot/agents/
 **/.copilot/instructions/
 **/.copilot/skills/
