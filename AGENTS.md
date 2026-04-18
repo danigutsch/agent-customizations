@@ -42,3 +42,8 @@ Repository guidance for `agent-customizations`.
 - Favor curation over volume: only keep assets worth maintaining.
 - For plugin bundles, keep a small manifest plus a focused README.
 - A plugin should package one clear capability bundle and explicitly list the files it distributes.
+- When adding or modifying a slice, review `agents`, `instructions`, `prompts`, `skills`, `hooks`,
+  `mcp`, `workflows`, and `plugins` explicitly, even if the final decision is that some surfaces are
+  not needed.
+- Prefer deliberate omission over accidental omission: if a slice lacks prompts, hooks, MCP assets,
+  workflows, or plugin packaging, that should be because the capability does not need them yet.

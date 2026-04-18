@@ -51,11 +51,18 @@
       "kind": "reference",
       "required": true,
       "description": "Testing, CI, and packaging validation reference."
+    },
+    {
+      "path": ".agents/prompts/source-generation.prompt.md",
+      "kind": "prompt",
+      "required": true,
+      "description": "Prompt entry point for source generator review and implementation work."
     }
   ],
   "documentation": [
     ".agents/plugins/source-generation/README.md",
     ".agents/skills/source-generation/SKILL.md",
+    ".agents/prompts/source-generation.prompt.md",
     ".agents/skills/source-generation/references/project-setup.md",
     ".agents/skills/source-generation/references/testing-and-ci.md"
   ],

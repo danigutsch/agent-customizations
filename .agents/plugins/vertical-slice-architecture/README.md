@@ -6,6 +6,7 @@ This bundle packages the vertical-slice-architecture slice as one reusable capab
 
 - vertical-slice-architecture agent
 - vertical-slice-architecture instruction
+- vertical-slice-architecture prompt
 - vertical-slice-architecture skill
 
 ## Why this is a plugin bundle

@@ -38,10 +38,17 @@
       "kind": "skill",
       "required": true,
       "description": "Entry-point skill for vertical slice architecture tasks."
+    },
+    {
+      "path": ".agents/prompts/vertical-slice-architecture.prompt.md",
+      "kind": "prompt",
+      "required": true,
+      "description": "Prompt entry point for vertical slice review and migration work."
     }
   ],
   "documentation": [
     ".agents/plugins/vertical-slice-architecture/README.md",
+    ".agents/prompts/vertical-slice-architecture.prompt.md",
     ".agents/skills/vertical-slice-architecture/SKILL.md",
     ".agents/instructions/vertical-slice-architecture.instructions.md"
   ],

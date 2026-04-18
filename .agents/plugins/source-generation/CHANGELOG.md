@@ -14,3 +14,4 @@ follows [Semantic Versioning](https://semver.org/).
 - Initial plugin bundle manifest for the source-generation capability pack.
 - Bundle README and installation example.
 - Explicit references to the agent, instruction, skill, and lifecycle reference documents.
+- Prompt entry point for source-generation slice usage.

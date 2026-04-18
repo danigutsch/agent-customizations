@@ -14,3 +14,4 @@ follows [Semantic Versioning](https://semver.org/).
 - Initial plugin bundle manifest for the vertical-slice-architecture capability pack.
 - Bundle README and domain-first installation example.
 - Explicit references to the agent, instruction, and skill that ship together.
+- Prompt entry point for vertical-slice-architecture slice usage.

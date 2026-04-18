@@ -6,6 +6,7 @@ This bundle packages the source-generation slice as one reusable capability pack
 
 - source-generation agent
 - source-generation instruction
+- source-generation prompt
 - source-generation skill
 - project setup reference
 - testing and CI reference

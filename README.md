@@ -78,6 +78,24 @@ Use `.agents/` as the canonical home for customization assets in this repository
 - Put reusable workflow packs in `.agents/workflows/`
 - Put reusable plugin-oriented assets and bundle manifests in `.agents/plugins/`
 
+## Slice completeness review
+
+When adding or modifying a slice, review **every** slice surface before considering the work
+complete:
+
+1. `agents/`
+2. `instructions/`
+3. `prompts/`
+4. `skills/`
+5. `hooks/`
+6. `mcp/`
+7. `workflows/`
+8. `plugins/`
+
+Do not assume a slice needs every file type, but do make an explicit decision for each one.
+For most reusable slices, `agents`, `instructions`, `skills`, and often `prompts` are the starting
+set. Add hooks, MCP assets, workflows, or plugins only when they clearly add value.
+
 ## Initial direction
 
 The first migration targets are the shared or generic assets currently living outside product
