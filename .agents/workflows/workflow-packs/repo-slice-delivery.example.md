@@ -1,5 +1,9 @@
 # Repository slice delivery workflow
 
+This starter example shows one way to deliver a reusable repository slice in small, reviewable
+batches. Adapt the phases and validation points to the target repository instead of treating this as
+a fixed required process.
+
 ## Goal
 
 Deliver a reusable repository slice in small, reviewable batches.

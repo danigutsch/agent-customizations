@@ -192,7 +192,10 @@ For native Copilot discovery:
 This repository prefers **source-of-truth first, compatibility second**:
 
 - maintain canonical assets under `.agents/`
-- sync to Copilot-native locations when needed
+- generate `.github/*` compatibility copies only through the sync scripts when needed
+- treat generated `.github/*` compatibility copies as non-canonical output, not tracked repo content
+- keep those generated `.github/*` copies ignored through global Git ignore policy rather than a
+  repository `.gitignore` rule
 
 For the current compatibility model and sync workflow, see
 [docs/compatibility.md](./docs/compatibility.md).

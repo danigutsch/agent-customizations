@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-# Example lightweight pre-commit hook wrapper.
-# Replace the command below with the repository's real fast local validation command.
+# Starter lightweight pre-commit hook wrapper.
+# Replace the command below with the repository's real fast pre-commit entrypoint.
+# Avoid pointing ordinary pre-commit hooks at the heaviest full-repo validation command by default.
 
-make check
+make hook-pre-commit

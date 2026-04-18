@@ -133,19 +133,19 @@ When an exported file exists in both places:
 - edit the canonical version under `.agents/`
 - rerun the export script
 - do not hand-edit generated copies under `~/.copilot/` or `.github/`
+- treat `.github/*` compatibility copies as generated output, not as a second maintained source
 
 ### Ignore strategy for generated workspace exports
 
-If you treat workspace exports as generated compatibility files rather than tracked repo content, the
-safest default is:
+In this repository, workspace exports under `.github/*` are treated as generated compatibility files
+rather than tracked repo content. The preferred default is:
 
-- use `--write-git-exclude` to write managed patterns into `.git/info/exclude` for that repo
-- use a global ignore only if you are intentionally standardizing generated Copilot export folders
-  across your own repositories
+- use a global ignore so the policy stays consistent across repositories that generate the same
+  Copilot compatibility paths
+- do not add repository `.gitignore` rules just to hide generated `.github/*` compatibility output
 
-If you are standardizing on generated `.github/...` Copilot exports across your repos, a global
-ignore is reasonable. The main caveat is not compatibility with Git or Copilot, but that ignore
-rules do **not** affect files that are already tracked.
+The main caveat is not compatibility with Git or Copilot, but that ignore rules do **not** affect
+files that are already tracked.
 
 Example:
 
@@ -197,7 +197,7 @@ customization directories by default.
 ### Maintenance expectations
 
 - Keep `.agents/` canonical.
-- Treat `~/.copilot/` and generated `.github/` exports as compatibility targets.
+- Treat `~/.copilot/` and generated `.github/` exports as compatibility targets only.
 - If a synced asset is removed or renamed under `.agents/`, rerun the sync script so stale synced
   copies can be removed.
 - If future Copilot documentation provides stable user-level filesystem targets for other surfaces,

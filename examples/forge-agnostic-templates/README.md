@@ -1,6 +1,7 @@
 # Forge-agnostic templates example
 
-This example shows the intended pattern for portable repository-host templates in this repository.
+This starter example shows the intended pattern for portable repository-host templates in this
+repository.
 
 ## Canonical source
 
@@ -20,3 +21,5 @@ This example shows the intended pattern for portable repository-host templates i
 
 - `templates/` stays forge-agnostic and reusable.
 - Host-native directories remain compatibility targets rather than the source of truth.
+- The target repository still needs to decide which host-specific exports it actually wants to
+  generate.
