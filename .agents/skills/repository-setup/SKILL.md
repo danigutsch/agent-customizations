@@ -1,6 +1,6 @@
 ---
 name: repository-setup
-description: 'Create or improve repository foundations. Use for repository structure, README and guidance files, validation scripts, CI-ready setup, templates, examples, and contributor-facing maintenance rules.'
+description: 'Create or improve repo foundations. Use for structure, README, guidance files, validation scripts, CI setup, templates, examples, and upkeep.'
 ---
 
 # Repository Setup
@@ -55,6 +55,16 @@ rather than implementing a single product feature.
 - If the repository organizes reusable capability slices, pair this with slice-specific setup such as
   [Source generation](../source-generation/SKILL.md) or
   [Vertical slice architecture](../vertical-slice-architecture/SKILL.md) where appropriate.
+- Pair this with [CI workflows](../ci-workflows/SKILL.md) when the work includes workflow creation,
+  automation, or validation orchestration.
+- Pair this with [EditorConfig](../editorconfig/SKILL.md) when the work includes shared editor
+  defaults across mixed file types.
+- Pair this with [Python quality](../python-quality/SKILL.md),
+  [Ruff Python](../ruff-python/SKILL.md), and
+  [Pyright Python](../pyright-python/SKILL.md) when Python tooling is part of the repository
+  baseline.
+- Pair this with [Git hooks](../git-hooks/SKILL.md) when local hook setup should complement CI and
+  repository-local validation.
 
 ## Gotchas
 

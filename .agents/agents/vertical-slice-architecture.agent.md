@@ -92,6 +92,13 @@ use-case slices clearly and each slice remains understandable, testable, and min
   handler tests, endpoint tests, and integration tests should follow domain-owned slice boundaries.
 - Avoid oversized shared test helper layers unless the reuse is clearly justified.
 
+### Pairing guidance
+
+- Pair with `python-quality`, `ruff-python`, and `pyright-python` when applying slice boundaries in
+  Python codebases.
+- Pair with `ci-workflows` when CI should validate architectural conventions, test layout, or
+  migration-safe refactors.
+
 ## Output format
 
 When responding, provide:

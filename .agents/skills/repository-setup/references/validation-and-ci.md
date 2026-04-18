@@ -22,6 +22,15 @@ Prefer CI that runs the same checks contributors can run locally.
 - avoid duplicating complex validation logic directly in workflow files
 - document the expected local command in the README or repository guidance
 
+When the repository's local validation path depends on focused tooling, pair this guidance with the
+matching slice:
+
+- `ci-workflows` for workflow design
+- `python-quality` for the shared Python baseline
+- `ruff-python` for lint or formatting
+- `pyright-python` for type checking
+- `git-hooks` for fast local hook feedback
+
 ## Validation priorities
 
 Choose validation based on repository risk:

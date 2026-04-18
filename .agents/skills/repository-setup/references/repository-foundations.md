@@ -23,6 +23,9 @@ For most reusable repositories, the minimum useful documentation surface is:
 2. repository-wide guidance for contributors when the repository has custom rules
 3. references or examples when contributors are expected to reuse patterns repeatedly
 
+For repos with mixed text file types, shared editor defaults in `.editorconfig` are often part of that
+baseline because they reduce cross-editor inconsistency without replacing language-specific tools.
+
 ## Naming and responsibility
 
 - Prefer names that describe purpose instead of a single client or platform.

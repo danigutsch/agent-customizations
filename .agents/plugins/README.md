@@ -24,6 +24,27 @@ If a slice is still changing shape, keep it as grouped files only and wait befor
 - Use semantic versioning for the bundle version.
 - Add a focused README for install intent, scope, and compatibility notes.
 
+## Why some slices are bundled and others are not
+
+Bundle a slice when the capability is typically installed and versioned as one unit.
+
+Bundle when:
+
+- the slice is domain-specific and reused as a whole
+- the surfaces are tightly coupled and expected to ship together
+- examples, docs, and setup guidance are part of one capability pack
+
+Leave slices unbundled when:
+
+- they are meant for flexible composition with other slices
+- repos are expected to mix and match them based on current tooling
+- bundling would over-prescribe one opinionated setup
+
+In this repository, `source-generation` and `vertical-slice-architecture` are bundled because they
+behave like cohesive capability packs. Foundation slices such as `python-quality`, `ruff-python`,
+`pyright-python`, `editorconfig`, `git-hooks`, and `ci-workflows` stay unbundled so adopters can
+compose only the parts they need.
+
 ## Required bundle shape
 
 Each plugin bundle should use this structure:

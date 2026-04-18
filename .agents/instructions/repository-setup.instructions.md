@@ -49,6 +49,14 @@ single feature implementation.
 - Reuse repository-local validation commands in CI rather than duplicating logic in many places.
 - Prefer reusable workflow patterns only after the repository-local command surface is clear.
 
+## Pairing focused slices
+
+- Pair with `ci-workflows` for workflow design and validation automation.
+- Pair with `editorconfig` for shared repo editor defaults and file-type-specific indentation rules.
+- Pair with `python-quality` when Python scripts or tooling are part of the repository foundation.
+- Pair with `ruff-python` and `pyright-python` when the repository needs shared Python quality rules.
+- Pair with `git-hooks` when local hooks should mirror the documented validation path.
+
 ## Anti-patterns to avoid
 
 - Adding generic boilerplate files that do not match the repository purpose

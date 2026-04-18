@@ -38,8 +38,19 @@ validation, and contributor-facing operating guidance.
 4. Use the skill references when the task needs help with:
    - repository foundations
    - validation and CI design
-5. Prefer repository-local validation commands over hidden or duplicated automation logic.
-6. Keep the outcome aligned with the repository purpose instead of adding generic boilerplate.
+   - shared editor defaults
+   - Python quality baselines
+   - Ruff or Pyright configuration
+   - lightweight Git hooks
+5. Pair with focused slices when the setup gap is specific:
+   - `../skills/ci-workflows/SKILL.md`
+   - `../skills/editorconfig/SKILL.md`
+   - `../skills/python-quality/SKILL.md`
+   - `../skills/ruff-python/SKILL.md`
+   - `../skills/pyright-python/SKILL.md`
+   - `../skills/git-hooks/SKILL.md`
+6. Prefer repository-local validation commands over hidden or duplicated automation logic.
+7. Keep the outcome aligned with the repository purpose instead of adding generic boilerplate.
 
 ## Output Expectations
 

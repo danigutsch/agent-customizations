@@ -12,6 +12,13 @@ Repository guidance for `agent-customizations`.
 - Keep assets reusable across repositories unless a file is explicitly placed in an example or
   product-specific area.
 - Prefer neutral naming that does not assume a single AI platform.
+- Before creating a new slice, inspect relevant patterns in upstream sources already used by this
+  repository, especially `github/awesome-copilot` and `Aaronontheweb/dotnet-skills`.
+- Prefer adapting an existing upstream slice shape and name when one already fits the capability.
+  For example, if an upstream repo already uses `editorconfig`, prefer that over inventing a new
+  local variant.
+- If no upstream pattern fits cleanly, document that gap and keep the new slice name as close as
+  possible to established naming conventions instead of creating a highly repo-specific label.
 - Keep one clear purpose per file and avoid near-duplicate variants with different names.
 - Document provenance when adapting or importing content from upstream sources.
 - When an asset supersedes another one, record that in docs instead of leaving silent overlap.
@@ -40,6 +47,9 @@ Repository guidance for `agent-customizations`.
 - Keep cross-links relative and repository-local.
 - Avoid adding assets that duplicate an existing capability unless there is a clear specialization.
 - Favor curation over volume: only keep assets worth maintaining.
+- For new slices, do not create from scratch if an upstream pattern already covers the same
+  capability. Reuse the upstream capability boundary, naming style, and file shape first, then adapt
+  only what this repository truly needs.
 - For plugin bundles, keep a small manifest plus a focused README.
 - A plugin should package one clear capability bundle and explicitly list the files it distributes.
 - When adding or modifying a slice, review `agents`, `instructions`, `prompts`, `skills`, `hooks`,

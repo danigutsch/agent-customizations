@@ -70,6 +70,14 @@ contribute to, and ready for validation and CI without unnecessary ceremony.
 - Keep reusable assets grouped by purpose.
 - Avoid placeholder folders unless they represent intended long-term structure.
 
+### Focused slice pairings
+
+- Pair with `ci-workflows` when the repository needs workflow automation or validation orchestration.
+- Pair with `editorconfig` when the repository needs shared editor defaults across mixed file types.
+- Pair with `python-quality` when Python scripts or tooling are part of the repository baseline.
+- Pair with `ruff-python` or `pyright-python` when Python linting or type checking needs shared rules.
+- Pair with `git-hooks` when local hook behavior should complement the documented validation path.
+
 ### Documentation
 
 - Make the README explain the repository purpose, key folders, and maintenance expectations.
