@@ -1,0 +1,521 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import sys
+from pathlib import Path
+from typing import TypeGuard, TypedDict, cast
+
+
+class SyncState(TypedDict):
+    managed_files: dict[str, list[str]]
+
+
+class SurfaceSpec(TypedDict):
+    source: Path
+    mode: str
+    pattern: str
+    user_target: str | None
+    workspace_target: str | None
+
+
+class PluginContentItem(TypedDict):
+    path: str
+
+
+class PluginManifest(TypedDict):
+    id: str
+    contents: list[PluginContentItem]
+
+
+ROOT = Path(__file__).resolve().parents[1]
+AGENTS_ROOT = ROOT / ".agents"
+DEFAULT_COPILOT_ROOT = Path.home() / ".copilot"
+PLUGIN_ROOT = AGENTS_ROOT / "plugins"
+STATE_FILE_NAME = "agent-customizations-sync-state.json"
+EXCLUDE_START = "# BEGIN agent-customizations exports"
+EXCLUDE_END = "# END agent-customizations exports"
+
+SURFACES: dict[str, SurfaceSpec] = {
+    "agents": {
+        "source": AGENTS_ROOT / "agents",
+        "mode": "files",
+        "pattern": "*.agent.md",
+        "user_target": "agents",
+        "workspace_target": ".github/agents",
+    },
+    "instructions": {
+        "source": AGENTS_ROOT / "instructions",
+        "mode": "files",
+        "pattern": "**/*.instructions.md",
+        "user_target": "instructions",
+        "workspace_target": ".github/instructions",
+    },
+    "prompts": {
+        "source": AGENTS_ROOT / "prompts",
+        "mode": "files",
+        "pattern": "**/*.prompt.md",
+        "user_target": None,
+        "workspace_target": ".github/prompts",
+    },
+    "skills": {
+        "source": AGENTS_ROOT / "skills",
+        "mode": "directories",
+        "pattern": "*",
+        "user_target": "skills",
+        "workspace_target": ".github/skills",
+    },
+    "hooks": {
+        "source": AGENTS_ROOT / "hooks",
+        "mode": "files",
+        "pattern": "**/*.json",
+        "user_target": "hooks",
+        "workspace_target": ".github/hooks",
+    },
+}
+
+
+def is_string_list(value: object) -> TypeGuard[list[str]]:
+    if not isinstance(value, list):
+        return False
+
+    items = cast(list[object], value)
+    return all(isinstance(item, str) for item in items)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Sync canonical .agents assets into Copilot-native user or workspace locations."
+    )
+    parser.add_argument(
+        "--scope",
+        choices=["user", "workspace"],
+        default="user",
+        help="Export scope. User syncs into ~/.copilot. Workspace syncs into .github/ under a target repo.",
+    )
+    parser.add_argument(
+        "--target-root",
+        type=Path,
+        help="Target root. Defaults to ~/.copilot for user scope or the current directory for workspace scope.",
+    )
+    parser.add_argument(
+        "--plugin",
+        action="append",
+        default=[],
+        metavar="PLUGIN_ID",
+        help="Sync files listed by one or more plugin manifests. Can be repeated.",
+    )
+    parser.add_argument(
+        "--surface",
+        action="append",
+        choices=sorted(SURFACES.keys()),
+        help="Sync only specific surfaces. Can be repeated.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print planned actions without copying or deleting files.",
+    )
+    parser.add_argument(
+        "--no-delete-stale",
+        action="store_true",
+        help="Keep stale files or directories that were previously synced but no longer exist in the source.",
+    )
+    parser.add_argument(
+        "--write-git-exclude",
+        action="store_true",
+        help="For workspace scope, write generated export paths into .git/info/exclude.",
+    )
+    return parser.parse_args()
+
+
+def resolve_target_root(args: argparse.Namespace) -> Path:
+    if args.target_root is not None:
+        return args.target_root.expanduser().resolve()
+
+    if args.scope == "user":
+        return DEFAULT_COPILOT_ROOT.resolve()
+
+    return Path.cwd().resolve()
+
+
+def supported_surfaces(scope: str) -> list[str]:
+    key = f"{scope}_target"
+    return [name for name, spec in SURFACES.items() if spec[key] is not None]
+
+
+def selected_surfaces(scope: str, requested: list[str] | None) -> list[str]:
+    available = supported_surfaces(scope)
+    if not requested:
+        return available
+
+    unsupported = sorted(surface for surface in requested if surface not in available)
+    if unsupported:
+        unsupported_list = ", ".join(unsupported)
+        raise ValueError(f"Unsupported surfaces for {scope} scope: {unsupported_list}")
+
+    return requested
+
+
+def load_plugin_manifest(plugin_id: str) -> PluginManifest:
+    manifest_path = PLUGIN_ROOT / plugin_id / "plugin.json"
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Plugin manifest not found: {manifest_path}")
+
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+
+    if not isinstance(data, dict):
+        raise ValueError(f"Plugin manifest is not a JSON object: {manifest_path}")
+
+    raw_manifest = cast(dict[object, object], data)
+    manifest_id = raw_manifest.get("id")
+    raw_contents = raw_manifest.get("contents")
+
+    if not isinstance(manifest_id, str):
+        raise ValueError(f"Plugin manifest id is invalid: {manifest_path}")
+    if not isinstance(raw_contents, list):
+        raise ValueError(f"Plugin manifest contents are invalid: {manifest_path}")
+
+    contents: list[PluginContentItem] = []
+    for item in raw_contents:
+        if not isinstance(item, dict):
+            continue
+        raw_item = cast(dict[object, object], item)
+        item_path = raw_item.get("path")
+        if isinstance(item_path, str):
+            contents.append({"path": item_path})
+
+    return {"id": manifest_id, "contents": contents}
+
+
+def load_state(path: Path) -> SyncState:
+    if not path.exists():
+        return {"managed_files": {}}
+
+    with path.open("r", encoding="utf-8") as handle:
+        data = json.load(handle)
+
+    if not isinstance(data, dict):
+        return {"managed_files": {}}
+
+    raw_state = cast(dict[object, object], data)
+    managed_files = raw_state.get("managed_files", {})
+    if not isinstance(managed_files, dict):
+        return {"managed_files": {}}
+
+    typed_state: dict[str, list[str]] = {}
+    for key, value in cast(dict[object, object], managed_files).items():
+        if isinstance(key, str) and is_string_list(value):
+            typed_state[key] = value
+
+    return {"managed_files": typed_state}
+
+
+def write_state(path: Path, state: SyncState, dry_run: bool) -> None:
+    if dry_run:
+        return
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(state, handle, indent=2)
+        handle.write("\n")
+
+
+def get_target_subdir(spec: SurfaceSpec, scope: str) -> str:
+    target = spec[f"{scope}_target"]
+    if target is None:
+        raise ValueError(f"Surface is not supported for {scope} scope.")
+    return target
+
+
+def collect_entries(spec: SurfaceSpec) -> list[tuple[Path, str]]:
+    source_root = spec["source"]
+    if not source_root.exists():
+        return []
+
+    if spec["mode"] == "files":
+        matches = sorted(path for path in source_root.glob(spec["pattern"]) if path.is_file())
+    else:
+        matches = sorted(path for path in source_root.glob(spec["pattern"]) if path.is_dir())
+
+    return [(path, path.relative_to(source_root).as_posix()) for path in matches]
+
+
+def plugin_entry_for(path_text: str, scope: str) -> tuple[str, Path, str] | None:
+    path = ROOT / path_text
+    for surface, spec in SURFACES.items():
+        if spec[f"{scope}_target"] is None:
+            continue
+
+        source_root = spec["source"]
+        try:
+            relative_path = path.relative_to(source_root)
+        except ValueError:
+            continue
+
+        return surface, path, relative_path.as_posix()
+
+    return None
+
+
+def collect_plugin_entries(
+    plugin_ids: list[str],
+    scope: str,
+    surfaces: list[str],
+) -> dict[str, list[tuple[Path, str]]]:
+    planned: dict[str, dict[str, Path]] = {surface: {} for surface in surfaces}
+
+    for plugin_id in plugin_ids:
+        manifest = load_plugin_manifest(plugin_id)
+        for item in manifest["contents"]:
+            entry = plugin_entry_for(item["path"], scope)
+            if entry is None:
+                continue
+
+            surface, source_path, relative_path = entry
+            if surface not in planned or not source_path.is_file():
+                continue
+            planned[surface][relative_path] = source_path
+
+    return {
+        surface: [(source_path, relative_path) for relative_path, source_path in sorted(entries.items())]
+        for surface, entries in planned.items()
+    }
+
+
+def copy_file(source: Path, target: Path, dry_run: bool) -> None:
+    if dry_run:
+        print(f"Would copy {source} -> {target}")
+        return
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
+    print(f"Copied {source} -> {target}")
+
+
+def copy_directory(source: Path, target: Path, dry_run: bool) -> None:
+    if dry_run:
+        print(f"Would sync directory {source} -> {target}")
+        return
+
+    if target.exists():
+        shutil.rmtree(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, target)
+    print(f"Synced directory {source} -> {target}")
+
+
+def remove_stale_path(target: Path, dry_run: bool) -> None:
+    if not target.exists():
+        return
+
+    if dry_run:
+        print(f"Would remove stale synced path {target}")
+        return
+
+    if target.is_dir():
+        shutil.rmtree(target)
+    else:
+        target.unlink()
+    print(f"Removed stale synced path {target}")
+
+
+def resolve_git_dir(workspace_root: Path) -> Path | None:
+    dot_git = workspace_root / ".git"
+    if dot_git.is_dir():
+        return dot_git
+    if not dot_git.is_file():
+        return None
+
+    content = dot_git.read_text(encoding="utf-8").strip()
+    prefix = "gitdir: "
+    if not content.startswith(prefix):
+        return None
+
+    return (workspace_root / content[len(prefix) :]).resolve()
+
+
+def state_path_for(scope: str, target_root: Path) -> Path:
+    if scope == "user":
+        return target_root / STATE_FILE_NAME
+
+    git_dir = resolve_git_dir(target_root)
+    if git_dir is not None:
+        return git_dir / "info" / STATE_FILE_NAME
+
+    return target_root / ".github" / f".{STATE_FILE_NAME}"
+
+
+def sync_surface(
+    scope: str,
+    target_root: Path,
+    surface: str,
+    spec: SurfaceSpec,
+    previous_managed: list[str],
+    dry_run: bool,
+    delete_stale: bool,
+) -> list[str]:
+    target_base = target_root / get_target_subdir(spec, scope)
+    entries = collect_entries(spec)
+    current_managed = [relative_path for _, relative_path in entries]
+
+    for source_entry, relative_path in entries:
+        target_path = target_base / relative_path
+        if spec["mode"] == "files":
+            copy_file(source_entry, target_path, dry_run)
+        else:
+            copy_directory(source_entry, target_path, dry_run)
+
+    if delete_stale:
+        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        for stale_path in stale_paths:
+            remove_stale_path(target_base / stale_path, dry_run)
+
+    if entries:
+        print(f"Prepared {len(entries)} {surface} entries -> {target_base}")
+    else:
+        print(f"No {surface} entries found under {spec['source']}")
+
+    return current_managed
+
+
+def sync_plugin_surface(
+    scope: str,
+    target_root: Path,
+    surface: str,
+    spec: SurfaceSpec,
+    entries: list[tuple[Path, str]],
+    previous_managed: list[str],
+    dry_run: bool,
+    delete_stale: bool,
+) -> list[str]:
+    target_base = target_root / get_target_subdir(spec, scope)
+    current_managed = [relative_path for _, relative_path in entries]
+
+    for source_entry, relative_path in entries:
+        copy_file(source_entry, target_base / relative_path, dry_run)
+
+    if delete_stale:
+        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        for stale_path in stale_paths:
+            remove_stale_path(target_base / stale_path, dry_run)
+
+    if entries:
+        print(f"Prepared {len(entries)} plugin-managed {surface} file(s) -> {target_base}")
+    else:
+        print(f"No plugin-managed {surface} files selected")
+
+    return current_managed
+
+
+def git_exclude_block(surfaces: list[str]) -> str:
+    lines = [EXCLUDE_START]
+    for surface in surfaces:
+        target = SURFACES[surface]["workspace_target"]
+        if target is not None:
+            lines.append(f"/{target}/")
+    lines.append(EXCLUDE_END)
+    return "\n".join(lines) + "\n"
+
+
+def update_git_exclude(workspace_root: Path, surfaces: list[str], dry_run: bool) -> None:
+    git_dir = resolve_git_dir(workspace_root)
+    if git_dir is None:
+        raise FileNotFoundError(f"No .git directory found under workspace root: {workspace_root}")
+
+    exclude_path = git_dir / "info" / "exclude"
+    existing = exclude_path.read_text(encoding="utf-8") if exclude_path.exists() else ""
+
+    start_index = existing.find(EXCLUDE_START)
+    end_index = existing.find(EXCLUDE_END)
+    if start_index != -1 and end_index != -1:
+        end_index += len(EXCLUDE_END)
+        trimmed = existing[:start_index].rstrip()
+        suffix = existing[end_index:].lstrip("\n")
+        existing = f"{trimmed}\n\n{suffix}".strip()
+
+    block = git_exclude_block(surfaces).strip()
+    updated = block if not existing else f"{existing.rstrip()}\n\n{block}"
+    updated += "\n"
+
+    if dry_run:
+        print(f"Would update {exclude_path} with managed workspace export patterns")
+        return
+
+    exclude_path.parent.mkdir(parents=True, exist_ok=True)
+    exclude_path.write_text(updated, encoding="utf-8")
+    print(f"Updated {exclude_path} with managed workspace export patterns")
+
+
+def main() -> int:
+    args = parse_args()
+    target_root = resolve_target_root(args)
+
+    try:
+        surfaces = selected_surfaces(args.scope, args.surface)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+    if args.write_git_exclude and args.scope != "workspace":
+        print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
+        return 1
+
+    state_path = state_path_for(args.scope, target_root)
+    state = load_state(state_path)
+    updated_state: dict[str, list[str]] = dict(state["managed_files"])
+
+    plugin_entries: dict[str, list[tuple[Path, str]]] = {}
+    if args.plugin:
+        try:
+            plugin_entries = collect_plugin_entries(args.plugin, args.scope, surfaces)
+        except (FileNotFoundError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+
+    for surface in surfaces:
+        if args.plugin:
+            updated_state[surface] = sync_plugin_surface(
+                args.scope,
+                target_root,
+                surface,
+                SURFACES[surface],
+                plugin_entries.get(surface, []),
+                state["managed_files"].get(surface, []),
+                args.dry_run,
+                not args.no_delete_stale,
+            )
+        else:
+            updated_state[surface] = sync_surface(
+                args.scope,
+                target_root,
+                surface,
+                SURFACES[surface],
+                state["managed_files"].get(surface, []),
+                args.dry_run,
+                not args.no_delete_stale,
+            )
+
+    if args.write_git_exclude:
+        try:
+            update_git_exclude(target_root, surfaces, args.dry_run)
+        except FileNotFoundError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+
+    write_state(state_path, {"managed_files": updated_state}, args.dry_run)
+
+    if args.dry_run:
+        print(f"Dry run complete for {args.scope} scope: {', '.join(surfaces)}")
+    else:
+        print(f"Synced {args.scope} scope surfaces: {', '.join(surfaces)}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

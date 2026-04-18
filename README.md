@@ -37,6 +37,30 @@ agent-customizations/
   templates/
 ```
 
+## Quality baseline
+
+This repository keeps a small cross-file-type quality baseline:
+
+- **Python**: Ruff is the default linter and formatter baseline for `scripts/`, with Pyright settings
+  defined alongside it in `pyproject.toml`.
+- **Markdown**: `.markdownlint.json` keeps markdownlint aligned with the repository's authoring rules.
+- **JSON and YAML**: `.editorconfig` sets UTF-8, LF endings, final newlines, and 2-space indentation.
+- **Text and binary files**: `.gitattributes` normalizes line endings and marks common binary asset
+  types as non-text.
+
+When Ruff is available locally, the expected Python workflow is:
+
+```bash
+ruff check scripts
+ruff format scripts
+```
+
+The lightweight repository validation command is:
+
+```bash
+python3 scripts/validate_repo_files.py
+```
+
 ## Repository purpose
 
 Use this repository for customizations that are reusable across multiple projects.
@@ -77,6 +101,33 @@ Use `.agents/` as the canonical home for customization assets in this repository
 - Put reusable MCP assets in `.agents/mcp/`
 - Put reusable workflow packs in `.agents/workflows/`
 - Put reusable plugin-oriented assets and bundle manifests in `.agents/plugins/`
+
+## Compatibility
+
+`.agents/` is the source of truth in this repository, but GitHub Copilot does not natively use
+`.agents/` as its primary discovery root.
+
+### Copilot
+
+For native Copilot discovery:
+
+- workspace agents use `.github/agents/`
+- workspace path-specific instructions use `.github/instructions/`
+- workspace prompts use `.github/prompts/`
+- workspace hooks use `.github/hooks/`
+- user-level agents use `~/.copilot/agents/`
+- user-level skills use `~/.copilot/skills/`
+- user-level instructions and hooks are client-specific rather than universally portable
+- prompts do not have a stable documented `~/.copilot` filesystem mirror
+- `.agents/skills/` is already a native project skill location for Copilot-aware clients
+
+This repository prefers **source-of-truth first, compatibility second**:
+
+- maintain canonical assets under `.agents/`
+- sync to Copilot-native locations when needed
+
+For the current compatibility model and sync workflow, see
+[docs/compatibility.md](./docs/compatibility.md).
 
 ## Slice completeness review
 

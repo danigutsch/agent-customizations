@@ -2,6 +2,20 @@
 .DS_Store
 Thumbs.db
 
+# Python generated files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+.venv/
+venv/
+env/
+
 # Temporary local artifacts
 tmp/
 temp/
