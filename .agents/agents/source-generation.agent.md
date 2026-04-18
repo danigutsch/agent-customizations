@@ -8,7 +8,6 @@ tools:
   - web
   - execute
   - todo
-model: 'GPT-5 (copilot)'
 target: 'vscode'
 argument-hint: 'Describe the generator goal, trigger contract, target symbols, and desired generated output.'
 user-invocable: true
