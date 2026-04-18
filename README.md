@@ -11,8 +11,8 @@ It includes reusable assets such as:
 - instructions
 - prompts
 - skills
-- hooks
-- MCP-related assets
+- hooks and hook examples
+- MCP-related assets, manifests, wrappers, and setup docs
 - workflow packs
 - plugin-related assets
 - supporting documentation
@@ -46,14 +46,6 @@ Keep project-specific guidance in the target repository instead, especially:
 - repository `AGENTS.md` files
 - prompts tied to repo-specific workflows
 - architecture or coding rules that only make sense inside one codebase
-
-## Notes on hooks and MCP
-
-- **Hooks** are good candidates for this repository as reusable assets, templates, and examples.
-- **MCP** is also a good fit here for reusable server code, manifests, setup docs, and tool
-  examples.
-- Live MCP registration in a client such as Copilot CLI is still a runtime concern, but the
-  reusable MCP assets absolutely belong in a shared repository like this one.
 
 ## Plugin bundles
 
