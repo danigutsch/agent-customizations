@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -eu
+
+python3 scripts/run_pre_commit_checks.py
