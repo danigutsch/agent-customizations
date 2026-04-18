@@ -27,6 +27,8 @@ Repository guidance for `agent-customizations`.
 - `.agents/mcp/` contains reusable MCP server assets, manifests, wrappers, and setup guidance.
 - `.agents/workflows/` contains reusable workflow packs or agentic workflow assets.
 - `.agents/plugins/` contains plugin-oriented assets or packaging metadata when relevant.
+  Treat plugin bundles as a distribution layer over existing slices, not as a parallel source of
+  truth.
 - `docs/` contains inventory, taxonomy, migration, and maintenance documentation.
 - `examples/` contains product-specific or tool-specific adaptation examples.
 - `scripts/` contains lightweight maintenance and validation helpers.
@@ -38,3 +40,5 @@ Repository guidance for `agent-customizations`.
 - Keep cross-links relative and repository-local.
 - Avoid adding assets that duplicate an existing capability unless there is a clear specialization.
 - Favor curation over volume: only keep assets worth maintaining.
+- For plugin bundles, keep a small manifest plus a focused README.
+- A plugin should package one clear capability bundle and explicitly list the files it distributes.

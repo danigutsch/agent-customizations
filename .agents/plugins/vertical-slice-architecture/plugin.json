@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "vertical-slice-architecture",
+  "version": "0.1.0",
+  "displayName": "Vertical Slice Architecture",
+  "description": "Versioned capability bundle for domain-first vertical slice planning, migration guidance, and slice-aligned testing.",
+  "bundleType": "capability-pack",
+  "tags": [
+    "architecture",
+    "vertical-slice",
+    "domain-first",
+    "migration",
+    "testing"
+  ],
+  "maturity": "beta",
+  "install": {
+    "strategy": "copy-files",
+    "layoutRoot": ".agents",
+    "notes": [
+      "Install the agent, instruction, and skill together so the slice boundary guidance stays coherent."
+    ]
+  },
+  "contents": [
+    {
+      "path": ".agents/agents/vertical-slice-architecture.agent.md",
+      "kind": "agent",
+      "required": true,
+      "description": "Role-oriented specialist for domain-first vertical slice planning and migration."
+    },
+    {
+      "path": ".agents/instructions/vertical-slice-architecture.instructions.md",
+      "kind": "instruction",
+      "required": true,
+      "description": "Durable rules for slice boundaries, ownership, and testing alignment."
+    },
+    {
+      "path": ".agents/skills/vertical-slice-architecture/SKILL.md",
+      "kind": "skill",
+      "required": true,
+      "description": "Entry-point skill for vertical slice architecture tasks."
+    }
+  ],
+  "documentation": [
+    ".agents/plugins/vertical-slice-architecture/README.md",
+    ".agents/skills/vertical-slice-architecture/SKILL.md",
+    ".agents/instructions/vertical-slice-architecture.instructions.md"
+  ],
+  "examples": [
+    ".agents/plugins/vertical-slice-architecture/examples/domain-first-layout.md"
+  ],
+  "changelog": ".agents/plugins/vertical-slice-architecture/CHANGELOG.md",
+  "dependencies": [],
+  "compatibility": {
+    "layoutRoots": [
+      ".agents"
+    ],
+    "notes": [
+      "Designed for repositories that want domain-first organization with slices inside each domain."
+    ]
+  }
+}

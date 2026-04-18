@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "your-plugin-id",
+  "version": "0.1.0",
+  "displayName": "Your Plugin Display Name",
+  "description": "Describe the capability bundle and when it should be installed.",
+  "bundleType": "capability-pack",
+  "tags": [
+    "replace",
+    "with-real-tags"
+  ],
+  "maturity": "experimental",
+  "install": {
+    "strategy": "copy-files",
+    "layoutRoot": ".agents",
+    "notes": [
+      "List installation assumptions or ordering notes here."
+    ]
+  },
+  "contents": [
+    {
+      "path": ".agents/agents/your-agent.agent.md",
+      "kind": "agent",
+      "required": true,
+      "description": "Describe the role of this file in the bundle."
+    }
+  ],
+  "documentation": [
+    ".agents/plugins/your-plugin-id/README.md"
+  ],
+  "examples": [
+    ".agents/plugins/your-plugin-id/examples/basic-usage.md"
+  ],
+  "changelog": ".agents/plugins/your-plugin-id/CHANGELOG.md",
+  "dependencies": [],
+  "compatibility": {
+    "layoutRoots": [
+      ".agents"
+    ],
+    "notes": [
+      "Add layout or host assumptions here."
+    ]
+  }
+}

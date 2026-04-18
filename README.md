@@ -55,6 +55,24 @@ Keep project-specific guidance in the target repository instead, especially:
 - Live MCP registration in a client such as Copilot CLI is still a runtime concern, but the
   reusable MCP assets absolutely belong in a shared repository like this one.
 
+## Plugin bundles
+
+Use `.agents/plugins/` for **versioned capability bundles** when a grouped slice has matured past
+simple file curation.
+
+A grouped slice is a good plugin candidate when:
+
+1. the files form one clear capability bundle
+2. they are meant to be installed together
+3. they have shared docs, examples, or other supporting assets
+4. reuse across multiple repositories or users is expected
+5. versioned distribution matters more than ad hoc file copying
+
+Plugins in this repository are **packaging metadata over existing `.agents` slices**, not a second
+source of truth. The slice files still live under `.agents/agents/`, `.agents/instructions/`,
+`.agents/skills/`, and related folders. The plugin directory declares how those files travel
+together as one reusable pack.
+
 ## Layout rule
 
 Use `.agents/` as the canonical home for customization assets in this repository.
@@ -66,7 +84,7 @@ Use `.agents/` as the canonical home for customization assets in this repository
 - Put reusable hooks in `.agents/hooks/`
 - Put reusable MCP assets in `.agents/mcp/`
 - Put reusable workflow packs in `.agents/workflows/`
-- Put reusable plugin-oriented assets in `.agents/plugins/`
+- Put reusable plugin-oriented assets and bundle manifests in `.agents/plugins/`
 
 ## Initial direction
 

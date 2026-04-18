@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "source-generation",
+  "version": "0.1.0",
+  "displayName": "Source Generation",
+  "description": "Versioned capability bundle for Roslyn source generator setup, implementation, testing, packaging, and CI guidance.",
+  "bundleType": "capability-pack",
+  "tags": [
+    "csharp",
+    "roslyn",
+    "source-generators",
+    "testing",
+    "ci"
+  ],
+  "maturity": "beta",
+  "install": {
+    "strategy": "copy-files",
+    "layoutRoot": ".agents",
+    "notes": [
+      "Install all listed files together so the agent, instruction, and skill stay aligned.",
+      "Keep referenced skill documents with the main skill file."
+    ]
+  },
+  "contents": [
+    {
+      "path": ".agents/agents/source-generation.agent.md",
+      "kind": "agent",
+      "required": true,
+      "description": "Role-oriented specialist for source generator lifecycle work."
+    },
+    {
+      "path": ".agents/instructions/source-generation.instructions.md",
+      "kind": "instruction",
+      "required": true,
+      "description": "Durable implementation rules for Roslyn generator work."
+    },
+    {
+      "path": ".agents/skills/source-generation/SKILL.md",
+      "kind": "skill",
+      "required": true,
+      "description": "Entry-point skill for source generation tasks."
+    },
+    {
+      "path": ".agents/skills/source-generation/references/project-setup.md",
+      "kind": "reference",
+      "required": true,
+      "description": "Project structure and local consumer wiring reference."
+    },
+    {
+      "path": ".agents/skills/source-generation/references/testing-and-ci.md",
+      "kind": "reference",
+      "required": true,
+      "description": "Testing, CI, and packaging validation reference."
+    }
+  ],
+  "documentation": [
+    ".agents/plugins/source-generation/README.md",
+    ".agents/skills/source-generation/SKILL.md",
+    ".agents/skills/source-generation/references/project-setup.md",
+    ".agents/skills/source-generation/references/testing-and-ci.md"
+  ],
+  "examples": [
+    ".agents/plugins/source-generation/examples/new-generator-solution.md"
+  ],
+  "changelog": ".agents/plugins/source-generation/CHANGELOG.md",
+  "dependencies": [],
+  "compatibility": {
+    "layoutRoots": [
+      ".agents"
+    ],
+    "notes": [
+      "Designed for repositories that keep reusable customization assets under .agents.",
+      "The bundle is neutral metadata and does not depend on one client-specific plugin runtime."
+    ]
+  }
+}
