@@ -22,6 +22,10 @@ It includes reusable assets such as:
 
 ```text
 agent-customizations/
+  .github/
+    workflows/
+    copilot-instructions.md
+  .githooks/
   .agents/
     agents/
     instructions/
@@ -60,6 +64,44 @@ The lightweight repository validation command is:
 ```bash
 python3 scripts/validate_repo_files.py
 ```
+
+## Local maintenance workflow
+
+Use the `Makefile` as the main local entrypoint for routine repository work.
+
+Install the local Python tools once:
+
+```bash
+make install-dev
+```
+
+Run the full repository baseline locally:
+
+```bash
+make check
+```
+
+Format the maintained Python scripts:
+
+```bash
+make format
+```
+
+Helpful maintenance commands:
+
+- `make validate-repo`
+- `make validate-plugins`
+- `make sync-user`
+- `make sync-workspace`
+- `make configure-global-ignore`
+
+To enable the lightweight pre-commit hook for this repository:
+
+```bash
+make install-hooks
+```
+
+The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
 
 ## Repository purpose
 
