@@ -21,7 +21,7 @@ just a path mapping.
 | --- | --- | --- | --- | --- |
 | Agents | `.agents/agents/*.agent.md` | `.github/agents/` | `~/.copilot/agents/` | Same Markdown format |
 | Path-specific instructions | `.agents/instructions/**/*.instructions.md` | `.github/instructions/` | `~/.copilot/instructions/` in VS Code | Same Markdown format |
-| Repo-wide instructions | not generated from slice files | `.github/copilot-instructions.md` | `$HOME/.copilot/copilot-instructions.md` in CLI | Separate always-on file type |
+| Repo-wide instructions | not generated from capability files | `.github/copilot-instructions.md` | `$HOME/.copilot/copilot-instructions.md` in CLI | Separate always-on file type |
 | Prompts | `.agents/prompts/*.prompt.md` | `.github/prompts/` | VS Code profile storage, not a stable `~/.copilot` path | Same Markdown format, workspace export only |
 | Skills | `.agents/skills/<skill>/SKILL.md` | `.github/skills/` if needed | `~/.copilot/skills/` | `.agents/skills/` is already a native project skill location |
 | Hooks | `.agents/hooks/*.json` | `.github/hooks/` | `~/.copilot/hooks/` in VS Code | Same JSON format, workspace target is the broadest portable option |
@@ -87,7 +87,7 @@ The repository does **not** auto-generate these compatibility targets:
 
 Why:
 
-- Repo-wide instructions are a different surface than slice-scoped `.instructions.md` files.
+- Repo-wide instructions are a different surface than capability-scoped `.instructions.md` files.
 - Prompt files are user-profile assets in VS Code, but not through a stable documented
   `~/.copilot/prompts/` filesystem location.
 - MCP, workflows, and plugins are configuration-driven or packaging-oriented rather than simple file
@@ -139,7 +139,7 @@ When an exported file exists in both places:
 
 Some ecosystems install or generate agent-facing files in the same broad locations that this
 repository uses for curated reusable assets. Those files should be treated as **tool-provided project
-context**, not automatically as canonical slices from this repository.
+context**, not automatically as canonical capabilities from this repository.
 
 #### Aspire
 
@@ -155,7 +155,7 @@ Implication for this repository:
 - do **not** add Aspire-generated skill files to this repository as curated assets
 - keep only reusable commands, guidance, and tooling that help downstream repositories run
   `aspire agent init` or refresh those files
-- narrower Aspire-focused slices should only be added here when they are independently curated
+- narrower Aspire-focused capabilities should only be added here when they are independently curated
   reusable assets, not copies of setup-generated files
 
 References:
@@ -176,7 +176,7 @@ References:
 Implication for this repository:
 
 - `speckit`-prefixed files in downstream repos are usually **tool-generated Spec Kit workflow
-  assets**, not curated reusable slices from this repository
+  assets**, not curated reusable capabilities from this repository
 - do **not** add those generated Spec Kit files to this repository as curated assets
 - keep only reusable commands, guidance, and tooling that help downstream repositories generate or
   refresh them

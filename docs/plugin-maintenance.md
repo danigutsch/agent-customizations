@@ -52,7 +52,7 @@ Keep one changelog per plugin once bundles can evolve independently.
 
 ## Recommended workflow
 
-1. Update the slice files under `.agents/`.
+1. Update the capability files under `.agents/`.
 2. Update the plugin manifest if the distributed contract changed.
 3. Update the plugin changelog.
 4. Run `python3 scripts/validate_plugin_bundles.py`.

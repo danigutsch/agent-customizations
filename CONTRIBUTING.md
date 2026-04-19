@@ -8,7 +8,7 @@
    source exists.
 4. Keep changes focused and update nearby docs when contributor expectations or maintenance steps
    change.
-5. Prefer adapting an existing upstream slice shape before inventing a new local variant.
+5. Prefer adapting an existing upstream capability shape before inventing a new local variant.
 6. Open a pull request with a clear summary of the change, why it belongs in this repository, and
    any validation you ran.
 
@@ -39,7 +39,8 @@ Helpful focused commands:
 
 - Keep reusable assets generic unless a file is explicitly an example.
 - Do not commit secrets, machine-specific paths, or one-off local setup artifacts.
-- Do not add duplicate slices or overlapping docs when an existing slice already owns the problem.
+- Do not add duplicate capabilities or overlapping docs when an existing capability already owns the
+  problem.
 - When changing compatibility behavior, update the related scripts and docs together.
 
 ## Community expectations

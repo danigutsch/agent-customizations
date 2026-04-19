@@ -1,6 +1,6 @@
 # Plugin bundle template
 
-Use this template when a grouped slice has become a versioned capability bundle.
+Use this template when a grouped capability has become a versioned capability bundle.
 
 ## Checklist
 
@@ -19,6 +19,6 @@ Use this template when a grouped slice has become a versioned capability bundle.
 
 ## Notes
 
-- Keep `.agents/` as the source of truth for the actual slice files.
+- Keep `.agents/` as the source of truth for the actual capability files.
 - Use the plugin directory only for packaging metadata, bundle-specific docs, and examples.
 - Keep file lists explicit in the manifest.

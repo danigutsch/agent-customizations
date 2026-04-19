@@ -164,10 +164,10 @@ when you omit `--manifest`.
 
 ## Plugin bundles
 
-Use `.agents/plugins/` for **versioned capability bundles** when a grouped slice has matured past
+Use `.agents/plugins/` for **versioned capability bundles** when a grouped capability has matured past
 simple file curation.
 
-A grouped slice is a good plugin candidate when:
+A grouped capability is a good plugin candidate when:
 
 1. the files form one clear capability bundle
 2. they are meant to be installed together
@@ -175,8 +175,8 @@ A grouped slice is a good plugin candidate when:
 4. reuse across multiple repositories or users is expected
 5. versioned distribution matters more than ad hoc file copying
 
-Plugins in this repository are **packaging metadata over existing `.agents` slices**, not a second
-source of truth. The slice files still live under `.agents/agents/`, `.agents/instructions/`,
+Plugins in this repository are **packaging metadata over existing `.agents` capabilities**, not a second
+source of truth. The capability files still live under `.agents/agents/`, `.agents/instructions/`,
 `.agents/skills/`, and related folders. The plugin directory declares how those files travel
 together as one reusable pack.
 
@@ -221,7 +221,7 @@ This repository prefers **source-of-truth first, compatibility second**:
   repository `.gitignore` rule
 
 Some downstream projects also contain **tool-provided agent assets** that are not part of this
-repository's curated slice inventory. In particular, Aspire can install its own broad `aspire`
+repository's curated capability inventory. In particular, Aspire can install its own broad `aspire`
 skill through `aspire agent init`, and Spec Kit can generate `speckit`-prefixed Copilot assets and
 related context files through its integration setup. This repository's policy is to **not** add
 those generated Aspire or Spec Kit files as curated assets here. At most, document the commands and
@@ -242,9 +242,9 @@ generated content differs.
 For the current compatibility model and sync workflow, see
 [docs/compatibility.md](./docs/compatibility.md).
 
-## Slice completeness review
+## Capability surface review
 
-When adding or modifying a slice, review **every** slice surface before considering the work
+When adding or modifying a capability, review **every** capability surface before considering the work
 complete:
 
 1. `agents/`
@@ -256,10 +256,10 @@ complete:
 7. `workflows/`
 8. `plugins/`
 
-Do not assume a slice needs every file type, but do make an explicit decision for each one.
-For most reusable slices, `agents`, `instructions`, `skills`, and often `prompts` are the starting
+Do not assume a capability needs every file type, but do make an explicit decision for each one.
+For most reusable capabilities, `agents`, `instructions`, `skills`, and often `prompts` are the starting
 set. Add hooks, MCP assets, workflows, or plugins only when they clearly add value.
-When concrete repository wiring depends on a reusable capability, refine the relevant slice guidance
+When concrete repository wiring depends on a reusable capability, refine the relevant capability guidance
 first and then implement the repository-specific wiring.
 
 ## Initial direction

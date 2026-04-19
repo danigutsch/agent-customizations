@@ -42,5 +42,5 @@
 ## Checklist
 
 - [ ] Documentation updated where behavior or workflow changed
-- [ ] Slice completeness reviewed intentionally
+- [ ] Capability surface review completed intentionally
 - [ ] Related issue linked, if applicable

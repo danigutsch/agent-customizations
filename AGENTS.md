@@ -12,12 +12,12 @@ Repository guidance for `agent-customizations`.
 - Keep assets reusable across repositories unless a file is explicitly placed in an example or
   product-specific area.
 - Prefer neutral naming that does not assume a single AI platform.
-- Before creating a new slice, inspect relevant patterns in upstream sources already used by this
+- Before creating a new capability, inspect relevant patterns in upstream sources already used by this
   repository, especially `github/awesome-copilot` and `Aaronontheweb/dotnet-skills`.
-- Prefer adapting an existing upstream slice shape and name when one already fits the capability.
+- Prefer adapting an existing upstream capability shape and name when one already fits the capability.
   For example, if an upstream repo already uses `editorconfig`, prefer that over inventing a new
   local variant.
-- If no upstream pattern fits cleanly, document that gap and keep the new slice name as close as
+- If no upstream pattern fits cleanly, document that gap and keep the new capability name as close as
   possible to established naming conventions instead of creating a highly repo-specific label.
 - Keep one clear purpose per file and avoid near-duplicate variants with different names.
 - Document provenance when adapting or importing content from upstream sources.
@@ -37,7 +37,7 @@ Repository guidance for `agent-customizations`.
 - `.agents/mcp/` contains reusable MCP server assets, manifests, wrappers, and setup guidance.
 - `.agents/workflows/` contains reusable workflow packs or agentic workflow assets.
 - `.agents/plugins/` contains plugin-oriented assets or packaging metadata when relevant.
-  Treat plugin bundles as a distribution layer over existing slices, not as a parallel source of
+  Treat plugin bundles as a distribution layer over existing capabilities, not as a parallel source of
   truth.
 - `docs/` contains inventory, taxonomy, migration, and maintenance documentation.
 - `examples/` contains product-specific or tool-specific adaptation examples.
@@ -50,15 +50,15 @@ Repository guidance for `agent-customizations`.
 - Keep cross-links relative and repository-local.
 - Avoid adding assets that duplicate an existing capability unless there is a clear specialization.
 - Favor curation over volume: only keep assets worth maintaining.
-- For new slices, do not create from scratch if an upstream pattern already covers the same
+- For new capabilities, do not create from scratch if an upstream pattern already covers the same
   capability. Reuse the upstream capability boundary, naming style, and file shape first, then adapt
   only what this repository truly needs.
 - For plugin bundles, keep a small manifest plus a focused README.
 - A plugin should package one clear capability bundle and explicitly list the files it distributes.
-- When adding or modifying a slice, review `agents`, `instructions`, `prompts`, `skills`, `hooks`,
+- When adding or modifying a capability, review `agents`, `instructions`, `prompts`, `skills`, `hooks`,
   `mcp`, `workflows`, and `plugins` explicitly, even if the final decision is that some surfaces are
   not needed.
-- Prefer deliberate omission over accidental omission: if a slice lacks prompts, hooks, MCP assets,
+- Prefer deliberate omission over accidental omission: if a capability lacks prompts, hooks, MCP assets,
   workflows, or plugin packaging, that should be because the capability does not need them yet.
 - When a capability has both `.agents/` and `.github/` copies, update the canonical `.agents/`
   asset first and then mirror the same semantic change into `.github/` so the two surfaces do not

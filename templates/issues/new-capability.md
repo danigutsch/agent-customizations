@@ -1,22 +1,22 @@
 ---
-name: New slice
-about: Propose a new reusable slice for this repository
+name: New capability
+about: Propose a new reusable capability for this repository
 title: ''
 ---
 
 ## Summary
 
-- Describe the capability gap and why a new slice is needed.
+- Describe the capability gap and why a new capability is needed.
 
-## Proposed slice
+## Proposed capability
 
-- Suggested slice name:
+- Suggested capability name:
 - Main purpose:
 - Intended users or repos:
 
 ## Surfaces
 
-- Which surfaces should this slice include?
+- Which surfaces should this capability include?
   - [ ] agent
   - [ ] instructions
   - [ ] prompt
@@ -29,7 +29,7 @@ title: ''
 ## Prior art
 
 - Link the upstream or existing repository patterns reviewed first.
-- Note why an existing slice cannot be reused or adapted directly.
+- Note why an existing capability cannot be reused or adapted directly.
 
 ## Compatibility impact
 
