@@ -34,6 +34,7 @@ plugin bundle.
 | `license-checking` | Automated license inventory, policy gates, SBOM workflows, and review routing | A repo needs repeatable license scanning, explicit allow-deny-review policy checks, or CI-local license gates | `foss-compatibility`, `ci-workflows`, `repository-setup` | No |
 | `dotnet-aspire-apphost` | Narrow .NET Aspire AppHost orchestration guidance | A distributed .NET app needs clearer AppHost resource modeling, service references, startup ordering, or AppHost boundary discipline | `repository-setup`, `ci-workflows`, `opentelemetry-dotnet` | No |
 | `aspnet-api-contracts` | ASP.NET HTTP API contract design guidance | An ASP.NET API needs clearer route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata, versioning, or contract-test strategy | `repository-setup`, `ci-workflows`, `xunit-v3-mtp-test-stack` | No |
+| `event-sourcing-projections` | Event-sourced projection and read-model guidance | A system needs clearer projection lifecycles, read-model boundaries, checkpointing, replay safety, rebuild workflow, multi-stream views, or projection-runner operations | `xunit-v3-mtp-test-stack`, `database-performance`, `opentelemetry-dotnet`, `aspnet-api-contracts` | No |
 | `grpc-protobuf-contracts` | gRPC and Protocol Buffers contract design and evolution guidance | A repo needs safer `.proto` schemas, package versioning, streaming RPC choices, or clearer contract ownership boundaries | `repository-setup`, `ci-workflows` | No |
 | `opentelemetry-dotnet` | OpenTelemetry setup and instrumentation guidance for .NET | A .NET app needs cohesive logs, metrics, and traces, consistent resource identity, semantic conventions, exporter boundaries, source-generated logging, or strongly typed metrics guidance | `dotnet-aspire-apphost`, `ci-workflows`, `repository-setup` | No |
 | `xunit-v3-mtp-test-stack` | xUnit v3 plus Microsoft.Testing.Platform test-stack guidance for .NET | A .NET repo needs clearer xUnit v3 runner choice, MTP command shape, filtering, coverage, fixture, or troubleshooting guidance | `ci-workflows`, `repository-setup`, `dotnet-aspire-apphost` | No |
@@ -57,6 +58,7 @@ plugin bundle.
 | Automated open-source license governance | `license-checking` + `foss-compatibility` + `ci-workflows` + `repository-setup` |
 | Aspire orchestration boundary review | `dotnet-aspire-apphost` + `repository-setup` + `ci-workflows` |
 | ASP.NET API contract review | `aspnet-api-contracts` + `repository-setup` + `ci-workflows` + `xunit-v3-mtp-test-stack` |
+| Event-sourced read-model design | `event-sourcing-projections` + `xunit-v3-mtp-test-stack` + `database-performance` + `opentelemetry-dotnet` |
 | Contract-first gRPC API design | `grpc-protobuf-contracts` + `repository-setup` + `ci-workflows` |
 | .NET observability foundation | `opentelemetry-dotnet` + `repository-setup` + `ci-workflows` |
 | .NET xUnit v3 plus MTP baseline | `xunit-v3-mtp-test-stack` + `repository-setup` + `ci-workflows` |
@@ -76,7 +78,10 @@ plugin bundle.
 - Add `foss-compatibility` when imported open-source assets need compatibility review, obligations tracking, or escalation guidance.
 - Add `license-checking` when dependency or asset inventories need repeatable automated license checks, policy gates, or SBOM outputs.
 - Add `dotnet-aspire-apphost` when Aspire AppHost orchestration, references, startup ordering, or AppHost boundaries need focused review.
-- Add `aspnet-api-contracts` when an ASP.NET API needs focused review of route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata, versioning, or contract-test strategy.
+- Add `aspnet-api-contracts` when an ASP.NET API needs focused review of route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata,
+versioning, or contract-test strategy.
+- Add `event-sourcing-projections` when event-sourced read models need focused review of projection lifecycle, checkpointing, replay safety, rebuild workflow,
+multi-stream views, or operational readiness.
 - Add `grpc-protobuf-contracts` when `.proto` schemas, gRPC service contracts, or contract-evolution rules need focused review.
 - Add `opentelemetry-dotnet` when .NET logs, metrics, and traces need to stay cohesive or when resource metadata, exporter boundaries, source-generated logging,
 or strongly typed metrics need focused review.
