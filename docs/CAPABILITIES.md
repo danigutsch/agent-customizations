@@ -32,6 +32,7 @@ plugin bundle.
 | `docs-and-scripts-quality` | Repo docs quality, helper-script maintenance, and local validation workflow alignment | README, maintenance docs, hooks, or helper scripts need quality improvements tied to real repo checks | `repository-setup`, `git-hooks`, `python-quality`, `docfx-specialist` | No |
 | `foss-compatibility` | Open-source license compatibility, obligations, provenance, and escalation guidance | A repo needs to assess whether imported open-source assets can be adopted or redistributed safely and what follow-up is required | `repository-setup`, `tool-generated-file-provenance` | No |
 | `license-checking` | Automated license inventory, policy gates, SBOM workflows, and review routing | A repo needs repeatable license scanning, explicit allow-deny-review policy checks, or CI-local license gates | `foss-compatibility`, `ci-workflows`, `repository-setup` | No |
+| `devcontainers-smoke` | Devcontainer smoke-validation and contributor-path guidance | A repo needs a shared local-and-CI smoke path for `.devcontainer/**`, lifecycle hooks, toolchain verification, optional deeper in-container validation, or supplemental workflow coverage for environment drift | `ci-workflows`, `repository-setup`, `docs-and-scripts-quality` | No |
 | `dotnet-aspire-apphost` | Narrow .NET Aspire AppHost orchestration guidance | A distributed .NET app needs clearer AppHost resource modeling, service references, startup ordering, or AppHost boundary discipline | `repository-setup`, `ci-workflows`, `opentelemetry-dotnet` | No |
 | `aspnet-api-contracts` | ASP.NET HTTP API contract design guidance | An ASP.NET API needs clearer route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata, versioning, or contract-test strategy | `repository-setup`, `ci-workflows`, `xunit-v3-mtp-test-stack` | No |
 | `event-sourcing-projections` | Event-sourced projection and read-model guidance | A system needs clearer projection lifecycles, read-model boundaries, checkpointing, replay safety, rebuild workflow, multi-stream views, or projection-runner operations | `xunit-v3-mtp-test-stack`, `database-performance`, `opentelemetry-dotnet`, `aspnet-api-contracts` | No |
@@ -56,6 +57,7 @@ plugin bundle.
 | Repo docs and helper-script maintenance | `repository-setup` + `docs-and-scripts-quality` + `git-hooks` + `python-quality` |
 | Open-source intake or redistribution review | `foss-compatibility` + `repository-setup` + `tool-generated-file-provenance` |
 | Automated open-source license governance | `license-checking` + `foss-compatibility` + `ci-workflows` + `repository-setup` |
+| Documented containerized contributor path | `devcontainers-smoke` + `repository-setup` + `ci-workflows` + `docs-and-scripts-quality` |
 | Aspire orchestration boundary review | `dotnet-aspire-apphost` + `repository-setup` + `ci-workflows` |
 | ASP.NET API contract review | `aspnet-api-contracts` + `repository-setup` + `ci-workflows` + `xunit-v3-mtp-test-stack` |
 | Event-sourced read-model design | `event-sourcing-projections` + `xunit-v3-mtp-test-stack` + `database-performance` + `opentelemetry-dotnet` |
@@ -77,6 +79,8 @@ plugin bundle.
 - Add `tool-generated-file-provenance` when generated downstream files must stay separate from curated assets.
 - Add `foss-compatibility` when imported open-source assets need compatibility review, obligations tracking, or escalation guidance.
 - Add `license-checking` when dependency or asset inventories need repeatable automated license checks, policy gates, or SBOM outputs.
+- Add `devcontainers-smoke` when a repository needs one shared local-and-CI smoke path for its documented devcontainer workflow, lifecycle hooks, toolchain
+checks, or supplemental drift validation.
 - Add `dotnet-aspire-apphost` when Aspire AppHost orchestration, references, startup ordering, or AppHost boundaries need focused review.
 - Add `aspnet-api-contracts` when an ASP.NET API needs focused review of route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata,
 versioning, or contract-test strategy.
