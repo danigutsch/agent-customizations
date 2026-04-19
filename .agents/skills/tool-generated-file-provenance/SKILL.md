@@ -57,6 +57,8 @@ curated, or drifting away from a known generated baseline.
 - **Do not overstate provenance confidence**.
 - **Do not prefer manual edits over rerunning the owning generator**.
 - **Do not treat unknown as outdated**.
+- **Do not use this to design new compatibility exports**; use `copilot-compatibility-exports` when
+  the task is creating or syncing new mirror files rather than classifying existing ones.
 
 ## References
 

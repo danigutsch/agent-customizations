@@ -73,6 +73,8 @@ rather than implementing a single product feature.
   look.
 - **Do not add CI first** — define the local validation path before wrapping it in automation.
 - **Do not confuse reusable assets with repo-specific rules** — keep the boundary explicit.
+- **Do not use this as a catch-all for compatibility exports, plugin packaging, or provenance
+  tracking** — pair with the narrower capability when that is the real problem.
 
 ## References
 

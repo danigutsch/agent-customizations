@@ -21,6 +21,8 @@ coherent.
 - The relevant docs, scripts, or hook entrypoints can be inspected.
 - The repository's current validation commands are known.
 - The quality issue can be addressed with existing repo tooling.
+- The repository already has the docs, scripts, or hooks being aligned; this skill is for
+  maintenance and drift cleanup rather than initial repo structure setup.
 
 ## Workflow
 
@@ -58,6 +60,8 @@ coherent.
 - **Do not invent a parallel quality workflow**.
 - **Do not let hooks diverge from the documented local checks**.
 - **Do not weaken existing checks to make one change easier**.
+- **Do not use this for first-time repo structure or baseline setup**; use `repository-setup` for
+  that.
 
 ## References
 
