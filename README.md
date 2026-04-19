@@ -81,11 +81,13 @@ For this repository, the recommended packaging split is:
 - use **`pip`** only inside a project virtual environment when you are managing project-local Python
   dependencies
 
-Install the local Python tools once:
+Install the local developer tools once:
 
 ```bash
 make install-dev
 ```
+
+That command installs the Python tools with `pipx` and the Markdown linter dependency with `npm`.
 
 On Debian/Ubuntu and other PEP 668 environments, install `pipx` first instead of using system `pip`
 for user installs:
@@ -127,6 +129,7 @@ make format
 Helpful maintenance commands:
 
 - `make validate-repo`
+- `make lint-markdown`
 - `make validate-plugins`
 - `make smoke-exports`
 - `make inspect-tool-files TARGET_ROOT=/path/to/repo`

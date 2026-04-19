@@ -5,7 +5,7 @@ PYRIGHT ?= pyright
 TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
 
-.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -15,6 +15,9 @@ format:
 lint:
 	$(RUFF) check scripts
 	$(RUFF) format --check scripts
+
+lint-markdown:
+	npm run --silent lint:markdown
 
 typecheck:
 	$(PYRIGHT) scripts
@@ -53,6 +56,11 @@ install-dev:
 		echo "Install it first (for example: sudo apt-get install -y pipx) and ensure ~/.local/bin is on PATH."; \
 		exit 1; \
 	}
+	@command -v npm >/dev/null 2>&1 || { \
+		echo "npm is required for install-dev."; \
+		echo "Install Node.js and npm first (for example: sudo apt-get install -y nodejs npm)."; \
+		exit 1; \
+	}
 	@if $(PIPX) list --short 2>/dev/null | grep -q '^ruff '; then \
 		$(PIPX) upgrade ruff; \
 	else \
@@ -63,6 +71,7 @@ install-dev:
 	else \
 		$(PIPX) install pyright; \
 	fi
+	npm ci
 
 install-hooks:
 	git config core.hooksPath .githooks

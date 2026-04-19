@@ -32,6 +32,7 @@ make format
 Helpful focused commands:
 
 - `make validate-repo`
+- `make lint-markdown`
 - `make validate-plugins`
 - `make smoke-exports`
 - `make sync-user`

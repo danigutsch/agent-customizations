@@ -19,6 +19,7 @@ env/
 # Temporary local artifacts
 tmp/
 temp/
+node_modules/
 
 # Local Copilot secret scan output
 logs/copilot/secrets/
