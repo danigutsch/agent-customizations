@@ -35,6 +35,7 @@ plugin bundle.
 | `dotnet-aspire-apphost` | Narrow .NET Aspire AppHost orchestration guidance | A distributed .NET app needs clearer AppHost resource modeling, service references, startup ordering, or AppHost boundary discipline | `repository-setup`, `ci-workflows`, `opentelemetry-dotnet` | No |
 | `grpc-protobuf-contracts` | gRPC and Protocol Buffers contract design and evolution guidance | A repo needs safer `.proto` schemas, package versioning, streaming RPC choices, or clearer contract ownership boundaries | `repository-setup`, `ci-workflows`, `aspnet-api-contracts` | No |
 | `opentelemetry-dotnet` | OpenTelemetry setup and instrumentation guidance for .NET | A .NET app needs cohesive logs, metrics, and traces, consistent resource identity, semantic conventions, exporter boundaries, source-generated logging, or strongly typed metrics guidance | `dotnet-aspire-apphost`, `ci-workflows`, `repository-setup` | No |
+| `xunit-v3-mtp-test-stack` | xUnit v3 plus Microsoft.Testing.Platform test-stack guidance for .NET | A .NET repo needs clearer xUnit v3 runner choice, MTP command shape, filtering, coverage, fixture, or troubleshooting guidance | `ci-workflows`, `repository-setup`, `dotnet-aspire-apphost` | No |
 | `source-generation` | Roslyn source generator design, setup, testing, and packaging | C# source generators need design, migration, diagnostics, tests, or pack guidance | `repository-setup`, `ci-workflows`, `vertical-slice-architecture` | Yes |
 | `vertical-slice-architecture` | Domain-first vertical slice design and migration guidance | A codebase needs clearer slice boundaries, migration steps, or slice-aligned tests | `repository-setup`, `ci-workflows`, `python-quality`, `source-generation` | Yes |
 | `workflow-packs` | Reusable multi-step workflow packs and handoff assets | A repo needs repeatable workflow phases, checkpoints, or adaptation examples | `repository-setup`, `ci-workflows`, `mcp-servers` | No |
@@ -56,6 +57,7 @@ plugin bundle.
 | Aspire orchestration boundary review | `dotnet-aspire-apphost` + `repository-setup` + `ci-workflows` |
 | Contract-first gRPC API design | `grpc-protobuf-contracts` + `repository-setup` + `ci-workflows` |
 | .NET observability foundation | `opentelemetry-dotnet` + `repository-setup` + `ci-workflows` |
+| .NET xUnit v3 plus MTP baseline | `xunit-v3-mtp-test-stack` + `repository-setup` + `ci-workflows` |
 | .NET performance and measurement work | `csharp-type-design-performance` + `csharp-concurrency-patterns` + `database-performance` + `dotnet-performance-analyst` + `dotnet-benchmark-designer` |
 
 ## Selection guidance
@@ -73,7 +75,10 @@ plugin bundle.
 - Add `license-checking` when dependency or asset inventories need repeatable automated license checks, policy gates, or SBOM outputs.
 - Add `dotnet-aspire-apphost` when Aspire AppHost orchestration, references, startup ordering, or AppHost boundaries need focused review.
 - Add `grpc-protobuf-contracts` when `.proto` schemas, gRPC service contracts, or contract-evolution rules need focused review.
-- Add `opentelemetry-dotnet` when .NET logs, metrics, and traces need to stay cohesive or when resource metadata, exporter boundaries, source-generated logging, or strongly typed metrics need focused review.
+- Add `opentelemetry-dotnet` when .NET logs, metrics, and traces need to stay cohesive or when resource metadata, exporter boundaries, source-generated logging,
+or strongly typed metrics need focused review.
+- Add `xunit-v3-mtp-test-stack` when a .NET repository needs focused xUnit v3 plus Microsoft.Testing.Platform guidance for runner choice, command shape,
+filters, coverage, fixtures, or troubleshooting.
 - Add `docs-and-scripts-quality` when maintenance docs, helper scripts, and local checks need to stay aligned.
 - Add `ci-workflows` when the local validation path should be wrapped in automation.
 - Add `workflow-packs` when multi-step reusable workflows need explicit phases and checkpoints.
