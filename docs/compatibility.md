@@ -145,7 +145,7 @@ context**, not automatically as canonical slices from this repository.
 
 - Aspire's official agent setup flow is `aspire agent init`.
 - Aspire documents that this command installs an Aspire skill file at
-  `.github/skills/aspire/SKILL.md` and `.claude/skills/aspire/SKILL.md`.
+  `.github/skills/aspire/SKILL.md`.
 - Aspire also documents that this skill file replaces older `AGENTS.md` guidance in Aspire-created
   projects.
 
