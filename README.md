@@ -117,6 +117,7 @@ Helpful maintenance commands:
 - `make validate-repo`
 - `make validate-plugins`
 - `make smoke-exports`
+- `make inspect-tool-files TARGET_ROOT=/path/to/repo`
 - `make sync-user`
 - `make sync-workspace`
 - `make configure-global-ignore`
@@ -200,8 +201,17 @@ This repository prefers **source-of-truth first, compatibility second**:
 Some downstream projects also contain **tool-provided agent assets** that are not part of this
 repository's curated slice inventory. In particular, Aspire can install its own broad `aspire`
 skill through `aspire agent init`, and Spec Kit can generate `speckit`-prefixed Copilot assets and
-related context files through its integration setup. Treat those as ecosystem-provided project
-scaffolding unless they are deliberately imported here as maintained slices.
+related context files through its integration setup. This repository's policy is to **not** add
+those generated Aspire or Spec Kit files as curated assets here. At most, document the commands and
+tooling needed to generate or refresh them in downstream repositories.
+
+To inspect a downstream repository for these tool-provided files and report conservative provenance,
+version-signal, and drift information:
+
+```bash
+python3 scripts/check_tool_file_versions.py --repo /path/to/repo
+python3 scripts/check_tool_file_versions.py --repo /path/to/repo --format json
+```
 
 For the current compatibility model and sync workflow, see
 [docs/compatibility.md](./docs/compatibility.md).

@@ -4,7 +4,7 @@ RUFF ?= ruff
 PYRIGHT ?= pyright
 TARGET_ROOT ?= $(CURDIR)
 
-.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports sync-user sync-workspace configure-global-ignore install-dev install-hooks hook-pre-commit
+.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -26,6 +26,9 @@ validate-plugins:
 
 smoke-exports:
 	$(PYTHON) scripts/run_export_smoke_tests.py
+
+inspect-tool-files:
+	$(PYTHON) scripts/check_tool_file_versions.py --repo "$(TARGET_ROOT)"
 
 sync-user:
 	$(PYTHON) scripts/sync_copilot_exports.py --scope user

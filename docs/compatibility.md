@@ -152,10 +152,11 @@ context**, not automatically as canonical slices from this repository.
 Implication for this repository:
 
 - a downstream repo's broad `aspire` skill may be **setup-provided baseline context**
-- it should not be treated as one of this repository's curated slices unless it was intentionally
-  imported and maintained here
-- narrower Aspire-focused slices should only be added here when they provide reusable capability
-  boundaries that go beyond the default setup-provided umbrella
+- do **not** add Aspire-generated skill files to this repository as curated assets
+- keep only reusable commands, guidance, and tooling that help downstream repositories run
+  `aspire agent init` or refresh those files
+- narrower Aspire-focused slices should only be added here when they are independently curated
+  reusable assets, not copies of setup-generated files
 
 References:
 
@@ -176,8 +177,9 @@ Implication for this repository:
 
 - `speckit`-prefixed files in downstream repos are usually **tool-generated Spec Kit workflow
   assets**, not curated reusable slices from this repository
-- those files should be evaluated as ecosystem-owned scaffolding first, and only promoted into this
-  repository when there is a deliberate curation/import reason
+- do **not** add those generated Spec Kit files to this repository as curated assets
+- keep only reusable commands, guidance, and tooling that help downstream repositories generate or
+  refresh them
 - do not mistake Spec Kit's generated agent scaffolding for this repository's canonical `.agents/`
   inventory
 
