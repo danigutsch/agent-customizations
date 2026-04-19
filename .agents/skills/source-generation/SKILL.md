@@ -42,8 +42,14 @@ packaging, or CI validation.
 
 - Prefer a solution that keeps the generator project, a local consumer or demo project,
   and a dedicated test project close together.
+- If analyzers, code fixes, or shared Roslyn helpers are part of the same capability, keep those as
+  separate projects with clear boundaries instead of letting the generator become the home for every
+  Roslyn concern.
 - Wire local consumers with analyzer-style project references so the generator runs during
   normal development builds.
+- If the generator depends on a sibling shared Roslyn assembly, make the consumer reference that
+  helper alongside the generator during local development; analyzer-style project references do not
+  automatically flow transitive analyzer dependencies.
 - Treat packaging and CI as part of the lifecycle when the generator is meant for reuse.
 - See [Project setup reference](./references/project-setup.md) for the recommended structure.
 
@@ -83,6 +89,9 @@ packaging, or CI validation.
   properties only when code-based configuration is insufficient.
 - Think through packaging and consumer experience:
   package references, marker attributes, defaults, and breaking changes.
+- Keep analyzer release tracking with the analyzer assembly that actually ships the
+  `DiagnosticDescriptor`s. If the generator also needs descriptors, duplicate the IDs and keep the
+  ownership explicit instead of moving release tracking into a shared helper.
 
 ### 7. Test and verify
 
@@ -93,6 +102,8 @@ packaging, or CI validation.
 - Add stability checks when output ordering, hint naming, or caching is important.
 - Build and run the relevant tests.
 - Inspect generated files when the output shape does not match expectations.
+- If analyzers or code fixes are part of the same capability, keep generator snapshot/output tests
+  separate from analyzer/code-fix diagnostic tests so each harness can stay focused.
 - See [Testing and CI reference](./references/testing-and-ci.md) for lifecycle validation.
 
 ## Related skills
@@ -126,8 +137,16 @@ packaging, or CI validation.
 | IDE feels slow while typing | Too much work in syntax filtering or broad semantic scans | Use `ForAttributeWithMetadataName`, cheap predicates, and smaller immutable models |
 | Packaged generator causes duplicate helper types | Marker/helper types are emitted without isolation strategy | Use post-initialization output plus embedded attributes or ship shared marker types intentionally |
 | Consumer project does not run the local generator | Project reference is not wired as an analyzer | Use analyzer-style project reference metadata and rebuild the consumer project |
+| Consumer project loads the generator but crashes with missing assembly errors | A sibling shared Roslyn helper was not wired beside the generator | Add the shared helper as an analyzer-style dependency for local consumers or ship both from the dedicated tooling package |
 | Snapshot tests are noisy | Output includes unstable ordering or volatile text | Sort deterministically first and keep snapshots focused on stable generated structure |
 | CI passes build but misses generator regressions | Workflow does not run generator tests or pack validation | Include restore, build, test, and pack validation where package delivery matters |
+
+## Packaging notes
+
+- When a capability includes a generator, analyzer, code fix, and shared Roslyn helper, prefer a
+  dedicated pack project that places each assembly under `analyzers/dotnet/cs`.
+- If central package management creates Roslyn version conflicts, pin those Roslyn packages locally
+  in the tooling projects instead of forcing an unsafe repository-wide centralization.
 
 ## References
 

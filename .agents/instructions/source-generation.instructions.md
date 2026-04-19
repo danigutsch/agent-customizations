@@ -18,6 +18,10 @@ or supporting generator infrastructure.
   requirements make it necessary.
 - When the task includes bootstrapping or lifecycle work, prefer a solution shape that keeps the
   generator project, a local consumer or demo project, and a dedicated test project close together.
+- When analyzers, code fixes, or shared Roslyn helpers exist beside the generator, keep those
+  projects on explicit boundaries: generator for emission, analyzer for release-tracked diagnostics,
+  code-fix for IDE-only repairs, and shared Roslyn helpers for normalized contracts or analysis
+  logic used by more than one tooling surface.
 - Separate discovery, projection, normalization, emission, and diagnostics.
 - For larger generators, prefer parser/emitter separation and role-based files over one large,
   mixed-responsibility implementation.
@@ -29,6 +33,9 @@ or supporting generator infrastructure.
   feedback on emitted source.
 - When wiring a local consumer to a generator project, prefer analyzer-style project references so
   the generator runs during ordinary builds without becoming a normal runtime reference.
+- If a local generator depends on a sibling shared Roslyn assembly, wire that dependency alongside
+  the generator for local analyzer-style consumers; project-reference analyzer wiring does not
+  automatically make transitive analyzer dependencies available.
 - Keep package metadata and generator-specific build behavior in the generator project or closely
   related build files.
 - If the repository also uses feature-first application organization, keep generator infrastructure
@@ -79,6 +86,10 @@ or supporting generator infrastructure.
   consumers should not author them manually.
 - Prefer explicit code configuration (attributes, partial types, conventions) over opaque build
   properties when either approach would work.
+- Keep analyzer release-tracking ownership with the analyzer assembly that ships the
+  `DiagnosticDescriptor`s. If a generator needs matching IDs or generator-local descriptors, mirror
+  the IDs intentionally rather than moving release-tracked descriptor ownership into the generator or
+  a shared helper assembly.
 
 ## Performance and safety rules
 
@@ -92,9 +103,9 @@ or supporting generator infrastructure.
 ## Testing expectations
 
 - Add or update tests for:
-  - expected generated output
-  - invalid input diagnostics
-  - edge cases such as nested types, generics, partial types, and nullability
+    - expected generated output
+    - invalid input diagnostics
+    - edge cases such as nested types, generics, partial types, and nullability
 - Prefer snapshot or golden-file tests for larger generated source bodies.
 - Use snapshot tests only after making output deterministic enough to avoid noisy churn.
 - Keep focused assertion tests for diagnostics and important API invariants even when snapshots are
@@ -102,6 +113,9 @@ or supporting generator infrastructure.
 - Add stability checks when ordering, hint naming, or caching behavior matters.
 - Verify the same inputs produce the same generated output across repeated runs.
 - Keep test inputs minimal and representative.
+- When the solution includes analyzers and code fixes beside a generator, prefer separate test
+  projects or harnesses for generator snapshot/output coverage versus analyzer/code-fix diagnostic
+  behavior so each tooling surface can evolve without dragging unrelated test infrastructure with it.
 
 ## Packaging and consumer ergonomics
 
@@ -109,10 +123,15 @@ or supporting generator infrastructure.
   requirement.
 - Keep dependencies minimal and appropriate for analyzer/source-generator packaging.
 - Avoid packaging the generator as if it were a normal runtime dependency for consumers.
+- When shipping a generator together with analyzers, code fixes, or shared Roslyn helpers, prefer a
+  dedicated pack project that explicitly places each tooling assembly under `analyzers/dotnet/cs`
+  instead of relying on one leaf project to double as both implementation and distribution surface.
 - Document or encode marker attributes, defaults, and configuration flow clearly.
 - Treat contract changes as versioned behavior changes; avoid silent breaking changes in emitted
   API shape or diagnostics.
 - Ensure generated APIs are discoverable and predictable for consuming projects.
+- If central package pinning creates Roslyn package conflicts, allow the tooling projects to carry
+  local Roslyn package versions rather than forcing an unstable repository-wide centralization.
 
 ## CI validation expectations
 
@@ -130,6 +149,10 @@ or supporting generator infrastructure.
 - Using generator output to hide complex runtime reflection or DI magic
 - Emitting hidden failures instead of diagnostics
 - Wiring the consumer project with an ordinary reference when analyzer-style behavior is required
+- Letting analyzer, code-fix, and generator responsibilities collapse into one project just because
+  they target the same Roslyn capability
+- Keeping release-tracked descriptors in a shared helper or generator project when the analyzer is
+  the actual diagnostic shipping surface
 - Relying on snapshot tests alone to prove generator correctness
 
 ## Verification
