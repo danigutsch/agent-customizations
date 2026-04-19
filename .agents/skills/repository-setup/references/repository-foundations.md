@@ -20,8 +20,12 @@ Typical responsibilities:
 For most reusable repositories, the minimum useful documentation surface is:
 
 1. a README that explains the repository purpose and structure
-2. repository-wide guidance for contributors when the repository has custom rules
-3. references or examples when contributors are expected to reuse patterns repeatedly
+2. a root license file such as `LICENSE` or `LICENSE.txt`
+3. contributor guidance such as `CONTRIBUTING.md` when outside contributions are expected
+4. a `SECURITY.md` file that explains how to report vulnerabilities privately
+5. a `CODE_OF_CONDUCT.md` file when the repository is meant to support community participation
+6. repository-wide guidance for contributors when the repository has custom rules
+7. references or examples when contributors are expected to reuse patterns repeatedly
 
 For repos with mixed text file types, shared editor defaults in `.editorconfig` are often part of that
 baseline because they reduce cross-editor inconsistency without replacing language-specific tools.

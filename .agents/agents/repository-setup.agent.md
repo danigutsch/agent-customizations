@@ -27,7 +27,8 @@ contribute to, and ready for validation and CI without unnecessary ceremony.
 ## Scope
 
 - Repository structure and top-level layout decisions
-- Baseline documentation such as README, contribution guidance, and repository-scoped guidance
+- Baseline documentation such as README, license, contribution guidance, security policy, code of
+  conduct, and repository-scoped guidance
 - `.gitignore`, templates, examples, and support folders
 - Validation scripts and maintenance helpers
 - CI-ready validation planning for build, test, lint, or repository-specific checks

@@ -19,6 +19,8 @@ single feature implementation.
 ## Documentation expectations
 
 - Ensure the repository has a clear top-level explanation of what it contains and what it does not.
+- Add baseline repository health files when they materially clarify contribution and ownership
+  expectations: typically `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, and `CODE_OF_CONDUCT.md`.
 - Keep repository-wide operating rules in a dedicated guidance file when the repository has custom
   structure or contributor expectations.
 - Document validation and maintenance expectations when the repository depends on custom scripts or

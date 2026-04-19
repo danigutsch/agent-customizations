@@ -30,7 +30,8 @@ validation, and contributor-facing operating guidance.
 
 1. Inspect the current repository purpose, layout, and contributor surface.
 2. Identify the missing or weak foundations:
-   structure, README, guidance, validation scripts, templates, examples, or CI expectations.
+   structure, README, license, contribution guidance, security policy, code of conduct, validation
+   scripts, templates, examples, or CI expectations.
 3. Apply the repository-setup agent, instruction, and skill guidance together:
    - `../agents/repository-setup.agent.md`
    - `../instructions/repository-setup.instructions.md`
