@@ -26,6 +26,9 @@ Repository guidance for `agent-customizations`.
 ## Structure rules
 
 - `.agents/` is the canonical root for reusable customization assets in this repository.
+- `.github/` mirrors selected `.agents/` assets for clients that only discover repository-scoped
+  GitHub customization surfaces. Keep `.agents/` as the source of truth and sync mirrored files
+  deliberately instead of editing the mirror first.
 - `.agents/agents/` contains reusable custom agent definitions.
 - `.agents/instructions/` contains reusable instruction files.
 - `.agents/prompts/` contains reusable prompt files or prompt packs.
@@ -57,3 +60,6 @@ Repository guidance for `agent-customizations`.
   not needed.
 - Prefer deliberate omission over accidental omission: if a slice lacks prompts, hooks, MCP assets,
   workflows, or plugin packaging, that should be because the capability does not need them yet.
+- When a capability has both `.agents/` and `.github/` copies, update the canonical `.agents/`
+  asset first and then mirror the same semantic change into `.github/` so the two surfaces do not
+  drift.
