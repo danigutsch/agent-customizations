@@ -5,6 +5,10 @@ Reusable AI agent customization assets.
 This repository is intended to hold shared, tool-agnostic customization content under a single
 `.agents/` root.
 
+The repository baseline is also enforced in GitHub Actions by the `Validate repository` workflow,
+which runs the same `make check` command documented below for pull requests, pushes to `main`, and
+manual runs.
+
 It includes reusable assets such as:
 
 - agents
@@ -105,6 +109,9 @@ Run the full repository baseline locally:
 ```bash
 make check
 ```
+
+This is the same command the `Validate repository` GitHub Actions workflow runs in CI, so local
+failures should map directly to pull request validation failures.
 
 Format the maintained Python scripts:
 
