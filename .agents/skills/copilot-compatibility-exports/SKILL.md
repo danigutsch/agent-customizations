@@ -1,70 +1,74 @@
 ---
 name: copilot-compatibility-exports
-description: Canonical-to-compatible export guidance for Copilot customization assets. Use when deciding how `.agents` content maps into `.github/*` or `~/.copilot/*`, when debugging sync behavior, when documenting generated export copies, or when keeping canonical assets and compatibility mirrors from drifting.
+description: Guidance for syncing canonical `.agents` assets into Copilot-compatible `.github/*` and `~/.copilot/*` targets. Use when mapping agents, instructions, prompts, skills, or hooks across user versus workspace scope, skipping native project surfaces, choosing plugin-driven export selection, or troubleshooting export drift and stale generated copies.
 ---
 
 # Copilot Compatibility Exports
 
-Use this skill when the task is about how reusable Copilot assets are exported from a canonical
-location into workspace or user-level compatibility targets.
+Use this skill when the task is about how canonical assets are exported for Copilot compatibility
+rather than how those assets are authored.
 
 ## When to Use This Skill
 
-- The user wants to know which surfaces should export to `.github/*` or `~/.copilot/*`
-- The user is adding a new slice and needs to know whether it should be mirrored
-- The user is debugging sync behavior, stale exports, or source-of-truth drift
-- The user wants compatibility documentation for agents, instructions, prompts, skills, or hooks
-- The user needs guidance on ignore strategy for generated compatibility copies
+- The user needs to map canonical `.agents` assets into `.github/*` or `~/.copilot/*`
+- The user needs to choose between workspace and user export scope
+- The user needs to understand which surfaces are supported for export
+- The user needs guidance on skipping native project surfaces like `.agents/skills/`
+- The user needs plugin-driven export selection
+- The user needs troubleshooting for stale generated copies or sync drift
 
 ## Prerequisites
 
-- The canonical asset location is known.
-- The target scope is known or can be inferred.
-- The repository's export scripts or compatibility docs can be inspected.
+- The canonical source surface can be inspected under `.agents/`.
+- The export script or compatibility docs can be inspected.
+- The task is about compatibility exports, not about plugin packaging alone or tool-generated file
+  provenance alone.
 
 ## Workflow
 
-### 1. Identify the canonical surface
+### 1. Confirm the canonical source and target scope
 
-- Confirm where the maintained asset lives.
-- Treat the canonical location as authoritative when a mirror also exists.
+- Start from the canonical `.agents` surface.
+- Decide whether the target is workspace scope or user scope.
 
-### 2. Confirm supported target scope
+### 2. Apply the supported surface mapping
 
-- Decide whether the surface supports workspace scope, user scope, both, or neither.
-- Call out when a surface is only partially portable across Copilot clients.
+- Map the surface to the correct `.github/*` or `~/.copilot/*` target only when that export is
+  supported.
+- Keep exceptions explicit for surfaces that are not simple file mirrors.
 
-### 3. Choose the export boundary
+### 3. Check for native project surfaces
 
-- Prefer plugin-scoped export when a plugin bundle already defines the intended bundle boundary.
-- Use surface-scoped export when a plugin bundle does not exist yet.
+- Skip redundant workspace exports when the target repo already exposes a surface natively from
+  `.agents/`.
+- Keep that behavior conservative and grounded in documented repo behavior.
 
-### 4. Keep generated copies disposable
+### 4. Prefer plugin-driven export selection when available
 
-- Rerun sync instead of hand-editing exported copies.
-- Remove stale mirrors through the normal sync and cleanup flow.
+- Use plugin manifests when a capability already defines a packaging boundary.
+- Fall back to surface-based export selection when no plugin exists yet.
 
-### 5. Document the portability limits
+### 5. Treat synced targets as generated outputs
 
-- Be explicit about unsupported or special-case surfaces.
-- Do not imply a stable target path where the platform does not document one.
+- Edit canonical files first, then rerun sync.
+- Use the repository validation and export smoke tests to confirm behavior.
 
 ## Related guidance
 
-- Pair with [Repository setup](../repository-setup/SKILL.md) when a repo needs its canonical versus
-  generated asset model made explicit.
-- Pair with [MCP servers](../mcp-servers/SKILL.md) when compatibility questions overlap with MCP
-  setup or host-specific configuration.
+- Pair with [Plugin Bundles](../plugin-bundles/SKILL.md) when bundle contents should drive export
+  selection.
+- Pair with [Repository Setup](../repository-setup/SKILL.md) when the repo needs the canonical versus
+  generated model documented clearly.
 
 ## Gotchas
 
-- **Do not treat generated exports as source**.
-- **Do not assume every surface mirrors the same way**.
-- **Do not invent user-level paths for prompts or other unstable surfaces**.
-- **Do not hide tracked-file caveats** when an ignore strategy will not work as expected.
+- **Do not hand-edit generated `.github/*` or `~/.copilot/*` copies.**
+- **Do not assume every surface supports both user and workspace export.**
+- **Do not duplicate native project skills into `.github/skills/` by default.**
+- **Do not confuse export selection with plugin packaging or provenance tracking.**
 
 ## References
 
-- [Compatibility documentation](../../../docs/compatibility.md)
-- [Compatibility export guidance](../../instructions/copilot-compatibility-exports.instructions.md)
+- [Compatibility guide](../../../docs/compatibility.md)
+- [Copilot compatibility exports guidance](../../instructions/copilot-compatibility-exports.instructions.md)
 - [Copilot compatibility exports agent](../../agents/copilot-compatibility-exports.agent.md)

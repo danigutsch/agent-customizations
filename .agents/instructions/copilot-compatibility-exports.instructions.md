@@ -1,53 +1,55 @@
 ---
-description: 'Guidance for canonical-to-compatible Copilot export flows, including source-of-truth rules, scope mapping, sync behavior, and generated-export handling.'
-applyTo: 'docs/compatibility.md, scripts/sync_copilot*.py, scripts/configure_global_copilot_gitignore.py, .agents/agents/copilot-compatibility-exports.agent.md, .agents/skills/copilot-compatibility-exports/**'
+description: 'Guidance for exporting canonical .agents assets into Copilot-compatible workspace and user targets with scope-aware mapping, native-surface skips, and generated-output discipline.'
+applyTo: 'README.md, docs/compatibility.md, scripts/sync_copilot_exports.py, scripts/run_export_smoke_tests.py, .agents/agents/copilot-compatibility-exports.agent.md, .agents/skills/copilot-compatibility-exports/**, .agents/instructions/copilot-compatibility-exports.instructions.md'
 ---
 
-# Copilot Compatibility Export Guidance
+# Copilot Compatibility Exports Guidance
 
-Use these rules when the task is about exporting canonical Copilot customization assets into
-workspace or user-level compatibility locations.
+Use these rules when the task is about exporting canonical `.agents` assets into Copilot-compatible
+locations.
 
 ## Core model
 
-- Keep one canonical source of truth for reusable assets.
-- Treat exported `.github/*` and `~/.copilot/*` copies as compatibility targets, not a second
-  maintained authoring surface.
-- Keep source-of-truth and export rules explicit in docs and scripts.
+- Treat `.agents/` as the canonical source of truth.
+- Treat compatibility exports under `.github/*` and `~/.copilot/*` as generated outputs.
+- Model compatibility as a scope-aware mapping of surfaces, not as a flat copy of one directory tree.
+- Keep canonical sources, generated copies, and sync-state tracking aligned.
 
-## Scope mapping
+## Scope and surface rules
 
-- Treat compatibility as both a **scope** decision and a **path** decision.
-- Document whether a surface supports workspace scope, user scope, both, or neither.
-- Do not imply support for undocumented or unstable user-level filesystem targets.
-- Be explicit when a surface is configuration-driven rather than file-mirrored.
+- Be explicit about which surfaces support workspace export, user export, or both.
+- Keep workspace exports rooted under `.github/` in the target repository when that surface is
+  supported.
+- Keep user exports rooted under `~/.copilot/` when that surface is supported.
+- Do not assume prompts, repo-wide instructions, MCP assets, workflows, or plugins follow the same
+  compatibility model as agents and instructions.
 
-## Export behavior
+## Native-surface rules
 
-- Prefer plugin-scoped export when a plugin bundle already defines the intended asset set.
-- Use surface-scoped export as the lower-level fallback.
-- Keep dry-run support available for inspection and troubleshooting.
-- Make stale-export cleanup part of the normal sync workflow when canonical assets move or disappear.
+- Skip workspace exports for surfaces the target repository already exposes natively from `.agents/`
+  when the repository behavior is documented and test-backed.
+- Keep that skip behavior conservative and explicit.
+- Do not duplicate native skills into `.github/skills/` by default when the target repo already has
+  `.agents/skills/`.
 
-## Generated copies
+## Export-selection rules
 
-- Do not hand-edit generated exports when a canonical asset exists.
-- Do not describe generated exports as canonical examples.
-- Keep ignore guidance aligned with the generated-output policy.
-- Warn when tracked files limit what an ignore strategy can accomplish.
+- Prefer plugin-driven export selection when plugin manifests already define the distributed file
+  boundary.
+- Use surface-level export selection as the fallback when no plugin bundle exists yet.
+- Keep plugin manifests, export behavior, and generated output aligned when both are in play.
 
-## Surface-specific cautions
+## Generated-output rules
 
-- Skills may already be discoverable from a native project skill root.
-- Prompts are mainly workspace-scoped because stable user-level filesystem targets are not broadly
-  documented.
-- Repo-wide Copilot instruction files are a separate surface from slice-scoped instruction files.
-- MCP assets, workflows, and plugins often need configuration or packaging guidance instead of a
-  simple export mirror.
+- Edit canonical `.agents/*` files first and rerun sync instead of hand-editing exported copies.
+- Keep stale-output cleanup stateful so removed or replaced files do not linger silently.
+- Keep generated workspace exports ignored by default when the repository policy treats them as
+  compatibility output rather than tracked source.
 
 ## Verification
 
-- Confirm the documented mapping matches the actual sync script behavior.
-- Confirm the supported surfaces match the targets used in exports.
-- Confirm examples use existing commands rather than speculative wrappers.
-- Confirm generated copies can be recreated from canonical assets without manual repair.
+- Confirm the documented compatibility matrix matches the actual sync script behavior.
+- Confirm workspace and user export examples use the real supported CLI options.
+- Confirm native-surface skip behavior is covered by smoke tests.
+- Confirm generated-output discipline is stated clearly enough that consumers do not maintain two
+  sources of truth.
