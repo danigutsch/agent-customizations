@@ -1,5 +1,7 @@
 # agent-customizations
 
+[![Validate repository](https://github.com/danigutsch/agent-customizations/actions/workflows/validate.yml/badge.svg)](https://github.com/danigutsch/agent-customizations/actions/workflows/validate.yml)
+
 Reusable AI agent customization assets.
 
 This repository is intended to hold shared, tool-agnostic customization content under a single
