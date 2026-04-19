@@ -20,6 +20,9 @@ Run the repository baseline before opening a pull request:
 make check
 ```
 
+This is the required merge gate for the repository and the same command the `Validate repository`
+workflow runs in CI.
+
 If you change Python scripts, format them before committing:
 
 ```bash
@@ -34,6 +37,14 @@ Helpful focused commands:
 - `make sync-user`
 - `make sync-workspace`
 - `make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json`
+
+Optional local convenience:
+
+- `make install-hooks` to enable the lightweight pre-commit hook path
+
+Do not add narrower quality gates unless they solve a real recurring problem in the maintained
+surface. For this repository, likely future additions are `slopwatch`, `license-checking`, and
+`crap-analysis` when the repository grows enough to justify them.
 
 ## Contribution boundaries
 

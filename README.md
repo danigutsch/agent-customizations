@@ -115,6 +115,9 @@ make check
 This is the same command the `Validate repository` GitHub Actions workflow runs in CI, so local
 failures should map directly to pull request validation failures.
 
+Treat `make check` as the required repository quality gate. Use narrower gates only when the
+maintained surface clearly needs them.
+
 Format the maintained Python scripts:
 
 ```bash
@@ -139,6 +142,14 @@ make install-hooks
 ```
 
 The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
+
+Optional future gates should stay additive and problem-driven. For this repository, the next
+reasonable candidates are:
+
+- `slopwatch` when low-signal bloat or AI-shaped sprawl becomes a recurring review problem
+- `license-checking` when dependency or asset governance becomes a release concern
+- `crap-analysis` when maintained code paths grow enough that complexity plus weak coverage becomes a
+  real risk
 
 ## Repository purpose
 
