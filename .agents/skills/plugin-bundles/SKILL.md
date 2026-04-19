@@ -53,9 +53,9 @@ rather than how the canonical capability content itself is authored.
 
 ## Gotchas
 
-- **Do not treat plugin metadata as the source of truth**.
-- **Do not version-bump without changelog updates**.
-- **Do not leave docs or examples unreferenced**.
+- **Do not treat plugin metadata as the source of truth.**
+- **Do not version-bump without changelog updates.**
+- **Do not leave docs or examples unreferenced.**
 - **Do not skip validator-backed checks** when changing the bundle contract.
 
 ## References

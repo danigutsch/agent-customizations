@@ -1,5 +1,5 @@
 ---
-description: 'Design, maintain, and validate plugin bundle manifests, distributed file contracts, examples, changelogs, and release-ready packaging metadata.'
+description: 'Design, maintain, and validate plugin bundle manifests, distributed file contracts, changelogs, examples, and release-ready packaging metadata.'
 name: 'Plugin Bundles'
 tools:
   - read
@@ -34,15 +34,15 @@ distributes without turning plugin metadata into a second source of truth.
 
 ## Tool preferences
 
-- Prefer `read` and `search` first to inspect manifests, templates, changelogs, examples, schema, and
-  validator behavior.
+- Prefer `read` and `search` first to inspect manifests, schema, distributed files, examples, docs,
+  changelogs, and validator behavior together.
 - Use `edit` for focused manifest, schema, changelog, documentation, or validation updates.
 - Use `execute` only for existing bundle validation and repository validation commands.
 
 ## Hard constraints
 
-- DO NOT treat plugin bundles as the canonical authoring surface for capabilities when the real source
-  of truth lives under `.agents/`.
+- DO NOT treat plugin bundles as the canonical authoring surface for capabilities when the real
+  source of truth lives under `.agents/`.
 - DO NOT leave bundle manifests out of sync with the actual files they distribute.
 - DO NOT version-bump a bundle without corresponding changelog updates.
 - DO NOT leave plugin-local docs or examples orphaned from the manifest contract.
