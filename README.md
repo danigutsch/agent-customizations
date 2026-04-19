@@ -217,6 +217,8 @@ complete:
 Do not assume a slice needs every file type, but do make an explicit decision for each one.
 For most reusable slices, `agents`, `instructions`, `skills`, and often `prompts` are the starting
 set. Add hooks, MCP assets, workflows, or plugins only when they clearly add value.
+When concrete repository wiring depends on a reusable capability, refine the relevant slice guidance
+first and then implement the repository-specific wiring.
 
 ## Initial direction
 
