@@ -22,6 +22,12 @@ plugin bundle.
 | `microsoft-extensions-dependency-injection` | Service registration boundaries, lifetime discipline, and composition-root guidance | A .NET app's DI setup, service registration shape, or lifetime boundaries need work | `microsoft-extensions-configuration`, `repository-setup`, `csharp-concurrency-patterns` | No |
 | `csharp-concurrency-patterns` | Async coordination, bounded concurrency, channels, and shared-state discipline | A .NET codebase needs clearer concurrency, queueing, cancellation, or background work patterns | `microsoft-extensions-dependency-injection`, `database-performance`, `csharp-type-design-performance` | No |
 | `csharp-type-design-performance` | Allocation-aware type and API design for .NET | Type shape, API boundaries, collections, or allocation-sensitive paths need cleanup | `csharp-concurrency-patterns`, `database-performance` | No |
+| `csharp-api-design` | C# API shape, validation boundary, and compatibility guidance | A .NET codebase needs clearer factory methods, result shapes, DTO-versus-domain boundaries, extension points, or additive API evolution guidance | `csharp-type-design-performance`, `aspnet-api-contracts`, `grpc-protobuf-contracts` | No |
+| `project-structure` | Repository, solution, and project-structure guidance | A codebase needs clearer ownership boundaries, project layout, shared-code discipline, or test alignment across repository structure | `repository-setup`, `vertical-slice-architecture`, `package-management` | No |
+| `package-management` | Package, SDK, and restore-policy guidance | A repo needs clearer central package management, `global.json` policy, lock-file flow, dependency ownership, or cautious upgrade governance | `repository-setup`, `ci-workflows`, `devcontainers-smoke` | No |
+| `slopwatch` | Low-signal bloat, duplication, and AI-sprawl review guidance | A repo needs help spotting duplicated helpers, speculative abstractions, noisy docs, or generated-looking sprawl before it becomes a maintained pattern | `docs-and-scripts-quality`, `tool-generated-file-provenance`, `repository-setup` | No |
+| `crap-analysis` | Complexity-plus-coverage hotspot review guidance | A repo needs to find and reduce risky code where branching complexity and weak test protection combine into maintainability risk | `xunit-v3-mtp-test-stack`, `slopwatch`, `dotnet-performance-analyst` | No |
+| `dotnet-concurrency-specialist` | End-to-end .NET concurrency system review guidance | A .NET system needs broader review of hosted services, queues, throughput limits, scoped service usage, shutdown, or worker observability beyond code-level primitives alone | `csharp-concurrency-patterns`, `microsoft-extensions-dependency-injection`, `database-performance`, `opentelemetry-dotnet` | No |
 | `database-performance` | Query-shape, projection, batching, and EF Core versus Dapper guidance | A .NET data-access layer needs better read/write boundaries, tracking discipline, or query performance | `csharp-type-design-performance`, `csharp-concurrency-patterns`, `microsoft-extensions-dependency-injection` | No |
 | `docfx-specialist` | DocFX structure, navigation, xrefs, and validation workflow guidance | A repo uses DocFX and needs help with docs layout, build warnings, or API-reference integration | `docs-and-scripts-quality` | No |
 | `dotnet-performance-analyst` | Profiling, benchmark interpretation, and regression analysis | Performance measurements need interpretation and high-value bottlenecks need ranking | `dotnet-benchmark-designer`, `database-performance`, `csharp-concurrency-patterns` | No |
@@ -52,9 +58,14 @@ plugin bundle.
 | MCP-ready repo baseline | `repository-setup` + `mcp-servers` + `ci-workflows` |
 | New generator repo | `repository-setup` + `source-generation` + `ci-workflows` |
 | Architecture cleanup with delivery guardrails | `vertical-slice-architecture` + `repository-setup` + `ci-workflows` |
+| Stable C# API surface | `csharp-api-design` + `csharp-type-design-performance` + `repository-setup` |
+| Repo and solution layout review | `project-structure` + `repository-setup` + `vertical-slice-architecture` |
+| .NET dependency governance baseline | `package-management` + `repository-setup` + `ci-workflows` |
 | Reusable rollout or delivery flow | `workflow-packs` + `repository-setup` + `ci-workflows` |
 | Canonical asset repo with compatibility mirrors | `repository-setup` + `copilot-compatibility-exports` + `plugin-bundles` + `tool-generated-file-provenance` |
 | Repo docs and helper-script maintenance | `repository-setup` + `docs-and-scripts-quality` + `git-hooks` + `python-quality` |
+| Low-signal change cleanup | `slopwatch` + `docs-and-scripts-quality` + `tool-generated-file-provenance` |
+| Maintainability hotspot reduction | `crap-analysis` + `xunit-v3-mtp-test-stack` + `dotnet-performance-analyst` |
 | Open-source intake or redistribution review | `foss-compatibility` + `repository-setup` + `tool-generated-file-provenance` |
 | Automated open-source license governance | `license-checking` + `foss-compatibility` + `ci-workflows` + `repository-setup` |
 | Documented containerized contributor path | `devcontainers-smoke` + `repository-setup` + `ci-workflows` + `docs-and-scripts-quality` |
@@ -62,6 +73,7 @@ plugin bundle.
 | ASP.NET API contract review | `aspnet-api-contracts` + `repository-setup` + `ci-workflows` + `xunit-v3-mtp-test-stack` |
 | Event-sourced read-model design | `event-sourcing-projections` + `xunit-v3-mtp-test-stack` + `database-performance` + `opentelemetry-dotnet` |
 | Contract-first gRPC API design | `grpc-protobuf-contracts` + `repository-setup` + `ci-workflows` |
+| .NET concurrency system review | `dotnet-concurrency-specialist` + `csharp-concurrency-patterns` + `database-performance` + `opentelemetry-dotnet` |
 | .NET observability foundation | `opentelemetry-dotnet` + `repository-setup` + `ci-workflows` |
 | .NET xUnit v3 plus MTP baseline | `xunit-v3-mtp-test-stack` + `repository-setup` + `ci-workflows` |
 | .NET performance and measurement work | `csharp-type-design-performance` + `csharp-concurrency-patterns` + `database-performance` + `dotnet-performance-analyst` + `dotnet-benchmark-designer` |
@@ -79,6 +91,12 @@ plugin bundle.
 - Add `tool-generated-file-provenance` when generated downstream files must stay separate from curated assets.
 - Add `foss-compatibility` when imported open-source assets need compatibility review, obligations tracking, or escalation guidance.
 - Add `license-checking` when dependency or asset inventories need repeatable automated license checks, policy gates, or SBOM outputs.
+- Add `csharp-api-design` when C# factory methods, result shapes, DTO-versus-domain boundaries, extension points, or additive API evolution need focused review.
+- Add `project-structure` when repository, solution, or project layout needs clearer ownership boundaries and test alignment.
+- Add `package-management` when package versions, SDK pins, lock files, or restore policy need one coherent dependency-governance model.
+- Add `slopwatch` when low-signal bloat, duplication, speculative abstractions, or AI-generated sprawl need focused cleanup.
+- Add `crap-analysis` when complexity and weak coverage together make a maintained code path risky.
+- Add `dotnet-concurrency-specialist` when a hosted service, queue, or pipeline needs broader concurrency review beyond code-level primitive choice.
 - Add `devcontainers-smoke` when a repository needs one shared local-and-CI smoke path for its documented devcontainer workflow, lifecycle hooks, toolchain
 checks, or supplemental drift validation.
 - Add `dotnet-aspire-apphost` when Aspire AppHost orchestration, references, startup ordering, or AppHost boundaries need focused review.
