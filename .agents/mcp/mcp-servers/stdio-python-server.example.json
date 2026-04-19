@@ -6,11 +6,15 @@
     "-m",
     "example_mcp_server"
   ],
+  "tools": [
+    "*"
+  ],
   "env": {
     "EXAMPLE_MODE": "development"
   },
   "notes": [
     "Replace the module name with the real MCP server entry point.",
+    "Copy this file to a non-example .json name before running scripts/setup_copilot_mcp.py.",
     "Keep machine-specific paths out of shared manifests."
   ]
 }

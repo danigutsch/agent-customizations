@@ -7,7 +7,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
-from typing import TypeGuard, TypedDict, cast
+from typing import TypedDict, TypeGuard, cast
 
 
 class SyncState(TypedDict):

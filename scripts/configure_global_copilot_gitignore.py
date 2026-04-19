@@ -10,7 +10,6 @@ from pathlib import Path
 
 from sync_copilot_exports import SURFACES, supported_surfaces
 
-
 BLOCK_START = "# BEGIN agent-customizations global ignores"
 BLOCK_END = "# END agent-customizations global ignores"
 KNOWN_CUSTOMIZATION_PATTERNS = [
@@ -144,7 +143,10 @@ def ignore_patterns(surfaces: list[str]) -> list[str]:
 
 
 def managed_block(surfaces: list[str]) -> str:
-    lines = [BLOCK_START, "# Generated and agent-specific customization paths managed by agent-customizations."]
+    lines = [
+        BLOCK_START,
+        "# Generated and agent-specific customization paths managed by agent-customizations.",
+    ]
     lines.extend(ignore_patterns(surfaces))
     lines.append(BLOCK_END)
     return "\n".join(lines) + "\n"
@@ -202,7 +204,10 @@ def tracked_paths(root: Path, surfaces: list[str]) -> dict[str, list[str]]:
 def warn_for_repo(path: Path, surfaces: list[str]) -> None:
     root = repo_root(path)
     if root is None:
-        print(f"Warning: {path} is not a Git repository. Skipping compatibility checks.", file=sys.stderr)
+        print(
+            f"Warning: {path} is not a Git repository. Skipping compatibility checks.",
+            file=sys.stderr,
+        )
         return
 
     tracked = tracked_paths(root, surfaces)

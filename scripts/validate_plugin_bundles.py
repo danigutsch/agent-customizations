@@ -6,7 +6,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import TypeGuard, TypedDict, cast
+from typing import TypedDict, TypeGuard, cast
 
 
 class PluginSchema(TypedDict):
@@ -155,7 +155,9 @@ def validate_scalar_fields(plugin_name: str, manifest: PluginManifest, errors: l
     if not isinstance(version, str) or not SEMVER_PATTERN.fullmatch(version):
         add_error(errors, plugin_name, "field 'version' must match semantic version format X.Y.Z")
     if not isinstance(schema_version, str) or not SEMVER_PATTERN.fullmatch(schema_version):
-        add_error(errors, plugin_name, "field 'schemaVersion' must match semantic version format X.Y.Z")
+        add_error(
+            errors, plugin_name, "field 'schemaVersion' must match semantic version format X.Y.Z"
+        )
     if bundle_type != "capability-pack":
         add_error(errors, plugin_name, "field 'bundleType' must be 'capability-pack'")
     if maturity is not None and maturity not in {"experimental", "beta", "stable"}:
@@ -191,7 +193,9 @@ def validate_path_list(
     seen: set[str] = set()
     for value in values:
         if value in seen:
-            add_error(errors, plugin_name, f"field '{field_name}' contains duplicate path '{value}'")
+            add_error(
+                errors, plugin_name, f"field '{field_name}' contains duplicate path '{value}'"
+            )
             continue
         seen.add(value)
         try:
@@ -316,7 +320,11 @@ def validate_plugin_directory(
     referenced_plugin_files: set[Path] = {plugin_dir / PLUGIN_MANIFEST_NAME}
 
     if plugin_id != plugin_name:
-        add_error(errors, plugin_name, f"plugin id '{plugin_id}' must match directory name '{plugin_name}'")
+        add_error(
+            errors,
+            plugin_name,
+            f"plugin id '{plugin_id}' must match directory name '{plugin_name}'",
+        )
 
     readme_path = plugin_dir / "README.md"
     examples_dir = plugin_dir / "examples"
@@ -329,8 +337,12 @@ def validate_plugin_directory(
     if not examples_dir.exists() or not examples_dir.is_dir():
         add_error(errors, plugin_name, "plugin directory must contain an examples/ folder")
 
-    validate_path_list(plugin_name, "documentation", manifest.get("documentation"), errors, referenced_plugin_files)
-    validate_path_list(plugin_name, "examples", manifest.get("examples"), errors, referenced_plugin_files)
+    validate_path_list(
+        plugin_name, "documentation", manifest.get("documentation"), errors, referenced_plugin_files
+    )
+    validate_path_list(
+        plugin_name, "examples", manifest.get("examples"), errors, referenced_plugin_files
+    )
     validate_changelog(plugin_name, manifest, errors, referenced_plugin_files)
 
     for plugin_file in plugin_dir.rglob("*"):
@@ -384,7 +396,10 @@ def main() -> int:
 
     schema = as_plugin_schema(schema_data)
     if schema is None:
-        print(f"Schema file does not match the expected top-level shape: {SCHEMA_PATH}", file=sys.stderr)
+        print(
+            f"Schema file does not match the expected top-level shape: {SCHEMA_PATH}",
+            file=sys.stderr,
+        )
         return 1
 
     plugin_dirs = sorted(

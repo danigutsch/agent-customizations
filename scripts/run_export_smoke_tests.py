@@ -159,17 +159,10 @@ def test_workspace_plugin_stale_cleanup() -> None:
         )
         assert_exists(repo_root / DOT_GITHUB / "agents" / VERTICAL_SLICE_ARCHITECTURE_AGENT)
         assert_exists(
-            repo_root
-            / DOT_GITHUB
-            / "instructions"
-            / VERTICAL_SLICE_ARCHITECTURE_INSTRUCTION
+            repo_root / DOT_GITHUB / "instructions" / VERTICAL_SLICE_ARCHITECTURE_INSTRUCTION
         )
         assert_exists(
-            repo_root
-            / DOT_GITHUB
-            / SKILLS_DIR
-            / VERTICAL_SLICE_ARCHITECTURE
-            / SKILL_FILE
+            repo_root / DOT_GITHUB / SKILLS_DIR / VERTICAL_SLICE_ARCHITECTURE / SKILL_FILE
         )
 
 

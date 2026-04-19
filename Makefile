@@ -3,8 +3,9 @@ PIPX ?= pipx
 RUFF ?= ruff
 PYRIGHT ?= pyright
 TARGET_ROOT ?= $(CURDIR)
+MANIFEST ?=
 
-.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore install-dev install-hooks hook-pre-commit
+.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -38,6 +39,13 @@ sync-workspace:
 
 configure-global-ignore:
 	$(PYTHON) scripts/configure_global_copilot_gitignore.py --repo "$(TARGET_ROOT)"
+
+setup-mcp:
+	@if [ -n "$(MANIFEST)" ]; then \
+		$(PYTHON) scripts/setup_copilot_mcp.py --manifest "$(MANIFEST)"; \
+	else \
+		$(PYTHON) scripts/setup_copilot_mcp.py; \
+	fi
 
 install-dev:
 	@command -v $(PIPX) >/dev/null 2>&1 || { \

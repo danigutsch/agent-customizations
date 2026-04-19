@@ -7,7 +7,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
-from typing import TypeGuard, TypedDict, cast
+from typing import TypedDict, TypeGuard, cast
 
 
 class SyncState(TypedDict):
@@ -282,7 +282,9 @@ def collect_plugin_entries(
             planned[surface][relative_path] = source_path
 
     return {
-        surface: [(source_path, relative_path) for relative_path, source_path in sorted(entries.items())]
+        surface: [
+            (source_path, relative_path) for relative_path, source_path in sorted(entries.items())
+        ]
         for surface, entries in planned.items()
     }
 

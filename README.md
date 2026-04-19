@@ -121,6 +121,7 @@ Helpful maintenance commands:
 - `make sync-user`
 - `make sync-workspace`
 - `make configure-global-ignore`
+- `make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json`
 
 To enable the lightweight pre-commit hook for this repository:
 
@@ -139,6 +140,27 @@ Keep project-specific guidance in the target repository instead, especially:
 - repository `AGENTS.md` files
 - prompts tied to repo-specific workflows
 - architecture or coding rules that only make sense inside one codebase
+
+## MCP setup
+
+The repository keeps reusable MCP manifests under `.agents/mcp/mcp-servers/` and always provides a
+script-driven Copilot CLI setup path.
+
+1. Copy an example manifest to a concrete `.json` file and replace placeholder values.
+2. Run the setup script to merge the manifest into `~/.copilot/mcp-config.json`.
+
+```bash
+python3 scripts/setup_copilot_mcp.py --manifest .agents/mcp/mcp-servers/my-server.json
+```
+
+If you prefer the repository `Makefile` entrypoint:
+
+```bash
+make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json
+```
+
+The setup script can also auto-discover all non-example manifests under `.agents/mcp/mcp-servers/`
+when you omit `--manifest`.
 
 ## Plugin bundles
 
