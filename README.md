@@ -197,6 +197,12 @@ This repository prefers **source-of-truth first, compatibility second**:
 - keep those generated `.github/*` copies ignored through global Git ignore policy rather than a
   repository `.gitignore` rule
 
+Some downstream projects also contain **tool-provided agent assets** that are not part of this
+repository's curated slice inventory. In particular, Aspire can install its own broad `aspire`
+skill through `aspire agent init`, and Spec Kit can generate `speckit`-prefixed Copilot assets and
+related context files through its integration setup. Treat those as ecosystem-provided project
+scaffolding unless they are deliberately imported here as maintained slices.
+
 For the current compatibility model and sync workflow, see
 [docs/compatibility.md](./docs/compatibility.md).
 

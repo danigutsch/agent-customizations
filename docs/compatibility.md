@@ -135,6 +135,56 @@ When an exported file exists in both places:
 - do not hand-edit generated copies under `~/.copilot/` or `.github/`
 - treat `.github/*` compatibility copies as generated output, not as a second maintained source
 
+### Tool-provided special cases
+
+Some ecosystems install or generate agent-facing files in the same broad locations that this
+repository uses for curated reusable assets. Those files should be treated as **tool-provided project
+context**, not automatically as canonical slices from this repository.
+
+#### Aspire
+
+- Aspire's official agent setup flow is `aspire agent init`.
+- Aspire documents that this command installs an Aspire skill file at
+  `.github/skills/aspire/SKILL.md` and `.claude/skills/aspire/SKILL.md`.
+- Aspire also documents that this skill file replaces older `AGENTS.md` guidance in Aspire-created
+  projects.
+
+Implication for this repository:
+
+- a downstream repo's broad `aspire` skill may be **setup-provided baseline context**
+- it should not be treated as one of this repository's curated slices unless it was intentionally
+  imported and maintained here
+- narrower Aspire-focused slices should only be added here when they provide reusable capability
+  boundaries that go beyond the default setup-provided umbrella
+
+References:
+
+- <https://aspire.dev/get-started/ai-coding-agents/>
+- <https://aspire.dev/reference/cli/commands/aspire-agent-init/>
+
+#### Spec Kit
+
+- Spec Kit's `Specify CLI` bootstraps projects with templates, directory structure, and AI agent
+  integrations.
+- The official `spec-kit` agent guide documents that integrations are generated from
+  `src/specify_cli/integrations/<key>/`.
+- Its Copilot integration is explicitly a custom setup that creates `speckit.*.agent.md` command
+  files, companion `.prompt.md` files, and `.vscode/settings.json`, with
+  `.github/copilot-instructions.md` used as the Copilot context file.
+
+Implication for this repository:
+
+- `speckit`-prefixed files in downstream repos are usually **tool-generated Spec Kit workflow
+  assets**, not curated reusable slices from this repository
+- those files should be evaluated as ecosystem-owned scaffolding first, and only promoted into this
+  repository when there is a deliberate curation/import reason
+- do not mistake Spec Kit's generated agent scaffolding for this repository's canonical `.agents/`
+  inventory
+
+References:
+
+- <https://github.com/github/spec-kit/blob/main/AGENTS.md>
+
 ### Ignore strategy for generated workspace exports
 
 In this repository, workspace exports under `.github/*` are treated as generated compatibility files
