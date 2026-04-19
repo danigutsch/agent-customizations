@@ -205,13 +205,17 @@ related context files through its integration setup. This repository's policy is
 those generated Aspire or Spec Kit files as curated assets here. At most, document the commands and
 tooling needed to generate or refresh them in downstream repositories.
 
-To inspect a downstream repository for these tool-provided files and report conservative provenance,
-version-signal, and drift information:
+To inspect a downstream repository for these tool-provided files and report provenance,
+bundled-baseline matches, version-signal, and drift information:
 
 ```bash
 python3 scripts/check_tool_file_versions.py --repo /path/to/repo
 python3 scripts/check_tool_file_versions.py --repo /path/to/repo --format json
 ```
+
+The checker includes bundled upstream baselines for the current Aspire skill file and the current
+Spec Kit Copilot outputs, including both `--script sh` and `--script ps` agent variants where the
+generated content differs.
 
 For the current compatibility model and sync workflow, see
 [docs/compatibility.md](./docs/compatibility.md).
