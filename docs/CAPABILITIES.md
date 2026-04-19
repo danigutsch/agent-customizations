@@ -29,13 +29,13 @@ plugin bundle.
 | `crap-analysis` | Complexity-plus-coverage hotspot review guidance | A repo needs to find and reduce risky code where branching complexity and weak test protection combine into maintainability risk | `xunit-v3-mtp-test-stack`, `slopwatch`, `dotnet-performance-analyst` | No |
 | `dotnet-concurrency-specialist` | End-to-end .NET concurrency system review guidance | A .NET system needs broader review of hosted services, queues, throughput limits, scoped service usage, shutdown, or worker observability beyond code-level primitives alone | `csharp-concurrency-patterns`, `microsoft-extensions-dependency-injection`, `database-performance`, `opentelemetry-dotnet` | No |
 | `database-performance` | Query-shape, projection, batching, and EF Core versus Dapper guidance | A .NET data-access layer needs better read/write boundaries, tracking discipline, or query performance | `csharp-type-design-performance`, `csharp-concurrency-patterns`, `microsoft-extensions-dependency-injection` | No |
-| `docfx-specialist` | DocFX structure, navigation, xrefs, and validation workflow guidance | A repo uses DocFX and needs help with docs layout, build warnings, or API-reference integration | `docs-and-scripts-quality` | No |
+| `mkdocs-specialist` | MkDocs and Material for MkDocs site guidance | A repo needs a Markdown-first docs portal, `mkdocs.yml` cleanup, explicit navigation, lightweight validation, or git-host pages/docs publishing guidance | `docs-and-scripts-quality`, `repository-setup`, `ci-workflows` | No |
 | `dotnet-performance-analyst` | Profiling, benchmark interpretation, and regression analysis | Performance measurements need interpretation and high-value bottlenecks need ranking | `dotnet-benchmark-designer`, `database-performance`, `csharp-concurrency-patterns` | No |
 | `dotnet-benchmark-designer` | Benchmark strategy and measurement-harness design | A .NET performance question needs a reliable benchmark or measurement approach | `dotnet-performance-analyst`, `csharp-type-design-performance`, `database-performance` | No |
 | `copilot-compatibility-exports` | Canonical-to-compatible export mapping for Copilot assets | A repo needs to map canonical `.agents` assets into `.github/*` or `~/.copilot/*` safely | `plugin-bundles`, `repository-setup`, `mcp-servers` | No |
 | `plugin-bundles` | Plugin manifest, changelog, example, and validator-backed packaging guidance | Capability bundles need explicit packaging contracts, validation, or release metadata | `copilot-compatibility-exports`, `repository-setup` | No |
 | `tool-generated-file-provenance` | Baseline-driven provenance and drift inspection for generator-owned files | A repo needs to separate curated assets from tool-generated outputs and report drift conservatively | `copilot-compatibility-exports`, `repository-setup` | No |
-| `docs-and-scripts-quality` | Repo docs quality, helper-script maintenance, and local validation workflow alignment | README, maintenance docs, hooks, or helper scripts need quality improvements tied to real repo checks | `repository-setup`, `git-hooks`, `python-quality`, `docfx-specialist` | No |
+| `docs-and-scripts-quality` | Repo docs quality, helper-script maintenance, and local validation workflow alignment | README, maintenance docs, hooks, or helper scripts need quality improvements tied to real repo checks | `repository-setup`, `git-hooks`, `python-quality`, `mkdocs-specialist` | No |
 | `foss-compatibility` | Open-source license compatibility, obligations, provenance, and escalation guidance | A repo needs to assess whether imported open-source assets can be adopted or redistributed safely and what follow-up is required | `repository-setup`, `tool-generated-file-provenance` | No |
 | `license-checking` | Automated license inventory, policy gates, SBOM workflows, and review routing | A repo needs repeatable license scanning, explicit allow-deny-review policy checks, or CI-local license gates | `foss-compatibility`, `ci-workflows`, `repository-setup` | No |
 | `devcontainers-smoke` | Devcontainer smoke-validation and contributor-path guidance | A repo needs a shared local-and-CI smoke path for `.devcontainer/**`, lifecycle hooks, toolchain verification, optional deeper in-container validation, or supplemental workflow coverage for environment drift | `ci-workflows`, `repository-setup`, `docs-and-scripts-quality` | No |
@@ -45,6 +45,7 @@ plugin bundle.
 | `grpc-protobuf-contracts` | gRPC and Protocol Buffers contract design and evolution guidance | A repo needs safer `.proto` schemas, package versioning, streaming RPC choices, or clearer contract ownership boundaries | `repository-setup`, `ci-workflows` | No |
 | `opentelemetry-dotnet` | OpenTelemetry setup and instrumentation guidance for .NET | A .NET app needs cohesive logs, metrics, and traces, consistent resource identity, semantic conventions, exporter boundaries, source-generated logging, or strongly typed metrics guidance | `dotnet-aspire-apphost`, `ci-workflows`, `repository-setup` | No |
 | `xunit-v3-mtp-test-stack` | xUnit v3 plus Microsoft.Testing.Platform test-stack guidance for .NET | A .NET repo needs clearer xUnit v3 runner choice, MTP command shape, filtering, coverage, fixture, or troubleshooting guidance | `ci-workflows`, `repository-setup`, `dotnet-aspire-apphost` | No |
+| `snapshot-testing` | Snapshot and approval testing guidance for stable reviewed output contracts | A repo needs Verify-style approval tests, `.verified.*` versus `.received.*` discipline, output scrubbing, or CI-friendly review flow for rendered, serialized, generated, or API-surface output | `xunit-v3-mtp-test-stack`, `aspnet-api-contracts`, `event-sourcing-projections` | No |
 | `source-generation` | Roslyn source generator design, setup, testing, and packaging | C# source generators need design, migration, diagnostics, tests, or pack guidance | `repository-setup`, `ci-workflows`, `vertical-slice-architecture` | Yes |
 | `vertical-slice-architecture` | Domain-first vertical slice design and migration guidance | A codebase needs clearer slice boundaries, migration steps, or slice-aligned tests | `repository-setup`, `ci-workflows`, `python-quality`, `source-generation` | Yes |
 | `workflow-packs` | Reusable multi-step workflow packs and handoff assets | A repo needs repeatable workflow phases, checkpoints, or adaptation examples | `repository-setup`, `ci-workflows`, `mcp-servers` | No |
@@ -69,6 +70,7 @@ plugin bundle.
 | Open-source intake or redistribution review | `foss-compatibility` + `repository-setup` + `tool-generated-file-provenance` |
 | Automated open-source license governance | `license-checking` + `foss-compatibility` + `ci-workflows` + `repository-setup` |
 | Documented containerized contributor path | `devcontainers-smoke` + `repository-setup` + `ci-workflows` + `docs-and-scripts-quality` |
+| Markdown-first docs portal | `mkdocs-specialist` + `docs-and-scripts-quality` + `ci-workflows` |
 | Aspire orchestration boundary review | `dotnet-aspire-apphost` + `repository-setup` + `ci-workflows` |
 | ASP.NET API contract review | `aspnet-api-contracts` + `repository-setup` + `ci-workflows` + `xunit-v3-mtp-test-stack` |
 | Event-sourced read-model design | `event-sourcing-projections` + `xunit-v3-mtp-test-stack` + `database-performance` + `opentelemetry-dotnet` |
@@ -76,6 +78,7 @@ plugin bundle.
 | .NET concurrency system review | `dotnet-concurrency-specialist` + `csharp-concurrency-patterns` + `database-performance` + `opentelemetry-dotnet` |
 | .NET observability foundation | `opentelemetry-dotnet` + `repository-setup` + `ci-workflows` |
 | .NET xUnit v3 plus MTP baseline | `xunit-v3-mtp-test-stack` + `repository-setup` + `ci-workflows` |
+| Approval testing for output contracts | `snapshot-testing` + `xunit-v3-mtp-test-stack` + `aspnet-api-contracts` |
 | .NET performance and measurement work | `csharp-type-design-performance` + `csharp-concurrency-patterns` + `database-performance` + `dotnet-performance-analyst` + `dotnet-benchmark-designer` |
 
 ## Selection guidance
@@ -98,17 +101,21 @@ plugin bundle.
 - Add `crap-analysis` when complexity and weak coverage together make a maintained code path risky.
 - Add `dotnet-concurrency-specialist` when a hosted service, queue, or pipeline needs broader concurrency review beyond code-level primitive choice.
 - Add `devcontainers-smoke` when a repository needs one shared local-and-CI smoke path for its documented devcontainer workflow, lifecycle hooks, toolchain
-checks, or supplemental drift validation.
+  checks, or supplemental drift validation.
+- Add `mkdocs-specialist` when a repository wants a Markdown-first docs site with explicit `mkdocs.yml`
+  navigation, lightweight validation, or git-host pages/docs publishing guidance.
 - Add `dotnet-aspire-apphost` when Aspire AppHost orchestration, references, startup ordering, or AppHost boundaries need focused review.
 - Add `aspnet-api-contracts` when an ASP.NET API needs focused review of route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata,
-versioning, or contract-test strategy.
+  versioning, or contract-test strategy.
 - Add `event-sourcing-projections` when event-sourced read models need focused review of projection lifecycle, checkpointing, replay safety, rebuild workflow,
 multi-stream views, or operational readiness.
 - Add `grpc-protobuf-contracts` when `.proto` schemas, gRPC service contracts, or contract-evolution rules need focused review.
 - Add `opentelemetry-dotnet` when .NET logs, metrics, and traces need to stay cohesive or when resource metadata, exporter boundaries, source-generated logging,
-or strongly typed metrics need focused review.
+  or strongly typed metrics need focused review.
 - Add `xunit-v3-mtp-test-stack` when a .NET repository needs focused xUnit v3 plus Microsoft.Testing.Platform guidance for runner choice, command shape,
-filters, coverage, fixtures, or troubleshooting.
+  filters, coverage, fixtures, or troubleshooting.
+- Add `snapshot-testing` when rendered output, serialized payloads, generated code, HTTP responses, or public API surfaces need reviewed baseline files,
+  scrubbers for dynamic values, and a CI-friendly approval workflow.
 - Add `docs-and-scripts-quality` when maintenance docs, helper scripts, and local checks need to stay aligned.
 - Add `ci-workflows` when the local validation path should be wrapped in automation.
 - Add `workflow-packs` when multi-step reusable workflows need explicit phases and checkpoints.

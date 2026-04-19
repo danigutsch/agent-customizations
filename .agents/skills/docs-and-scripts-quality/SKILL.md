@@ -51,8 +51,8 @@ coherent.
   [Pyright Python](../pyright-python/SKILL.md) when the change is mainly about Python script quality.
 - Pair with [Git hooks](../git-hooks/SKILL.md) when hook behavior should change with the local
   validation flow.
-- Pair with [DocFX Specialist](../../agents/docfx-specialist.agent.md) when the docs quality problem
-  is DocFX-specific rather than repo-wide.
+- Pair with [MkDocs Specialist](../../agents/mkdocs-specialist.agent.md) when the docs quality problem
+  is MkDocs-site-specific rather than repo-wide.
 
 ## Gotchas
 
