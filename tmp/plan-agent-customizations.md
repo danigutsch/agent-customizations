@@ -39,6 +39,7 @@ Implemented in the canonical repo and synced downstream:
 6. `dotnet-performance-analyst`
 7. `dotnet-benchmark-designer`
 8. `docfx-specialist`
+9. `copilot-compatibility-exports`
 
 ## Execution rules for slices
 
@@ -61,14 +62,13 @@ Implemented in the canonical repo and synced downstream:
 
 ### Immediate next slice
 
-1. `copilot-compatibility-exports`
+1. `plugin-bundles`
 
 ### Canonical repo slices
 
-1. `copilot-compatibility-exports`
-2. `plugin-bundles`
-3. `tool-generated-file-provenance`
-4. `docs-and-scripts-quality`
+1. `plugin-bundles`
+2. `tool-generated-file-provenance`
+3. `docs-and-scripts-quality`
 
 ### Quality and maintenance backlog
 
