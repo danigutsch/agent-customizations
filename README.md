@@ -220,6 +220,11 @@ This repository prefers **source-of-truth first, compatibility second**:
 - keep those generated `.github/*` copies ignored through global Git ignore policy rather than a
   repository `.gitignore` rule
 
+For workspace syncs, the generic exporter skips surfaces the target repository already exposes
+natively from `.agents/`. In practice this mainly means skipping `.github/skills/` when the target
+repo already has `.agents/skills/`. It still syncs `.github/agents/`, because custom agents are
+documented for `.github/agents/`, not `.agents/agents/`.
+
 Some downstream projects also contain **tool-provided agent assets** that are not part of this
 repository's curated capability inventory. In particular, Aspire can install its own broad `aspire`
 skill through `aspire agent init`, and Spec Kit can generate `speckit`-prefixed Copilot assets and

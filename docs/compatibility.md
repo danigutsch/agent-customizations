@@ -53,7 +53,10 @@ The repository now supports two export modes:
    - best for: personal agents, personal skills, and VS Code-specific user instructions/hooks
 2. **Workspace scope**
    - target root: a repository root
-   - best for: `.github/` exports needed by repo-scoped Copilot features, especially prompts and hooks
+   - best for: `.github/` exports needed by repo-scoped Copilot features, especially agents,
+     instructions, prompts, and hooks
+   - default behavior: skip surfaces that the target repository already exposes natively from
+     `.agents/`
 
 The generic export script is:
 
@@ -70,6 +73,13 @@ python3 scripts/sync_copilot_exports.py --scope user --plugin vertical-slice-arc
 ```
 
 Use `--surface ...` as the lower-level fallback when no plugin bundle exists yet.
+
+For workspace syncs, the generic exporter skips native project surfaces that the target repository
+already exposes from `.agents/`. Today that mainly means:
+
+- skip `.github/skills/` when the target repository already has `.agents/skills/`
+- still sync `.github/agents/` because custom agent personas are not documented as natively readable
+  from `.agents/agents/`
 
 Narrower compatibility helpers remain available:
 
@@ -108,7 +118,8 @@ Run the generic export script for workspace sync:
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root /path/to/repo
 ```
 
-This exports supported `.agents/` surfaces into Copilot-native locations for that repository.
+This exports supported `.agents/` surfaces into Copilot-native locations for that repository while
+skipping native `.agents` surfaces that the target repo already exposes.
 
 Examples:
 
@@ -116,6 +127,7 @@ Examples:
 python3 scripts/sync_copilot_exports.py --scope user --dry-run
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --dry-run
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --surface prompts
+python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --surface skills
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --plugin source-generation
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --write-git-exclude
 ```

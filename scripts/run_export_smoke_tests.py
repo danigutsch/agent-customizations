@@ -80,6 +80,12 @@ def init_workspace_repo(path: Path) -> None:
     run(["git", "init", "-q", str(path)])
 
 
+def init_workspace_native_skills(path: Path) -> None:
+    native_skill_dir = path / ".agents" / SKILLS_DIR / SOURCE_GENERATION
+    native_skill_dir.mkdir(parents=True, exist_ok=True)
+    (native_skill_dir / SKILL_FILE).write_text("native skill\n", encoding="utf-8")
+
+
 def sync_exports(*args: str) -> None:
     run([sys.executable, str(SYNC_SCRIPT), *args], cwd=ROOT)
 
@@ -213,11 +219,30 @@ def test_workspace_surface_export() -> None:
         assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
 
 
+def test_workspace_default_skips_native_skill_surface() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-native-skills"
+        init_workspace_repo(repo_root)
+        init_workspace_native_skills(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+        assert_exists(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
+
+
 def main() -> None:
     test_workspace_plugin_export()
     test_workspace_plugin_stale_cleanup()
     test_user_plugin_export()
     test_workspace_surface_export()
+    test_workspace_default_skips_native_skill_surface()
     print("Export smoke tests passed.")
 
 

@@ -38,6 +38,9 @@ PLUGIN_ROOT = AGENTS_ROOT / "plugins"
 STATE_FILE_NAME = "agent-customizations-sync-state.json"
 EXCLUDE_START = "# BEGIN agent-customizations exports"
 EXCLUDE_END = "# END agent-customizations exports"
+NATIVE_PROJECT_SURFACES: dict[str, Path] = {
+    "skills": Path(".agents/skills"),
+}
 
 SURFACES: dict[str, SurfaceSpec] = {
     "agents": {
@@ -147,17 +150,34 @@ def supported_surfaces(scope: str) -> list[str]:
     return [name for name, spec in SURFACES.items() if spec[key] is not None]
 
 
-def selected_surfaces(scope: str, requested: list[str] | None) -> list[str]:
+def has_native_project_surface(target_root: Path, surface: str) -> bool:
+    native_root = NATIVE_PROJECT_SURFACES.get(surface)
+    if native_root is None:
+        return False
+
+    return (target_root / native_root).exists()
+
+
+def selected_surfaces(
+    scope: str,
+    target_root: Path,
+    requested: list[str] | None,
+) -> tuple[list[str], list[str]]:
     available = supported_surfaces(scope)
     if not requested:
-        return available
+        skipped_native = sorted(
+            surface
+            for surface in available
+            if scope == "workspace" and has_native_project_surface(target_root, surface)
+        )
+        return [surface for surface in available if surface not in skipped_native], skipped_native
 
     unsupported = sorted(surface for surface in requested if surface not in available)
     if unsupported:
         unsupported_list = ", ".join(unsupported)
         raise ValueError(f"Unsupported surfaces for {scope} scope: {unsupported_list}")
 
-    return requested
+    return requested, []
 
 
 def load_plugin_manifest(plugin_id: str) -> PluginManifest:
@@ -453,31 +473,14 @@ def update_git_exclude(workspace_root: Path, surfaces: list[str], dry_run: bool)
     print(f"Updated {exclude_path} with managed workspace export patterns")
 
 
-def main() -> int:
-    args = parse_args()
-    target_root = resolve_target_root(args)
-
-    try:
-        surfaces = selected_surfaces(args.scope, args.surface)
-    except ValueError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
-
-    if args.write_git_exclude and args.scope != "workspace":
-        print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
-        return 1
-
-    state_path = state_path_for(args.scope, target_root)
-    state = load_state(state_path)
+def sync_selected_surfaces(
+    args: argparse.Namespace,
+    target_root: Path,
+    surfaces: list[str],
+    plugin_entries: dict[str, list[tuple[Path, str]]],
+    state: SyncState,
+) -> dict[str, list[str]]:
     updated_state: dict[str, list[str]] = dict(state["managed_files"])
-
-    plugin_entries: dict[str, list[tuple[Path, str]]] = {}
-    if args.plugin:
-        try:
-            plugin_entries = collect_plugin_entries(args.plugin, args.scope, surfaces)
-        except (FileNotFoundError, ValueError) as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
 
     for surface in surfaces:
         if args.plugin:
@@ -491,16 +494,53 @@ def main() -> int:
                 args.dry_run,
                 not args.no_delete_stale,
             )
-        else:
-            updated_state[surface] = sync_surface(
-                args.scope,
-                target_root,
-                surface,
-                SURFACES[surface],
-                state["managed_files"].get(surface, []),
-                args.dry_run,
-                not args.no_delete_stale,
-            )
+            continue
+
+        updated_state[surface] = sync_surface(
+            args.scope,
+            target_root,
+            surface,
+            SURFACES[surface],
+            state["managed_files"].get(surface, []),
+            args.dry_run,
+            not args.no_delete_stale,
+        )
+
+    return updated_state
+
+
+def main() -> int:
+    args = parse_args()
+    target_root = resolve_target_root(args)
+
+    try:
+        surfaces, skipped_native = selected_surfaces(args.scope, target_root, args.surface)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+    if skipped_native:
+        skipped_list = ", ".join(skipped_native)
+        print(
+            f"Skipping native project surfaces already readable from .agents in {target_root}: {skipped_list}"
+        )
+
+    if args.write_git_exclude and args.scope != "workspace":
+        print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
+        return 1
+
+    state_path = state_path_for(args.scope, target_root)
+    state = load_state(state_path)
+
+    plugin_entries: dict[str, list[tuple[Path, str]]] = {}
+    if args.plugin:
+        try:
+            plugin_entries = collect_plugin_entries(args.plugin, args.scope, surfaces)
+        except (FileNotFoundError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+
+    updated_state = sync_selected_surfaces(args, target_root, surfaces, plugin_entries, state)
 
     if args.write_git_exclude:
         try:
