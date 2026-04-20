@@ -25,8 +25,9 @@ workflow runs in CI.
 
 Pull requests also run the `Dependency Review` workflow, which inspects manifest and lockfile diffs
 for newly introduced vulnerable dependencies.
-Workflow edits under `.github/workflows/**` also run the `Actionlint` workflow, which catches
-workflow syntax, expression, and embedded shell issues before they land on `main`.
+Workflow edits under `.github/workflows/**` or `.github/actions/**` also run the `Actionlint`
+workflow, which catches workflow syntax, expression, and embedded shell issues before they land on
+`main`.
 Pull requests also run the `Secret Scan` workflow, which scans the repository for committed secrets
 and keeps a SARIF artifact even when code-scanning upload is skipped for fork pull requests.
 

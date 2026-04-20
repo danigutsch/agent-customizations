@@ -13,8 +13,9 @@ manual runs.
 
 Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
 lockfile changes for newly introduced vulnerable packages.
-Changes under `.github/workflows/**` also run a separate `Actionlint` workflow to catch workflow
-syntax, expression, and embedded shell issues before they break the main repository checks.
+Changes under `.github/workflows/**` and `.github/actions/**` also run a separate `Actionlint`
+workflow to catch workflow syntax, expression, and embedded shell issues before they break the main
+repository checks.
 Pull requests also run a separate `Secret Scan` workflow that scans the repository for committed
 secrets and uploads SARIF results for trusted branches.
 
