@@ -1,0 +1,77 @@
+name: Release plugin bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin id under .agents/plugins/
+        required: true
+        type: choice
+        options:
+          - source-generation
+          - vertical-slice-architecture
+      bump:
+        description: Semantic version bump to apply
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      target_ref:
+        description: Branch to update and tag
+        required: true
+        default: main
+        type: string
+
+concurrency:
+  group: release-plugin-${{ inputs.plugin }}-${{ inputs.target_ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release-plugin:
+    name: Release plugin bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.target_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.11"
+
+      - name: Prepare plugin release
+        id: release
+        run: |
+          python3 scripts/release_plugin_bundle.py \
+            --plugin "${{ inputs.plugin }}" \
+            --bump "${{ inputs.bump }}" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Validate plugin bundles
+        run: python3 scripts/validate_plugin_bundles.py
+
+      - name: Commit release files and create tag
+        env:
+          PLUGIN: ${{ steps.release.outputs.plugin }}
+          VERSION: ${{ steps.release.outputs.version }}
+          TAG_NAME: ${{ steps.release.outputs.tag }}
+          MANIFEST_PATH: ${{ steps.release.outputs.manifest_path }}
+          CHANGELOG_PATH: ${{ steps.release.outputs.changelog_path }}
+          TARGET_REF: ${{ inputs.target_ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$MANIFEST_PATH" "$CHANGELOG_PATH"
+          git commit -m "release(plugin): ${PLUGIN} v${VERSION}"
+          git tag "$TAG_NAME"
+          git push origin "HEAD:${TARGET_REF}"
+          git push origin "$TAG_NAME"

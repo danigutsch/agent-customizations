@@ -8,7 +8,7 @@ TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
 RUNTIME_AUTHORITY ?= user
 
-.PHONY: check format lint lint-markdown lint-workflows scan-secrets typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown lint-workflows scan-secrets typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp release-plugin install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -58,6 +58,13 @@ setup-mcp:
 	else \
 		$(PYTHON) scripts/setup_copilot_mcp.py; \
 	fi
+
+release-plugin:
+	@if [ -z "$(PLUGIN)" ] || [ -z "$(BUMP)" ]; then \
+		echo "Usage: make release-plugin PLUGIN=<plugin-id> BUMP=<major|minor|patch>"; \
+		exit 1; \
+	fi
+	$(PYTHON) scripts/release_plugin_bundle.py --plugin "$(PLUGIN)" --bump "$(BUMP)"
 
 install-dev:
 	@command -v $(PIPX) >/dev/null 2>&1 || { \

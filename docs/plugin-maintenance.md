@@ -58,6 +58,15 @@ Keep one changelog per plugin once bundles can evolve independently.
 4. Run `python3 scripts/validate_plugin_bundles.py`.
 5. Only then cut or tag the new bundle version.
 
+The repository-local helper keeps the manifest version and changelog promotion aligned:
+
+```bash
+make release-plugin PLUGIN=source-generation BUMP=patch
+```
+
+It bumps the plugin manifest version, promotes the current `Unreleased` changelog notes into a dated
+release section, and prints the git tag name to use for that bundle release.
+
 ## Automation options
 
 The repository includes a lightweight validator script:
@@ -72,6 +81,9 @@ Use it in any automation layer you already trust:
 - CI jobs
 - reusable workflow wrappers
 - release pipelines
+
+The repository also includes a manual GitHub Actions workflow, `Release plugin bundle`, that reuses
+the same script for CI-driven commit and tag creation.
 
 If you later use GitHub Actions, reusable workflows are a reasonable way to centralize this check
 across repositories, but the validator itself stays tool-neutral and can run anywhere Python 3 is
