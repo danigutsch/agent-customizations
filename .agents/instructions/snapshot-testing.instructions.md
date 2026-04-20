@@ -20,6 +20,8 @@ style.
   API surfaces.
 - Prefer snapshots for build-generated OpenAPI or AsyncAPI artifacts when the
   artifact itself is a reviewed public contract.
+- Prefer contract snapshots at published boundaries rather than on internal
+  implementation representations that consumers never see.
 - Prefer explicit assertions for business rules, calculations, and narrow behavioral checks.
 - Pair snapshots with focused assertions when one or two invariants should remain immediately visible.
 

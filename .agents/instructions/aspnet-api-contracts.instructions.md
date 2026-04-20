@@ -23,6 +23,9 @@ application setup.
 - Do not expose domain or persistence models as the default HTTP contract.
 - Keep route templates resource-oriented and endpoint names stable.
 - Keep list, detail, mutation, and error responses intentional rather than incidental.
+- Prefer compatibility-friendly contract evolution so consumers depending on only
+  part of the artifact are not forced to change for every additive provider
+  change.
 
 ## Result-shape rules
 

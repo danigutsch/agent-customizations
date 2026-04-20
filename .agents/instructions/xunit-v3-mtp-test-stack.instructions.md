@@ -69,6 +69,9 @@ Use these rules when the task is about xUnit v3 test stacks built on Microsoft.T
   fixtures, data ownership, and command usage.
 - Keep browser, component, BDD, and architecture test projects aligned to the same MTP command and
   troubleshooting model when they run on the same stack.
+- When suite guidance discusses entry points, prefer public HTTP or published
+  messaging edges for integration tests and user-visible seams for browser
+  tests rather than internal implementation hooks.
 
 ## Verification
 
