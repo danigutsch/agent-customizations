@@ -60,6 +60,8 @@ of becoming an independent source of truth.
 - Prefer one clear validation workflow over many overlapping ones.
 - Use official setup actions for the platform and language runtime.
 - Keep CI output understandable so failures map back to one local command.
+- For supplemental checks with real local value, prefer a thin repository-local command entrypoint
+  and keep CI-only bootstrap or artifact-upload details in workflow YAML.
 
 ### Permissions and triggers
 

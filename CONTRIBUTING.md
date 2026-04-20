@@ -25,6 +25,11 @@ workflow runs in CI.
 
 Pull requests also run the `Dependency Review` workflow, which inspects manifest and lockfile diffs
 for newly introduced vulnerable dependencies.
+Workflow edits under `.github/workflows/**` or `.github/actions/**` also run the `Actionlint`
+workflow, which catches workflow syntax, expression, and embedded shell issues before they land on
+`main`.
+Pull requests also run the `Secret Scan` workflow, which scans the repository for committed secrets
+and keeps a SARIF artifact even when code-scanning upload is skipped for fork pull requests.
 
 Dependabot is configured to stay low-noise: monthly runs, one open version-update PR per ecosystem,
 and grouped minor and patch updates. Review action-update PRs against both the release notes and the
@@ -54,6 +59,20 @@ Optional local convenience:
 Do not add narrower quality gates unless they solve a real recurring problem in the maintained
 surface. For this repository, likely future additions are `slopwatch`, `license-checking`, and
 `crap-analysis` when the repository grows enough to justify them.
+
+`Actionlint` and `Secret Scan` are focused supplemental workflows, not replacements for the main
+repository baseline.
+When the repo adopts focused workflow tooling with a useful local CLI, prefer a thin local
+entrypoint over copying long commands into docs or pull request comments. For this repo:
+
+```bash
+make lint-workflows
+make scan-secrets
+```
+
+Those commands stay outside `make check` unless the repository intentionally promotes them into the
+required baseline.
+Run them when the corresponding local CLI is available on your `PATH`.
 
 ## Contribution boundaries
 

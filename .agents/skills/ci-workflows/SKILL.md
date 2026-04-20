@@ -31,6 +31,8 @@ feature.
 
 - Prefer one clear validation workflow for baseline repository health.
 - Use official setup actions for the runtime or toolchain.
+- For supplemental checks with useful local CLI value, prefer a thin repo-local command entrypoint
+  and keep CI-only bootstrap or upload details in workflow YAML.
 - Add matrices only when version or platform coverage is truly required.
 - Keep workflow creation concerns explicit:
   naming, triggers, permissions, runner choice, and local-to-CI command mapping.

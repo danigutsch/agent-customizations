@@ -13,6 +13,11 @@ manual runs.
 
 Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
 lockfile changes for newly introduced vulnerable packages.
+Changes under `.github/workflows/**` and `.github/actions/**` also run a separate `Actionlint`
+workflow to catch workflow syntax, expression, and embedded shell issues before they break the main
+repository checks.
+Pull requests also run a separate `Secret Scan` workflow that scans the repository for committed
+secrets and uploads SARIF results for trusted branches.
 
 It includes reusable assets such as:
 
@@ -126,6 +131,22 @@ failures should map directly to pull request validation failures.
 Treat `make check` as the required repository quality gate. Use narrower gates only when the
 maintained surface clearly needs them.
 
+`Actionlint` and `Secret Scan` are supplemental workflows rather than part of `make check`.
+`Actionlint` validates GitHub Actions workflow syntax and shell usage, while `Secret Scan` is a
+repository-protection workflow that also publishes SARIF results when the workflow token is allowed
+to do so.
+The repo still exposes short local entrypoints for supplemental checks so contributors can run the
+same focused tools without copying long commands:
+
+```bash
+make lint-workflows
+make scan-secrets
+```
+
+Those focused commands are convenience wrappers, not part of the required baseline. Keep CI-only
+setup details such as pinned downloads, checksum verification, and SARIF upload in workflow YAML.
+Run them when the corresponding local CLI is available on your `PATH`.
+
 Format the maintained Python scripts:
 
 ```bash
@@ -136,6 +157,8 @@ Helpful maintenance commands:
 
 - `make validate-repo`
 - `make lint-markdown`
+- `make lint-workflows`
+- `make scan-secrets`
 - `make validate-plugins`
 - `make smoke-exports`
 - `make inspect-tool-files TARGET_ROOT=/path/to/repo`

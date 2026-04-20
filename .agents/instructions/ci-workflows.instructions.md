@@ -19,6 +19,8 @@ Use these rules when the task is about creating or refining repository CI workfl
 - Use official setup actions for the runtime or toolchain when they exist.
 - Keep repository-specific logic in scripts when that logic would otherwise be repeated in workflow
   YAML.
+- For supplemental checks with real local value, prefer a thin repository-local command such as a
+  `make` target or small script, while leaving CI-only bootstrap details in workflow YAML.
 - Add matrices only when version or platform coverage is a real repository requirement.
 - Keep caching simple and only when it saves meaningful time.
 
