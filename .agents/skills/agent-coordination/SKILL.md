@@ -61,6 +61,9 @@ specialist agent working alone.
 - Default to user-local Copilot assets for routine work.
 - Use repo-local assets as an explicit alternative when a repository needs pinned project-specific
   behavior or temporary overrides.
+- Start from the packaged routing policy example in
+  [references/openrouter-routing-policy.example.yaml](./references/openrouter-routing-policy.example.yaml)
+  when a repository needs concrete lane defaults and escalation caps.
 
 ## Related guidance
 
@@ -85,3 +88,4 @@ specialist agent working alone.
 - [Agent coordination guidance](../../instructions/agent-coordination.instructions.md)
 - [Agent coordination agent](../../agents/agent-coordination.agent.md)
 - [Agent coordination workflow assets](../../workflows/agent-coordination/README.md)
+- [OpenRouter routing policy example](./references/openrouter-routing-policy.example.yaml)

@@ -1,0 +1,72 @@
+default_runtime_authority: user
+repo_runtime_override: optional
+
+lanes:
+  coordinator:
+    runtime: copilot
+    default_model: gpt-5.4
+    fallbacks:
+      - claude-sonnet-4.6
+      - claude-opus-4.7
+    free_models_allowed: false
+    escalation_cap: claude-opus-4.7
+
+  scout:
+    runtime: openrouter
+    default_model: google/gemini-2.5-flash-lite
+    code_fallbacks:
+      - qwen/qwen3-coder-30b-a3b-instruct
+      - qwen/qwen3-coder:free
+    synthesis_fallbacks:
+      - deepseek/deepseek-v3.2
+      - google/gemini-2.5-flash
+    free_models_allowed: true
+    escalation_cap: google/gemini-2.5-flash
+
+  implementer:
+    runtime: copilot
+    default_model: gpt-5.3-codex
+    fallbacks:
+      - openai/gpt-5.1-codex-mini
+      - openai/gpt-5-codex
+    free_models_allowed: false
+    escalation_cap: openai/gpt-5-codex
+
+  validator:
+    runtime: copilot
+    default_model: gpt-4.1
+    fallbacks:
+      - claude-haiku-4.5
+      - gpt-5.4
+    free_models_allowed: false
+    escalation_cap: gpt-5.4
+
+  reviewer:
+    runtime: copilot
+    default_model: claude-sonnet-4.6
+    fallbacks:
+      - gpt-5.4
+      - claude-opus-4.7
+    free_models_allowed: false
+    escalation_cap: claude-opus-4.7
+
+  documentation:
+    runtime: mixed
+    default_model: google/gemini-2.5-flash
+    fallbacks:
+      - gpt-4.1-mini
+      - claude-sonnet-4.6
+    free_models_allowed: true
+    escalation_cap: claude-sonnet-4.6
+
+escalation_rules:
+  retry_limit_before_escalation: 2
+  require_coordinator_approval_for:
+    - scout_above_economy
+    - implementer_above_balanced
+    - any_premium_openrouter_model
+  immediate_hard_escalation_for:
+    - security_review
+    - legal_or_license_risk
+    - release_blocker
+    - architecture_change
