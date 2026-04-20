@@ -91,8 +91,9 @@ must take over.
   workflows when possible.
 - Offload scouting, inventory, alternative drafts, and cheap summarization to external model lanes
   when that meaningfully reduces cost.
-- Prefer one active authority per repository for runtime Copilot assets, with user-local assets kept
-  for truly global non-overlapping guidance only.
+- Prefer one active authority per repository for runtime Copilot assets, defaulting to user-local
+  assets and using repo-local assets as an explicit alternative when project-specific overrides or
+  pinned local behavior are needed.
 
 ## Pairing guidance
 

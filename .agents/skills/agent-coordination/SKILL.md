@@ -58,8 +58,9 @@ specialist agent working alone.
 
 ### 4. Keep runtime authority explicit
 
-- Prefer repo-local Copilot assets for project-specific work.
-- Keep user-local assets only for truly global non-overlapping guidance.
+- Default to user-local Copilot assets for routine work.
+- Use repo-local assets as an explicit alternative when a repository needs pinned project-specific
+  behavior or temporary overrides.
 
 ## Related guidance
 

@@ -16,7 +16,8 @@ solving one task with one worker.
 - Keep tool-heavy repository edits and final merge judgment in the strongest repo-aware execution
   environment.
 - Keep one active authority per repository for Copilot runtime assets whenever overlapping user and
-  repo surfaces would create ambiguity.
+  repo surfaces would create ambiguity, defaulting to user-level assets unless repo-level overrides
+  are intentionally chosen.
 
 ## Lane and ownership rules
 
@@ -49,7 +50,8 @@ solving one task with one worker.
 - Use external model workers for low-cost scouting, inventory, drift analysis, and draft
   transformations when those tasks do not require direct local edits.
 - Document repo-local versus user-local Copilot authority decisions whenever duplicate runtime
-  definitions exist.
+  definitions exist, with user-level treated as the default and repo-level as an explicit
+  alternative.
 
 ## Workflow-pack rules
 
