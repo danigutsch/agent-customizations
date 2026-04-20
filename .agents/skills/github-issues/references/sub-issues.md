@@ -51,7 +51,7 @@ has a parent, add `"replace_parent": true` to the JSON body.
 **Remove a sub-issue:**
 
 ```bash
-echo '{"sub_issue_id": 12345}' | gh api repos/{owner}/{repo}/issues/{parent_number}/sub_issue -X DELETE --input -
+echo '{"sub_issue_id": 12345}' | gh api repos/{owner}/{repo}/issues/{parent_number}/sub_issues -X DELETE --input -
 ```
 
 **Reprioritize a sub-issue:**

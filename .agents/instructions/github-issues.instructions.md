@@ -1,6 +1,6 @@
 ---
 description: 'Guidance for GitHub issue authoring, updates, issue types, dependencies, fields, and project-aware issue workflows.'
-applyTo: 'README.md, docs/CAPABILITIES.md, .agents/agents/github-issues.agent.md, .agents/skills/github-issues/**, .github/agents/github-issues.agent.md'
+applyTo: 'README.md, docs/CAPABILITIES.md, .agents/agents/github-issues.agent.md, .agents/skills/github-issues/**'
 ---
 
 # GitHub Issues Guidance

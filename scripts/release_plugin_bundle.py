@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGINS_DIR = ROOT / ".agents" / "plugins"
+PLUGIN_ID_PATTERN = re.compile(r"^[a-z0-9-]+$")
 VERSION_HEADING_PREFIXES = ("## ", "## [")
 
 
@@ -69,6 +70,23 @@ def load_manifest(path: Path) -> dict[str, object]:
     if not isinstance(data, dict):
         raise RuntimeError(f"Plugin manifest must be a JSON object: {path}")
     return data
+
+
+def resolve_plugin_dir(repo_root: Path, plugin_id: str) -> Path:
+    if not PLUGIN_ID_PATTERN.fullmatch(plugin_id):
+        raise RuntimeError("Plugin id must match ^[a-z0-9-]+$.")
+
+    plugins_dir = (repo_root / ".agents" / "plugins").resolve()
+    plugin_dir = (plugins_dir / plugin_id).resolve()
+
+    try:
+        plugin_dir.relative_to(plugins_dir)
+    except ValueError as exc:
+        raise RuntimeError(
+            f"Plugin id '{plugin_id}' resolves outside the plugin directory: {plugin_dir}"
+        ) from exc
+
+    return plugin_dir
 
 
 def parse_version(version: str) -> tuple[int, int, int]:
@@ -156,8 +174,7 @@ def prepare_release(
     *,
     dry_run: bool,
 ) -> ReleaseResult:
-    plugins_dir = repo_root / ".agents" / "plugins"
-    plugin_dir = plugins_dir / plugin_id
+    plugin_dir = resolve_plugin_dir(repo_root, plugin_id)
     manifest_path = plugin_dir / "plugin.json"
     changelog_path = plugin_dir / "CHANGELOG.md"
 
