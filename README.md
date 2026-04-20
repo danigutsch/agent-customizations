@@ -7,9 +7,9 @@ Reusable AI agent customization assets.
 This repository is intended to hold shared, tool-agnostic customization content under a single
 `.agents/` root.
 
-The repository baseline is also enforced in GitHub Actions by the `Validate repository` workflow,
-which runs the same `make check` command documented below for pull requests, pushes to `main`, and
-manual runs.
+The repository baseline is also enforced in GitHub Actions by the `Validate repository` workflow.
+It runs the same `make check` command documented below and a diff-aware plugin version-bump guard
+for pull requests, pushes to `main`, and manual runs.
 
 Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
 lockfile changes for newly introduced vulnerable packages.
@@ -125,8 +125,9 @@ Run the full repository baseline locally:
 make check
 ```
 
-This is the same command the `Validate repository` GitHub Actions workflow runs in CI, so local
-failures should map directly to pull request validation failures.
+This is the main local gate. In CI, the `Validate repository` workflow runs the same `make check`
+command plus the diff-aware plugin version-bump guard, so most local failures still map directly to
+pull request validation failures.
 
 Treat `make check` as the required repository quality gate. Use narrower gates only when the
 maintained surface clearly needs them.
@@ -158,6 +159,7 @@ Helpful maintenance commands:
 - `make validate-repo`
 - `make lint-markdown`
 - `make lint-workflows`
+- `make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD`
 - `make release-plugin PLUGIN=source-generation BUMP=patch`
 - `make scan-secrets`
 - `make validate-plugins`
@@ -190,6 +192,17 @@ make release-plugin PLUGIN=source-generation BUMP=patch
 
 That helper prepares the plugin metadata locally, and the `Release plugin bundle` workflow provides
 the same flow through GitHub Actions when you want CI to create the commit and tag.
+
+When you change a shipped plugin surface, run the diff-aware guard against your base branch before
+opening a pull request:
+
+```bash
+make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD
+```
+
+That guard enforces the established dependency-free release discipline for plugin bundles:
+Semantic Versioning for versions, Keep a Changelog with `Unreleased` notes, and git tags for
+releases.
 
 When reviewing Dependabot pull requests that change pinned GitHub Actions, check the release notes,
 confirm the updated pinned SHA matches the intended action release, and make sure the affected

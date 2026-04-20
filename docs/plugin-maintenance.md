@@ -56,7 +56,8 @@ Keep one changelog per plugin once bundles can evolve independently.
 2. Update the plugin manifest if the distributed contract changed.
 3. Update the plugin changelog.
 4. Run `python3 scripts/validate_plugin_bundles.py`.
-5. Only then cut or tag the new bundle version.
+5. Run the diff-aware version guard against your base branch.
+6. Only then cut or tag the new bundle version.
 
 The repository-local helper keeps the manifest version and changelog promotion aligned:
 
@@ -66,6 +67,19 @@ make release-plugin PLUGIN=source-generation BUMP=patch
 
 It bumps the plugin manifest version, promotes the current `Unreleased` changelog notes into a dated
 release section, and prints the git tag name to use for that bundle release.
+
+Before you cut a release, verify that any shipped plugin-surface change is paired with the expected
+version bump:
+
+```bash
+make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD
+```
+
+The guard follows the established dependency-free versioning model for this repository:
+
+- Semantic Versioning for the bundle version
+- Keep a Changelog with an `Unreleased` section for upcoming notes
+- git tags for released bundle versions
 
 ## Automation options
 
