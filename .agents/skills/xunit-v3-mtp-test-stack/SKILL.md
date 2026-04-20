@@ -16,6 +16,8 @@ than general testing advice alone.
 - The user needs xUnit v3 filter guidance for MTP
 - The user needs MTP-native coverage or diagnostic command guidance
 - The user needs fixture or parallelization guidance for xUnit v3 test assemblies
+- The user needs help choosing constructor, class, collection, or assembly
+  fixture scope for a .NET test suite
 - The user needs troubleshooting for zero tests discovered, invalid switches, or mixed runner setups
 
 ## Prerequisites
@@ -53,6 +55,8 @@ than general testing advice alone.
 
 - Prefer xUnit v3 assembly fixtures when one shared app or resource should serve the whole
   assembly.
+- Choose constructor context, class fixture, collection fixture, or assembly
+  fixture based on the real sharing boundary and setup cost.
 - Keep serial collections narrow and intentional.
 - Prefer test-owned data creation over shared mutable seeded data when parallelism matters.
 

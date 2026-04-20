@@ -18,6 +18,8 @@ style.
 
 - Prefer snapshots for rendered HTML, serialized payloads, HTTP responses, generated code, or public
   API surfaces.
+- Prefer snapshots for build-generated OpenAPI or AsyncAPI artifacts when the
+  artifact itself is a reviewed public contract.
 - Prefer explicit assertions for business rules, calculations, and narrow behavioral checks.
 - Pair snapshots with focused assertions when one or two invariants should remain immediately visible.
 
@@ -34,6 +36,9 @@ style.
   baselines.
 - Make ordering deterministic before snapshotting collections or generated output.
 - Avoid approving snapshots that differ on every run; fix the volatility first.
+- Prefer generating the artifact from one deterministic source path, such as a
+  build-time OpenAPI document, rather than scraping a mutable runtime endpoint
+  when the task is contract drift detection.
 
 ## CI and maintenance rules
 

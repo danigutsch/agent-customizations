@@ -46,12 +46,17 @@ application setup.
   exist.
 - Prefer build-time OpenAPI generation when the document itself is a reviewable contract artifact.
 - Prefer runtime OpenAPI endpoints when discoverability or local inspection matters more.
+- When the repository uses ASP.NET Core's first-party OpenAPI support, keep the
+  runtime `AddOpenApi()` or `MapOpenApi()` path and the build-time document
+  generation path aligned so contract tests review the same public surface.
 
 ## Testing and snapshot rules
 
 - Use focused assertions for status codes, key DTO fields, and `ProblemDetails` fields.
 - Use snapshot testing for deterministic contract artifacts such as generated OpenAPI documents when
   whole-surface drift matters.
+- Prefer representative client-request or payload snapshots only when they show
+  durable contract shape; do not snapshot broad incidental runtime state.
 - Do not rely on snapshots alone when a smaller invariant assertion would be clearer.
 
 ## Verification
