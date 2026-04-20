@@ -2,11 +2,13 @@ PYTHON ?= python3
 PIPX ?= pipx
 RUFF ?= ruff
 PYRIGHT ?= pyright
+ACTIONLINT ?= actionlint
+GITLEAKS ?= gitleaks
 TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
 RUNTIME_AUTHORITY ?= user
 
-.PHONY: check format lint lint-markdown typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown lint-workflows scan-secrets typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -19,6 +21,12 @@ lint:
 
 lint-markdown:
 	npm run --silent lint:markdown
+
+lint-workflows:
+	$(ACTIONLINT) -color
+
+scan-secrets:
+	$(GITLEAKS) detect --source "$(CURDIR)" --no-git --redact
 
 typecheck:
 	$(PYRIGHT) scripts
