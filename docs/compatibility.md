@@ -52,11 +52,11 @@ The repository now supports two export modes:
    - target root: `~/.copilot/`
    - best for: personal agents, personal skills, and VS Code-specific user instructions/hooks
 2. **Workspace scope**
-   - target root: a repository root
-   - best for: `.github/` exports needed by repo-scoped Copilot features, especially agents,
-     instructions, prompts, and hooks
-   - default behavior: skip surfaces that the target repository already exposes natively from
-     `.agents/`
+    - target root: a repository root
+    - best for: `.github/` exports needed by workspace-only features such as prompts or explicit
+      project-level override scenarios
+    - default behavior: keep user-level `~/.copilot/*` as the active runtime for overlapping
+      surfaces and skip surfaces that the target repository already exposes natively from `.agents/`
 
 The generic export script is:
 
@@ -68,18 +68,24 @@ When a plugin bundle exists, prefer exporting by plugin so the synced files stay
 way the bundle was packaged:
 
 ```bash
-python3 scripts/sync_copilot_exports.py --scope workspace --target-root /path/to/repo --plugin source-generation
+python3 scripts/sync_copilot_exports.py --scope workspace --runtime-authority workspace --target-root /path/to/repo --plugin source-generation
 python3 scripts/sync_copilot_exports.py --scope user --plugin vertical-slice-architecture
+python3 scripts/sync_copilot_exports.py --scope workspace --runtime-authority workspace --target-root /path/to/repo
 ```
 
 Use `--surface ...` as the lower-level fallback when no plugin bundle exists yet.
 
-For workspace syncs, the generic exporter skips native project surfaces that the target repository
-already exposes from `.agents/`. Today that mainly means:
+For workspace syncs, the generic exporter defaults to **user-level runtime authority**. Plain
+workspace syncs therefore avoid mirroring overlapping runtime surfaces such as agents,
+instructions, skills, and hooks into `.github/*` unless you explicitly choose workspace authority
+or request specific surfaces.
+
+It also skips native project surfaces that the target repository already exposes from `.agents/`.
+Today that mainly means:
 
 - skip `.github/skills/` when the target repository already has `.agents/skills/`
-- still sync `.github/agents/` because custom agent personas are not documented as natively readable
-  from `.agents/agents/`
+- still allow `.github/agents/` and related workspace exports when you explicitly choose
+  `--runtime-authority workspace` or request the relevant surfaces
 
 Narrower compatibility helpers remain available:
 
@@ -118,14 +124,22 @@ Run the generic export script for workspace sync:
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root /path/to/repo
 ```
 
-This exports supported `.agents/` surfaces into Copilot-native locations for that repository while
-skipping native `.agents` surfaces that the target repo already exposes.
+This keeps user-level `~/.copilot/*` as the default active runtime and exports only non-overlapping
+workspace surfaces by default.
+
+When a repository needs repo-level overrides or a pinned local runtime layer, opt into workspace
+authority:
+
+```bash
+python3 scripts/sync_copilot_exports.py --scope workspace --runtime-authority workspace --target-root /path/to/repo
+```
 
 Examples:
 
 ```bash
 python3 scripts/sync_copilot_exports.py --scope user --dry-run
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --dry-run
+python3 scripts/sync_copilot_exports.py --scope workspace --runtime-authority workspace --target-root ../some-repo --dry-run
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --surface prompts
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --surface skills
 python3 scripts/sync_copilot_exports.py --scope workspace --target-root ../some-repo --plugin source-generation

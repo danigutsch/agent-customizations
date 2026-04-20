@@ -98,6 +98,8 @@ def test_workspace_plugin_export() -> None:
         sync_exports(
             "--scope",
             "workspace",
+            "--runtime-authority",
+            "workspace",
             "--target-root",
             str(repo_root),
             "--plugin",
@@ -139,6 +141,8 @@ def test_workspace_plugin_stale_cleanup() -> None:
         sync_exports(
             "--scope",
             "workspace",
+            "--runtime-authority",
+            "workspace",
             "--target-root",
             str(repo_root),
             "--plugin",
@@ -146,6 +150,8 @@ def test_workspace_plugin_stale_cleanup() -> None:
         )
         sync_exports(
             "--scope",
+            "workspace",
+            "--runtime-authority",
             "workspace",
             "--target-root",
             str(repo_root),
@@ -228,6 +234,8 @@ def test_workspace_default_skips_native_skill_surface() -> None:
         sync_exports(
             "--scope",
             "workspace",
+            "--runtime-authority",
+            "workspace",
             "--target-root",
             str(repo_root),
         )
@@ -237,12 +245,58 @@ def test_workspace_default_skips_native_skill_surface() -> None:
         assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
 
 
+def test_workspace_default_prefers_user_runtime_authority() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-user-default"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
+        assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_missing(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+
+def test_workspace_default_cleans_up_previous_runtime_exports() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-cleanup"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--runtime-authority",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
+        assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_missing(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+
 def main() -> None:
     test_workspace_plugin_export()
     test_workspace_plugin_stale_cleanup()
     test_user_plugin_export()
     test_workspace_surface_export()
     test_workspace_default_skips_native_skill_surface()
+    test_workspace_default_prefers_user_runtime_authority()
+    test_workspace_default_cleans_up_previous_runtime_exports()
     print("Export smoke tests passed.")
 
 

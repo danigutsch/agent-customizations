@@ -4,6 +4,7 @@ RUFF ?= ruff
 PYRIGHT ?= pyright
 TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
+RUNTIME_AUTHORITY ?= user
 
 .PHONY: check format lint lint-markdown typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
 
@@ -38,7 +39,7 @@ sync-user:
 	$(PYTHON) scripts/sync_copilot_exports.py --scope user
 
 sync-workspace:
-	$(PYTHON) scripts/sync_copilot_exports.py --scope workspace --target-root "$(TARGET_ROOT)"
+	$(PYTHON) scripts/sync_copilot_exports.py --scope workspace --runtime-authority "$(RUNTIME_AUTHORITY)" --target-root "$(TARGET_ROOT)"
 
 configure-global-ignore:
 	$(PYTHON) scripts/configure_global_copilot_gitignore.py --repo "$(TARGET_ROOT)"

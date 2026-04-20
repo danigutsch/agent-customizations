@@ -146,6 +146,15 @@ make install-hooks
 
 The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
 
+Routine dependency maintenance is intentionally low-noise in this repository. Dependabot runs on a
+monthly schedule, groups minor and patch updates, and keeps action updates separate from package
+updates so review stays predictable.
+
+When reviewing Dependabot pull requests that change pinned GitHub Actions, check the release notes,
+confirm the updated pinned SHA matches the intended action release, and make sure the affected
+workflow still passes before merging. Treat major version bumps as a manual review point rather than
+routine churn.
+
 Optional future gates should stay additive and problem-driven. For this repository, the next
 reasonable candidates are:
 
@@ -245,8 +254,17 @@ This repository prefers **source-of-truth first, compatibility second**:
 
 For workspace syncs, the generic exporter skips surfaces the target repository already exposes
 natively from `.agents/`. In practice this mainly means skipping `.github/skills/` when the target
-repo already has `.agents/skills/`. It still syncs `.github/agents/`, because custom agents are
-documented for `.github/agents/`, not `.agents/agents/`.
+repo already has `.agents/skills/`.
+
+Workspace syncs now also default to **user-level runtime authority**, so plain `make sync-workspace`
+keeps overlapping runtime surfaces in `~/.copilot/*` and only mirrors workspace-specific surfaces
+unless you opt into repo-level overrides.
+
+To make `.github/*` the active runtime layer for a repository on purpose, use:
+
+```bash
+make sync-workspace TARGET_ROOT=../some-repo RUNTIME_AUTHORITY=workspace
+```
 
 Some downstream projects also contain **tool-provided agent assets** that are not part of this
 repository's curated capability inventory. In particular, Aspire can install its own broad `aspire`

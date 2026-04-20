@@ -80,6 +80,12 @@ SURFACES: dict[str, SurfaceSpec] = {
     },
 }
 
+USER_OVERLAP_WORKSPACE_SURFACES = frozenset(
+    surface
+    for surface, spec in SURFACES.items()
+    if spec["user_target"] is not None and spec["workspace_target"] is not None
+)
+
 
 def is_string_list(value: object) -> TypeGuard[list[str]]:
     if not isinstance(value, list):
@@ -123,6 +129,16 @@ def parse_args() -> argparse.Namespace:
         help="Print planned actions without copying or deleting files.",
     )
     parser.add_argument(
+        "--runtime-authority",
+        choices=["user", "workspace"],
+        default="user",
+        help=(
+            "For workspace scope, choose whether overlapping runtime surfaces default to user-level "
+            "~/.copilot exports or workspace-level .github exports. Explicit --surface selections still "
+            "win."
+        ),
+    )
+    parser.add_argument(
         "--no-delete-stale",
         action="store_true",
         help="Keep stale files or directories that were previously synced but no longer exist in the source.",
@@ -161,23 +177,36 @@ def has_native_project_surface(target_root: Path, surface: str) -> bool:
 def selected_surfaces(
     scope: str,
     target_root: Path,
+    runtime_authority: str,
     requested: list[str] | None,
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], list[str]]:
     available = supported_surfaces(scope)
     if not requested:
+        skipped_authority = sorted(
+            surface
+            for surface in available
+            if scope == "workspace"
+            and runtime_authority == "user"
+            and surface in USER_OVERLAP_WORKSPACE_SURFACES
+        )
         skipped_native = sorted(
             surface
             for surface in available
             if scope == "workspace" and has_native_project_surface(target_root, surface)
         )
-        return [surface for surface in available if surface not in skipped_native], skipped_native
+        skipped = set(skipped_authority) | set(skipped_native)
+        return (
+            [surface for surface in available if surface not in skipped],
+            skipped_native,
+            skipped_authority,
+        )
 
     unsupported = sorted(surface for surface in requested if surface not in available)
     if unsupported:
         unsupported_list = ", ".join(unsupported)
         raise ValueError(f"Unsupported surfaces for {scope} scope: {unsupported_list}")
 
-    return requested, []
+    return requested, [], []
 
 
 def load_plugin_manifest(plugin_id: str) -> PluginManifest:
@@ -434,6 +463,24 @@ def sync_plugin_surface(
     return current_managed
 
 
+def clear_skipped_surface(
+    scope: str,
+    target_root: Path,
+    surface: str,
+    spec: SurfaceSpec,
+    previous_managed: list[str],
+    dry_run: bool,
+    delete_stale: bool,
+) -> list[str]:
+    if delete_stale:
+        target_base = target_root / get_target_subdir(spec, scope)
+        for stale_path in sorted(set(previous_managed)):
+            remove_stale_path(target_base / stale_path, dry_run)
+
+    print(f"Skipped {surface}; managed target entries remain empty")
+    return []
+
+
 def git_exclude_block(surfaces: list[str]) -> str:
     lines = [EXCLUDE_START]
     for surface in surfaces:
@@ -514,10 +561,22 @@ def main() -> int:
     target_root = resolve_target_root(args)
 
     try:
-        surfaces, skipped_native = selected_surfaces(args.scope, target_root, args.surface)
+        surfaces, skipped_native, skipped_authority = selected_surfaces(
+            args.scope,
+            target_root,
+            args.runtime_authority,
+            args.surface,
+        )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
+
+    if skipped_authority:
+        skipped_list = ", ".join(skipped_authority)
+        print(
+            "Skipping overlapping workspace runtime surfaces because runtime authority defaults to "
+            f"user-level ~/.copilot: {skipped_list}"
+        )
 
     if skipped_native:
         skipped_list = ", ".join(skipped_native)
@@ -541,6 +600,16 @@ def main() -> int:
             return 1
 
     updated_state = sync_selected_surfaces(args, target_root, surfaces, plugin_entries, state)
+    for skipped_surface in sorted(set(skipped_native) | set(skipped_authority)):
+        updated_state[skipped_surface] = clear_skipped_surface(
+            args.scope,
+            target_root,
+            skipped_surface,
+            SURFACES[skipped_surface],
+            state["managed_files"].get(skipped_surface, []),
+            args.dry_run,
+            not args.no_delete_stale,
+        )
 
     if args.write_git_exclude:
         try:
