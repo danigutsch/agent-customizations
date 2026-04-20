@@ -58,17 +58,17 @@ install-dev:
 		exit 1; \
 	}
 	@command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1 || { \
-		echo "A current Node.js LTS release and npm are required for install-dev."; \
-		echo "Install the current Node.js LTS release and ensure both 'node' and 'npm' are on PATH."; \
+		echo "Node.js 20 or newer and npm are required for install-dev."; \
+		echo "Install a current Node.js LTS release and ensure both 'node' and 'npm' are on PATH."; \
 		exit 1; \
 	}
-	@node_lts=$$(node -p 'process.release.lts || ""' 2>/dev/null) || { \
-		echo "Unable to determine the Node.js release line. A current Node.js LTS release is required for install-dev."; \
+	@node_major=$$(node -p 'Number(process.versions.node.split(".")[0])' 2>/dev/null) || { \
+		echo "Unable to determine the installed Node.js version. Node.js 20 or newer is required for install-dev."; \
 		exit 1; \
 	}; \
-	if [ -z "$$node_lts" ]; then \
-		echo "A current Node.js LTS release is required for install-dev (found $$(node -v))."; \
-		echo "Please install the current Node.js LTS release before running 'make install-dev'."; \
+	if [ "$$node_major" -lt 20 ]; then \
+		echo "Node.js 20 or newer is required for install-dev (found $$(node -v))."; \
+		echo "Please install a supported Node.js release before running 'make install-dev'."; \
 		exit 1; \
 	fi
 	@if $(PIPX) list --short 2>/dev/null | grep -q '^ruff '; then \
