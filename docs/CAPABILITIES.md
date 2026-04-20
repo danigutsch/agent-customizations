@@ -42,6 +42,7 @@ plugin bundle.
 | `dotnet-aspire-apphost` | Narrow .NET Aspire AppHost orchestration guidance | A distributed .NET app needs clearer AppHost resource modeling, service references, startup ordering, or AppHost boundary discipline | `repository-setup`, `ci-workflows`, `opentelemetry-dotnet` | No |
 | `aspnet-api-contracts` | ASP.NET HTTP API contract design guidance | An ASP.NET API needs clearer route shape, DTO boundaries, typed results, ProblemDetails behavior, OpenAPI metadata, versioning, or contract-test strategy | `repository-setup`, `ci-workflows`, `xunit-v3-mtp-test-stack` | No |
 | `event-sourcing-projections` | Event-sourced projection and read-model guidance | A system needs clearer projection lifecycles, read-model boundaries, checkpointing, replay safety, rebuild workflow, multi-stream views, or projection-runner operations | `xunit-v3-mtp-test-stack`, `database-performance`, `opentelemetry-dotnet`, `aspnet-api-contracts` | No |
+| `github-issues` | GitHub issue authoring, updates, dependencies, fields, and project-aware issue workflows | A repo needs structured GitHub issue creation, issue-type discipline, sub-issues, dependency links, issue fields, or project-item updates | `workflow-packs`, `agent-coordination`, `repository-setup` | No |
 | `grpc-protobuf-contracts` | gRPC and Protocol Buffers contract design and evolution guidance | A repo needs safer `.proto` schemas, package versioning, streaming RPC choices, or clearer contract ownership boundaries | `repository-setup`, `ci-workflows` | No |
 | `opentelemetry-dotnet` | OpenTelemetry setup and instrumentation guidance for .NET | A .NET app needs cohesive logs, metrics, and traces, consistent resource identity, semantic conventions, exporter boundaries, source-generated logging, or strongly typed metrics guidance | `dotnet-aspire-apphost`, `ci-workflows`, `repository-setup` | No |
 | `xunit-v3-mtp-test-stack` | xUnit v3 plus Microsoft.Testing.Platform test-stack guidance for .NET | A .NET repo needs clearer xUnit v3 runner choice, MTP command shape, filtering, coverage, fixture, or troubleshooting guidance | `ci-workflows`, `repository-setup`, `dotnet-aspire-apphost` | No |
@@ -64,6 +65,7 @@ plugin bundle.
 | Repo and solution layout review | `project-structure` + `repository-setup` + `vertical-slice-architecture` |
 | .NET dependency governance baseline | `package-management` + `repository-setup` + `ci-workflows` |
 | Reusable rollout or delivery flow | `workflow-packs` + `repository-setup` + `ci-workflows` |
+| GitHub issue-driven planning and tracking | `github-issues` + `workflow-packs` + `agent-coordination` |
 | Parallel agent team baseline | `agent-coordination` + `workflow-packs` + `copilot-compatibility-exports` + `repository-setup` |
 | Canonical asset repo with compatibility mirrors | `repository-setup` + `copilot-compatibility-exports` + `plugin-bundles` + `tool-generated-file-provenance` |
 | Repo docs and helper-script maintenance | `repository-setup` + `docs-and-scripts-quality` + `git-hooks` + `python-quality` |
@@ -90,6 +92,8 @@ plugin bundle.
 - Add `python-quality` when the repo needs a coordinated Python baseline.
 - Add `ruff-python` or `pyright-python` when the task is tool-specific rather than baseline-wide.
 - Add `git-hooks` when local convenience checks should complement CI.
+- Add `github-issues` when GitHub issue bodies, issue types, labels, sub-issues, dependencies, issue
+  fields, or project-item updates need focused guidance.
 - Add `mcp-servers` when reusable MCP assets or setup guidance need to be curated.
 - Add `copilot-compatibility-exports` when canonical assets need a clear compatibility mirror model.
 - Add `plugin-bundles` when capabilities are packaged and versioned as explicit bundle contracts.
