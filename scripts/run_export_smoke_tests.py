@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import TypedDict
 
@@ -96,16 +97,17 @@ def sync_exports(*args: str) -> None:
     run([sys.executable, str(SYNC_SCRIPT), *args], cwd=ROOT)
 
 
-def create_temp_hook_plugin() -> Path:
-    plugin_dir = PLUGIN_ROOT / TEMP_HOOK_PLUGIN
-    plugin_dir.mkdir(parents=True, exist_ok=True)
+def create_temp_hook_plugin() -> tuple[str, Path]:
+    plugin_id = f"{TEMP_HOOK_PLUGIN}-{uuid.uuid4().hex}"
+    plugin_dir = PLUGIN_ROOT / plugin_id
+    plugin_dir.mkdir(parents=True, exist_ok=False)
     manifest = {
         "schemaVersion": "1.0.0",
-        "id": TEMP_HOOK_PLUGIN,
+        "id": plugin_id,
         "contents": [{"path": ".agents/hooks/git-hooks"}],
     }
     (plugin_dir / "plugin.json").write_text(f"{json.dumps(manifest, indent=2)}\n", encoding="utf-8")
-    return plugin_dir
+    return plugin_id, plugin_dir
 
 
 def test_workspace_plugin_export() -> None:
@@ -249,7 +251,7 @@ def test_user_hook_export() -> None:
 
 
 def test_user_hook_plugin_export() -> None:
-    plugin_dir = create_temp_hook_plugin()
+    plugin_id, plugin_dir = create_temp_hook_plugin()
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             user_root = Path(temp_dir) / "copilot-user-hook-plugin"
@@ -261,7 +263,7 @@ def test_user_hook_plugin_export() -> None:
                 "--target-root",
                 str(user_root),
                 "--plugin",
-                TEMP_HOOK_PLUGIN,
+                plugin_id,
             )
 
             assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
@@ -403,6 +405,7 @@ def test_workspace_default_preserves_previous_runtime_exports_when_stale_cleanup
             "--target-root",
             str(repo_root),
             "--no-delete-stale",
+            "--write-git-exclude",
         )
 
         assert_exists(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
@@ -415,6 +418,12 @@ def test_workspace_default_preserves_previous_runtime_exports_when_stale_cleanup
         if SOURCE_GENERATION_AGENT not in managed_files["agents"]:
             raise AssertionError(
                 "Expected source-generation agent to remain tracked when stale cleanup is disabled"
+            )
+
+        exclude_text = (repo_root / ".git" / "info" / "exclude").read_text(encoding="utf-8")
+        if "/.github/agents/" not in exclude_text:
+            raise AssertionError(
+                "Expected preserved runtime exports to remain in .git/info/exclude"
             )
 
         sync_exports(

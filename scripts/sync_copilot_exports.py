@@ -381,6 +381,24 @@ def remove_stale_path(target: Path, dry_run: bool) -> None:
     print(f"Removed stale synced path {target}")
 
 
+def paths_overlap(path_text: str, other_path_text: str) -> bool:
+    path = Path(path_text)
+    other_path = Path(other_path_text)
+    return path == other_path or path in other_path.parents or other_path in path.parents
+
+
+def stale_paths_to_remove(
+    previous_managed: list[str],
+    current_managed: list[str],
+) -> list[str]:
+    current_set = set(current_managed)
+    return sorted(
+        stale_path
+        for stale_path in set(previous_managed) - current_set
+        if not any(paths_overlap(stale_path, current_path) for current_path in current_managed)
+    )
+
+
 def resolve_git_dir(workspace_root: Path) -> Path | None:
     dot_git = workspace_root / ".git"
     if dot_git.is_dir():
@@ -428,7 +446,7 @@ def sync_surface(
             copy_directory(source_entry, target_path, dry_run)
 
     if delete_stale:
-        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        stale_paths = stale_paths_to_remove(previous_managed, current_managed)
         for stale_path in stale_paths:
             remove_stale_path(target_base / stale_path, dry_run)
 
@@ -460,7 +478,7 @@ def sync_plugin_surface(
             copy_file(source_entry, target_base / relative_path, dry_run)
 
     if delete_stale:
-        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        stale_paths = stale_paths_to_remove(previous_managed, current_managed)
         for stale_path in stale_paths:
             remove_stale_path(target_base / stale_path, dry_run)
 
@@ -500,6 +518,14 @@ def git_exclude_block(surfaces: list[str]) -> str:
             lines.append(f"/{target}/")
     lines.append(EXCLUDE_END)
     return "\n".join(lines) + "\n"
+
+
+def surfaces_with_managed_workspace_entries(managed_files: dict[str, list[str]]) -> list[str]:
+    return sorted(
+        surface
+        for surface, entries in managed_files.items()
+        if entries and SURFACES.get(surface, {}).get("workspace_target") is not None
+    )
 
 
 def update_git_exclude(workspace_root: Path, surfaces: list[str], dry_run: bool) -> None:
@@ -624,7 +650,11 @@ def main() -> int:
 
     if args.write_git_exclude:
         try:
-            update_git_exclude(target_root, surfaces, args.dry_run)
+            update_git_exclude(
+                target_root,
+                surfaces_with_managed_workspace_entries(updated_state),
+                args.dry_run,
+            )
         except FileNotFoundError as exc:
             print(str(exc), file=sys.stderr)
             return 1

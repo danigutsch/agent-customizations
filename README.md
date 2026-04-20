@@ -92,6 +92,7 @@ make install-dev
 
 That command installs the Python tools with `pipx` and the Markdown linter dependency with `npm`.
 Use the npm bundled with a current **Node.js LTS** release for this repository's Markdown tooling.
+The current LTS line also satisfies `markdownlint-cli`'s Node.js 20-or-newer requirement.
 If you use `nvm`, `nvm install --lts` is a good default before running `make install-dev`.
 
 On Debian/Ubuntu and other PEP 668 environments, install `pipx` first instead of using system `pip`
