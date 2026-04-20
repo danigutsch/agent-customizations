@@ -13,6 +13,8 @@ manual runs.
 
 Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
 lockfile changes for newly introduced vulnerable packages.
+Changes under `.github/workflows/**` also run a separate `Actionlint` workflow to catch workflow
+syntax, expression, and embedded shell issues before they break the main repository checks.
 
 It includes reusable assets such as:
 
@@ -125,6 +127,9 @@ failures should map directly to pull request validation failures.
 
 Treat `make check` as the required repository quality gate. Use narrower gates only when the
 maintained surface clearly needs them.
+
+`Actionlint` is a supplemental workflow-only guardrail rather than part of `make check`, because it
+validates GitHub Actions workflow syntax and shell usage rather than repository source files.
 
 Format the maintained Python scripts:
 
