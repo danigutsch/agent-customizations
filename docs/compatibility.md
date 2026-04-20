@@ -24,7 +24,7 @@ just a path mapping.
 | Repo-wide instructions | not generated from capability files | `.github/copilot-instructions.md` | `$HOME/.copilot/copilot-instructions.md` in CLI | Separate always-on file type |
 | Prompts | `.agents/prompts/*.prompt.md` | `.github/prompts/` | VS Code profile storage, not a stable `~/.copilot` path | Same Markdown format, workspace export only |
 | Skills | `.agents/skills/<skill>/SKILL.md` | `.github/skills/` if needed | `~/.copilot/skills/` | `.agents/skills/` is already a native project skill location |
-| Hooks | `.agents/hooks/*.json` | `.github/hooks/` | `~/.copilot/hooks/` in VS Code | Same JSON format, workspace target is the broadest portable option |
+| Hooks | `.agents/hooks/` hook-pack directories | `.github/hooks/` | `~/.copilot/hooks/` in VS Code | Hook packs can include JSON, shell, Markdown, or small helper assets |
 | MCP assets | `.agents/mcp/` | client-specific config | client-specific config | Not a file mirror |
 | Workflows | `.agents/workflows/` | no documented native root | no documented native root | Not a Copilot file surface |
 | Plugins | `.agents/plugins/` | plugin packaging, not direct discovery | plugin packaging, not direct discovery | Metadata layer, not native discovery |

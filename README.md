@@ -254,6 +254,8 @@ This repository prefers **source-of-truth first, compatibility second**:
 - treat generated `.github/*` compatibility copies as non-canonical output, not tracked repo content
 - keep those generated `.github/*` copies ignored through global Git ignore policy rather than a
   repository `.gitignore` rule
+- export hook packs as directories so starter scripts and README guidance travel together instead of
+  only syncing JSON files
 
 For workspace syncs, the generic exporter skips surfaces the target repository already exposes
 natively from `.agents/`. In practice this mainly means skipping `.github/skills/` when the target

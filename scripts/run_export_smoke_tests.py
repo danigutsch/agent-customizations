@@ -14,6 +14,10 @@ SYNC_SCRIPT = ROOT / "scripts" / "sync_copilot_exports.py"
 STATE_FILE_NAME = "agent-customizations-sync-state.json"
 EXCLUDE_START = "# BEGIN agent-customizations exports"
 DOT_GITHUB = ".github"
+HOOKS_DIR = "hooks"
+GIT_HOOKS = "git-hooks"
+HOOKS_README = "README.md"
+PRE_COMMIT_EXAMPLE = "pre-commit-fast-checks.example.sh"
 SKILLS_DIR = "skills"
 SKILL_FILE = "SKILL.md"
 SOURCE_GENERATION = "source-generation"
@@ -206,6 +210,30 @@ def test_user_plugin_export() -> None:
             raise AssertionError("Expected prompt surface to be absent for user exports")
 
 
+def test_user_hook_export() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        user_root = Path(temp_dir) / "copilot-user-hooks"
+        user_root.mkdir(parents=True, exist_ok=True)
+
+        sync_exports(
+            "--scope",
+            "user",
+            "--target-root",
+            str(user_root),
+            "--surface",
+            "hooks",
+        )
+
+        assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
+        assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / PRE_COMMIT_EXAMPLE)
+
+        state_path = user_root / STATE_FILE_NAME
+        state = load_sync_state(state_path)
+        managed_files = state["managed_files"]
+        if GIT_HOOKS not in managed_files["hooks"]:
+            raise AssertionError("Expected git-hooks directory in user hook export state")
+
+
 def test_workspace_surface_export() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         repo_root = Path(temp_dir) / "workspace-surface"
@@ -223,6 +251,26 @@ def test_workspace_surface_export() -> None:
         assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
         assert_exists(repo_root / DOT_GITHUB / "prompts" / VERTICAL_SLICE_ARCHITECTURE_PROMPT)
         assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+
+
+def test_workspace_hook_export_with_workspace_authority() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-hooks"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--runtime-authority",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+            "--surface",
+            "hooks",
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
+        assert_exists(repo_root / DOT_GITHUB / HOOKS_DIR / GIT_HOOKS / PRE_COMMIT_EXAMPLE)
 
 
 def test_workspace_default_skips_native_skill_surface() -> None:
@@ -293,7 +341,9 @@ def main() -> None:
     test_workspace_plugin_export()
     test_workspace_plugin_stale_cleanup()
     test_user_plugin_export()
+    test_user_hook_export()
     test_workspace_surface_export()
+    test_workspace_hook_export_with_workspace_authority()
     test_workspace_default_skips_native_skill_surface()
     test_workspace_default_prefers_user_runtime_authority()
     test_workspace_default_cleans_up_previous_runtime_exports()

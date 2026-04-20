@@ -73,8 +73,8 @@ SURFACES: dict[str, SurfaceSpec] = {
     },
     "hooks": {
         "source": AGENTS_ROOT / "hooks",
-        "mode": "files",
-        "pattern": "**/*.json",
+        "mode": "directories",
+        "pattern": "*",
         "user_target": "hooks",
         "workspace_target": ".github/hooks",
     },
