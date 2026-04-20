@@ -52,7 +52,8 @@ def validate_markdown(errors: list[str]) -> None:
         subprocess.run(["npm", "run", "--silent", "lint:markdown"], cwd=ROOT, check=True)
     except FileNotFoundError:
         errors.append(
-            "Missing required tool: npm. Run `make install-dev` before repository validation."
+            "Missing required tool: npm. Install Node.js/npm first, then run `make install-dev` "
+            "before repository validation."
         )
     except subprocess.CalledProcessError as exc:
         errors.append(f"Markdown lint failed with exit code {exc.returncode}.")

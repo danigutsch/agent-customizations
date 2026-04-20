@@ -326,13 +326,19 @@ def collect_plugin_entries(
                 continue
 
             surface, source_path, relative_path = entry
-            if surface not in planned or not source_path.is_file():
+            if surface not in planned or not source_path.exists():
                 continue
             planned[surface][relative_path] = source_path
 
     return {
         surface: [
-            (source_path, relative_path) for relative_path, source_path in sorted(entries.items())
+            (source_path, relative_path)
+            for relative_path, source_path in sorted(entries.items())
+            if not any(
+                parent.as_posix() in entries and entries[parent.as_posix()].is_dir()
+                for parent in Path(relative_path).parents
+                if parent != Path(".")
+            )
         ]
         for surface, entries in planned.items()
     }
@@ -448,7 +454,10 @@ def sync_plugin_surface(
     current_managed = [relative_path for _, relative_path in entries]
 
     for source_entry, relative_path in entries:
-        copy_file(source_entry, target_base / relative_path, dry_run)
+        if source_entry.is_dir():
+            copy_directory(source_entry, target_base / relative_path, dry_run)
+        else:
+            copy_file(source_entry, target_base / relative_path, dry_run)
 
     if delete_stale:
         stale_paths = sorted(set(previous_managed) - set(current_managed))
@@ -456,9 +465,9 @@ def sync_plugin_surface(
             remove_stale_path(target_base / stale_path, dry_run)
 
     if entries:
-        print(f"Prepared {len(entries)} plugin-managed {surface} file(s) -> {target_base}")
+        print(f"Prepared {len(entries)} plugin-managed {surface} item(s) -> {target_base}")
     else:
-        print(f"No plugin-managed {surface} files selected")
+        print(f"No plugin-managed {surface} entries selected")
 
     return current_managed
 
@@ -476,9 +485,11 @@ def clear_skipped_surface(
         target_base = target_root / get_target_subdir(spec, scope)
         for stale_path in sorted(set(previous_managed)):
             remove_stale_path(target_base / stale_path, dry_run)
+        print(f"Skipped {surface}; removed previously managed target entries")
+        return []
 
-    print(f"Skipped {surface}; managed target entries remain empty")
-    return []
+    print(f"Skipped {surface}; preserving previously managed target entries")
+    return previous_managed
 
 
 def git_exclude_block(surfaces: list[str]) -> str:

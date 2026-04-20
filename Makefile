@@ -57,11 +57,20 @@ install-dev:
 		echo "Install it first (for example: sudo apt-get install -y pipx) and ensure ~/.local/bin is on PATH."; \
 		exit 1; \
 	}
-	@command -v npm >/dev/null 2>&1 || { \
-		echo "npm is required for install-dev."; \
-		echo "Install Node.js and npm first (for example: sudo apt-get install -y nodejs npm)."; \
+	@command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1 || { \
+		echo "A current Node.js LTS release and npm are required for install-dev."; \
+		echo "Install the current Node.js LTS release and ensure both 'node' and 'npm' are on PATH."; \
 		exit 1; \
 	}
+	@node_lts=$$(node -p 'process.release.lts || ""' 2>/dev/null) || { \
+		echo "Unable to determine the Node.js release line. A current Node.js LTS release is required for install-dev."; \
+		exit 1; \
+	}; \
+	if [ -z "$$node_lts" ]; then \
+		echo "A current Node.js LTS release is required for install-dev (found $$(node -v))."; \
+		echo "Please install the current Node.js LTS release before running 'make install-dev'."; \
+		exit 1; \
+	fi
 	@if $(PIPX) list --short 2>/dev/null | grep -q '^ruff '; then \
 		$(PIPX) upgrade ruff; \
 	else \
