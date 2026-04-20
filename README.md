@@ -11,6 +11,9 @@ The repository baseline is also enforced in GitHub Actions by the `Validate repo
 which runs the same `make check` command documented below for pull requests, pushes to `main`, and
 manual runs.
 
+Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
+lockfile changes for newly introduced vulnerable packages.
+
 It includes reusable assets such as:
 
 - agents

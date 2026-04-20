@@ -23,6 +23,9 @@ make check
 This is the required merge gate for the repository and the same command the `Validate repository`
 workflow runs in CI.
 
+Pull requests also run the `Dependency Review` workflow, which inspects manifest and lockfile diffs
+for newly introduced vulnerable dependencies.
+
 Dependabot is configured to stay low-noise: monthly runs, one open version-update PR per ecosystem,
 and grouped minor and patch updates. Review action-update PRs against both the release notes and the
 resolved pinned SHA. For major action or package upgrades, check the migration guidance before
