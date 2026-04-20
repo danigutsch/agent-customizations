@@ -158,6 +158,7 @@ Helpful maintenance commands:
 - `make validate-repo`
 - `make lint-markdown`
 - `make lint-workflows`
+- `make release-plugin PLUGIN=source-generation BUMP=patch`
 - `make scan-secrets`
 - `make validate-plugins`
 - `make smoke-exports`
@@ -178,6 +179,17 @@ The hook runs focused staged-file checks only. CI remains the authoritative full
 Routine dependency maintenance is intentionally low-noise in this repository. Dependabot runs on a
 monthly schedule, groups minor and patch updates, and keeps action updates separate from package
 updates so review stays predictable.
+
+Plugin bundles are versioned independently. Use the local release helper to promote a bundle's
+`Unreleased` changelog notes into a versioned release section and bump the bundle manifest in one
+step:
+
+```bash
+make release-plugin PLUGIN=source-generation BUMP=patch
+```
+
+That helper prepares the plugin metadata locally, and the `Release plugin bundle` workflow provides
+the same flow through GitHub Actions when you want CI to create the commit and tag.
 
 When reviewing Dependabot pull requests that change pinned GitHub Actions, check the release notes,
 confirm the updated pinned SHA matches the intended action release, and make sure the affected

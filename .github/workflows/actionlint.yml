@@ -41,6 +41,7 @@ jobs:
       - name: Install actionlint
         shell: bash
         run: |
+          set -euo pipefail
           archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
           checksums="actionlint_${ACTIONLINT_VERSION}_checksums.txt"
           base_url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
@@ -57,7 +58,8 @@ jobs:
 
           curl "${curl_args[@]}" --output "$archive" "$base_url/$archive"
           curl "${curl_args[@]}" --output "$checksums" "$base_url/$checksums"
-          grep "  $archive$" "$checksums" | sha256sum --check --status
+          checksum_line=$(grep "  $archive$" "$checksums")
+          printf '%s\n' "$checksum_line" | sha256sum --check --status
           tar -xzf "$archive" actionlint
           sudo install actionlint /usr/local/bin/actionlint
 

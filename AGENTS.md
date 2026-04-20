@@ -50,6 +50,8 @@ Repository guidance for `agent-customizations`.
 - Keep cross-links relative and repository-local.
 - Avoid adding assets that duplicate an existing capability unless there is a clear specialization.
 - Favor curation over volume: only keep assets worth maintaining.
+- Treat `tmp/` as workspace-only scratch space for plans, audits, and notes; never stage `tmp/**`
+  files into the repository.
 - For new capabilities, do not create from scratch if an upstream pattern already covers the same
   capability. Reuse the upstream capability boundary, naming style, and file shape first, then adapt
   only what this repository truly needs.
