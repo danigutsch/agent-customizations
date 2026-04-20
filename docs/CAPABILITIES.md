@@ -49,6 +49,7 @@ plugin bundle.
 | `source-generation` | Roslyn source generator design, setup, testing, and packaging | C# source generators need design, migration, diagnostics, tests, or pack guidance | `repository-setup`, `ci-workflows`, `vertical-slice-architecture` | Yes |
 | `vertical-slice-architecture` | Domain-first vertical slice design and migration guidance | A codebase needs clearer slice boundaries, migration steps, or slice-aligned tests | `repository-setup`, `ci-workflows`, `python-quality`, `source-generation` | Yes |
 | `workflow-packs` | Reusable multi-step workflow packs and handoff assets | A repo needs repeatable workflow phases, checkpoints, or adaptation examples | `repository-setup`, `ci-workflows`, `mcp-servers` | No |
+| `agent-coordination` | Multi-agent control-plane guidance for lanes, routing, handoffs, and escalation | A repo needs a reusable coordinator-plus-workers model with explicit lane ownership, Copilot versus external-worker boundaries, or cost-aware model routing | `workflow-packs`, `copilot-compatibility-exports`, `repository-setup`, `mcp-servers` | No |
 
 ## Common combinations
 
@@ -63,6 +64,7 @@ plugin bundle.
 | Repo and solution layout review | `project-structure` + `repository-setup` + `vertical-slice-architecture` |
 | .NET dependency governance baseline | `package-management` + `repository-setup` + `ci-workflows` |
 | Reusable rollout or delivery flow | `workflow-packs` + `repository-setup` + `ci-workflows` |
+| Parallel agent team baseline | `agent-coordination` + `workflow-packs` + `copilot-compatibility-exports` + `repository-setup` |
 | Canonical asset repo with compatibility mirrors | `repository-setup` + `copilot-compatibility-exports` + `plugin-bundles` + `tool-generated-file-provenance` |
 | Repo docs and helper-script maintenance | `repository-setup` + `docs-and-scripts-quality` + `git-hooks` + `python-quality` |
 | Low-signal change cleanup | `slopwatch` + `docs-and-scripts-quality` + `tool-generated-file-provenance` |
@@ -119,4 +121,6 @@ multi-stream views, or operational readiness.
 - Add `docs-and-scripts-quality` when maintenance docs, helper scripts, and local checks need to stay aligned.
 - Add `ci-workflows` when the local validation path should be wrapped in automation.
 - Add `workflow-packs` when multi-step reusable workflows need explicit phases and checkpoints.
+- Add `agent-coordination` when a repository needs explicit multi-agent lanes, handoffs, model
+  routing, escalation rules, or Copilot versus external-worker boundaries.
 - Use bundled capabilities when the capability is naturally adopted as one unit.
