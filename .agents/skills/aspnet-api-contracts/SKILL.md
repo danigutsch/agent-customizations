@@ -16,6 +16,8 @@ setup.
 - The user needs consistent `ProblemDetails` or validation payload shape
 - The user needs OpenAPI or versioning guidance for an ASP.NET API
 - The user needs focused contract tests or snapshot coverage for ASP.NET API drift
+- The user needs build-time OpenAPI artifact guidance for reviewable contract
+  tests
 
 ## Prerequisites
 
@@ -45,7 +47,10 @@ setup.
 ### 4. Validate the contract
 
 - Use focused assertions for important status-code and payload invariants.
-- Consider snapshots for deterministic OpenAPI documents or other stable contract artifacts.
+- Consider snapshots for deterministic OpenAPI documents or other stable
+  contract artifacts.
+- Prefer build-time OpenAPI generation when the document itself is the reviewed
+  contract artifact.
 
 ## Related guidance
 

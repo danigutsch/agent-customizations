@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import TypedDict
 
@@ -14,6 +15,11 @@ SYNC_SCRIPT = ROOT / "scripts" / "sync_copilot_exports.py"
 STATE_FILE_NAME = "agent-customizations-sync-state.json"
 EXCLUDE_START = "# BEGIN agent-customizations exports"
 DOT_GITHUB = ".github"
+HOOKS_DIR = "hooks"
+GIT_HOOKS = "git-hooks"
+HOOKS_README = "README.md"
+PRE_COMMIT_EXAMPLE = "pre-commit-fast-checks.example.sh"
+PLUGIN_ROOT = ROOT / ".agents" / "plugins"
 SKILLS_DIR = "skills"
 SKILL_FILE = "SKILL.md"
 SOURCE_GENERATION = "source-generation"
@@ -24,6 +30,7 @@ VERTICAL_SLICE_ARCHITECTURE = "vertical-slice-architecture"
 VERTICAL_SLICE_ARCHITECTURE_AGENT = "vertical-slice-architecture.agent.md"
 VERTICAL_SLICE_ARCHITECTURE_INSTRUCTION = "vertical-slice-architecture.instructions.md"
 VERTICAL_SLICE_ARCHITECTURE_PROMPT = "vertical-slice-architecture.prompt.md"
+TEMP_HOOK_PLUGIN = "temp-hook-plugin"
 
 
 class SyncState(TypedDict):
@@ -90,6 +97,19 @@ def sync_exports(*args: str) -> None:
     run([sys.executable, str(SYNC_SCRIPT), *args], cwd=ROOT)
 
 
+def create_temp_hook_plugin() -> tuple[str, Path]:
+    plugin_id = f"{TEMP_HOOK_PLUGIN}-{uuid.uuid4().hex}"
+    plugin_dir = PLUGIN_ROOT / plugin_id
+    plugin_dir.mkdir(parents=True, exist_ok=False)
+    manifest = {
+        "schemaVersion": "1.0.0",
+        "id": plugin_id,
+        "contents": [{"path": ".agents/hooks/git-hooks"}],
+    }
+    (plugin_dir / "plugin.json").write_text(f"{json.dumps(manifest, indent=2)}\n", encoding="utf-8")
+    return plugin_id, plugin_dir
+
+
 def test_workspace_plugin_export() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         repo_root = Path(temp_dir) / "workspace-plugin"
@@ -97,6 +117,8 @@ def test_workspace_plugin_export() -> None:
 
         sync_exports(
             "--scope",
+            "workspace",
+            "--runtime-authority",
             "workspace",
             "--target-root",
             str(repo_root),
@@ -139,6 +161,8 @@ def test_workspace_plugin_stale_cleanup() -> None:
         sync_exports(
             "--scope",
             "workspace",
+            "--runtime-authority",
+            "workspace",
             "--target-root",
             str(repo_root),
             "--plugin",
@@ -146,6 +170,8 @@ def test_workspace_plugin_stale_cleanup() -> None:
         )
         sync_exports(
             "--scope",
+            "workspace",
+            "--runtime-authority",
             "workspace",
             "--target-root",
             str(repo_root),
@@ -200,6 +226,63 @@ def test_user_plugin_export() -> None:
             raise AssertionError("Expected prompt surface to be absent for user exports")
 
 
+def test_user_hook_export() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        user_root = Path(temp_dir) / "copilot-user-hooks"
+        user_root.mkdir(parents=True, exist_ok=True)
+
+        sync_exports(
+            "--scope",
+            "user",
+            "--target-root",
+            str(user_root),
+            "--surface",
+            "hooks",
+        )
+
+        assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
+        assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / PRE_COMMIT_EXAMPLE)
+
+        state_path = user_root / STATE_FILE_NAME
+        state = load_sync_state(state_path)
+        managed_files = state["managed_files"]
+        if GIT_HOOKS not in managed_files["hooks"]:
+            raise AssertionError("Expected git-hooks directory in user hook export state")
+
+
+def test_user_hook_plugin_export() -> None:
+    plugin_id, plugin_dir = create_temp_hook_plugin()
+    try:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            user_root = Path(temp_dir) / "copilot-user-hook-plugin"
+            user_root.mkdir(parents=True, exist_ok=True)
+
+            sync_exports(
+                "--scope",
+                "user",
+                "--target-root",
+                str(user_root),
+                "--plugin",
+                plugin_id,
+            )
+
+            assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
+            assert_exists(user_root / HOOKS_DIR / GIT_HOOKS / PRE_COMMIT_EXAMPLE)
+
+            state_path = user_root / STATE_FILE_NAME
+            state = load_sync_state(state_path)
+            managed_files = state["managed_files"]
+            if GIT_HOOKS not in managed_files["hooks"]:
+                raise AssertionError(
+                    "Expected git-hooks directory in user hook plugin export state"
+                )
+    finally:
+        if plugin_dir.exists():
+            for child in plugin_dir.iterdir():
+                child.unlink()
+            plugin_dir.rmdir()
+
+
 def test_workspace_surface_export() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         repo_root = Path(temp_dir) / "workspace-surface"
@@ -219,6 +302,26 @@ def test_workspace_surface_export() -> None:
         assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
 
 
+def test_workspace_hook_export_with_workspace_authority() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-hooks"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--runtime-authority",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+            "--surface",
+            "hooks",
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / HOOKS_DIR / GIT_HOOKS / HOOKS_README)
+        assert_exists(repo_root / DOT_GITHUB / HOOKS_DIR / GIT_HOOKS / PRE_COMMIT_EXAMPLE)
+
+
 def test_workspace_default_skips_native_skill_surface() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         repo_root = Path(temp_dir) / "workspace-native-skills"
@@ -227,6 +330,8 @@ def test_workspace_default_skips_native_skill_surface() -> None:
 
         sync_exports(
             "--scope",
+            "workspace",
+            "--runtime-authority",
             "workspace",
             "--target-root",
             str(repo_root),
@@ -237,12 +342,114 @@ def test_workspace_default_skips_native_skill_surface() -> None:
         assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
 
 
+def test_workspace_default_prefers_user_runtime_authority() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-user-default"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
+        assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_missing(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+
+def test_workspace_default_cleans_up_previous_runtime_exports() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-cleanup"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--runtime-authority",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / "prompts" / SOURCE_GENERATION_PROMPT)
+        assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_missing(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+
+def test_workspace_default_preserves_previous_runtime_exports_when_stale_cleanup_disabled() -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        repo_root = Path(temp_dir) / "workspace-preserve-stale"
+        init_workspace_repo(repo_root)
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--runtime-authority",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+            "--no-delete-stale",
+            "--write-git-exclude",
+        )
+
+        assert_exists(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_exists(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_exists(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+        state_path = repo_root / ".git" / "info" / STATE_FILE_NAME
+        state = load_sync_state(state_path)
+        managed_files = state["managed_files"]
+        if SOURCE_GENERATION_AGENT not in managed_files["agents"]:
+            raise AssertionError(
+                "Expected source-generation agent to remain tracked when stale cleanup is disabled"
+            )
+
+        exclude_text = (repo_root / ".git" / "info" / "exclude").read_text(encoding="utf-8")
+        if "/.github/agents/" not in exclude_text:
+            raise AssertionError(
+                "Expected preserved runtime exports to remain in .git/info/exclude"
+            )
+
+        sync_exports(
+            "--scope",
+            "workspace",
+            "--target-root",
+            str(repo_root),
+        )
+
+        assert_missing(repo_root / DOT_GITHUB / "agents" / SOURCE_GENERATION_AGENT)
+        assert_missing(repo_root / DOT_GITHUB / "instructions" / SOURCE_GENERATION_INSTRUCTION)
+        assert_missing(repo_root / DOT_GITHUB / SKILLS_DIR / SOURCE_GENERATION / SKILL_FILE)
+
+
 def main() -> None:
     test_workspace_plugin_export()
     test_workspace_plugin_stale_cleanup()
     test_user_plugin_export()
+    test_user_hook_export()
+    test_user_hook_plugin_export()
     test_workspace_surface_export()
+    test_workspace_hook_export_with_workspace_authority()
     test_workspace_default_skips_native_skill_surface()
+    test_workspace_default_prefers_user_runtime_authority()
+    test_workspace_default_cleans_up_previous_runtime_exports()
+    test_workspace_default_preserves_previous_runtime_exports_when_stale_cleanup_disabled()
     print("Export smoke tests passed.")
 
 

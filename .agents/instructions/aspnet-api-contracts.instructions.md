@@ -23,6 +23,9 @@ application setup.
 - Do not expose domain or persistence models as the default HTTP contract.
 - Keep route templates resource-oriented and endpoint names stable.
 - Keep list, detail, mutation, and error responses intentional rather than incidental.
+- Prefer compatibility-friendly contract evolution so consumers depending on only
+  part of the artifact are not forced to change for every additive provider
+  change.
 
 ## Result-shape rules
 
@@ -46,12 +49,17 @@ application setup.
   exist.
 - Prefer build-time OpenAPI generation when the document itself is a reviewable contract artifact.
 - Prefer runtime OpenAPI endpoints when discoverability or local inspection matters more.
+- When the repository uses ASP.NET Core's first-party OpenAPI support, keep the
+  runtime `AddOpenApi()` or `MapOpenApi()` path and the build-time document
+  generation path aligned so contract tests review the same public surface.
 
 ## Testing and snapshot rules
 
 - Use focused assertions for status codes, key DTO fields, and `ProblemDetails` fields.
 - Use snapshot testing for deterministic contract artifacts such as generated OpenAPI documents when
   whole-surface drift matters.
+- Prefer representative client-request or payload snapshots only when they show
+  durable contract shape; do not snapshot broad incidental runtime state.
 - Do not rely on snapshots alone when a smaller invariant assertion would be clearer.
 
 ## Verification

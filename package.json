@@ -1,0 +1,25 @@
+{
+  "name": "agent-customizations",
+  "version": "1.0.0",
+  "description": "Reusable AI agent customization assets.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "lint:markdown": "markdownlint \"**/*.md\" --ignore node_modules --ignore tmp --ignore temp --config .markdownlint.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danigutsch/agent-customizations.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danigutsch/agent-customizations/issues"
+  },
+  "homepage": "https://github.com/danigutsch/agent-customizations#readme",
+  "devDependencies": {
+    "markdownlint-cli": "^0.48.0"
+  }
+}

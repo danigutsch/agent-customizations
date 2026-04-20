@@ -4,8 +4,9 @@ RUFF ?= ruff
 PYRIGHT ?= pyright
 TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
+RUNTIME_AUTHORITY ?= user
 
-.PHONY: check format lint typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -15,6 +16,9 @@ format:
 lint:
 	$(RUFF) check scripts
 	$(RUFF) format --check scripts
+
+lint-markdown:
+	npm run --silent lint:markdown
 
 typecheck:
 	$(PYRIGHT) scripts
@@ -35,7 +39,7 @@ sync-user:
 	$(PYTHON) scripts/sync_copilot_exports.py --scope user
 
 sync-workspace:
-	$(PYTHON) scripts/sync_copilot_exports.py --scope workspace --target-root "$(TARGET_ROOT)"
+	$(PYTHON) scripts/sync_copilot_exports.py --scope workspace --runtime-authority "$(RUNTIME_AUTHORITY)" --target-root "$(TARGET_ROOT)"
 
 configure-global-ignore:
 	$(PYTHON) scripts/configure_global_copilot_gitignore.py --repo "$(TARGET_ROOT)"
@@ -53,6 +57,20 @@ install-dev:
 		echo "Install it first (for example: sudo apt-get install -y pipx) and ensure ~/.local/bin is on PATH."; \
 		exit 1; \
 	}
+	@command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1 || { \
+		echo "Node.js 20 or newer and npm are required for install-dev."; \
+		echo "Install a current Node.js LTS release and ensure both 'node' and 'npm' are on PATH."; \
+		exit 1; \
+	}
+	@node_major=$$(node -p 'Number(process.versions.node.split(".")[0])' 2>/dev/null) || { \
+		echo "Unable to determine the installed Node.js version. Node.js 20 or newer is required for install-dev."; \
+		exit 1; \
+	}; \
+	if [ "$$node_major" -lt 20 ]; then \
+		echo "Node.js 20 or newer is required for install-dev (found $$(node -v))."; \
+		echo "Please install a supported Node.js release before running 'make install-dev'."; \
+		exit 1; \
+	fi
 	@if $(PIPX) list --short 2>/dev/null | grep -q '^ruff '; then \
 		$(PIPX) upgrade ruff; \
 	else \
@@ -63,6 +81,7 @@ install-dev:
 	else \
 		$(PIPX) install pyright; \
 	fi
+	npm ci
 
 install-hooks:
 	git config core.hooksPath .githooks

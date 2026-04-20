@@ -73,12 +73,18 @@ SURFACES: dict[str, SurfaceSpec] = {
     },
     "hooks": {
         "source": AGENTS_ROOT / "hooks",
-        "mode": "files",
-        "pattern": "**/*.json",
+        "mode": "directories",
+        "pattern": "*",
         "user_target": "hooks",
         "workspace_target": ".github/hooks",
     },
 }
+
+USER_OVERLAP_WORKSPACE_SURFACES = frozenset(
+    surface
+    for surface, spec in SURFACES.items()
+    if spec["user_target"] is not None and spec["workspace_target"] is not None
+)
 
 
 def is_string_list(value: object) -> TypeGuard[list[str]]:
@@ -123,6 +129,16 @@ def parse_args() -> argparse.Namespace:
         help="Print planned actions without copying or deleting files.",
     )
     parser.add_argument(
+        "--runtime-authority",
+        choices=["user", "workspace"],
+        default="user",
+        help=(
+            "For workspace scope, choose whether overlapping runtime surfaces default to user-level "
+            "~/.copilot exports or workspace-level .github exports. Explicit --surface selections still "
+            "win."
+        ),
+    )
+    parser.add_argument(
         "--no-delete-stale",
         action="store_true",
         help="Keep stale files or directories that were previously synced but no longer exist in the source.",
@@ -161,23 +177,36 @@ def has_native_project_surface(target_root: Path, surface: str) -> bool:
 def selected_surfaces(
     scope: str,
     target_root: Path,
+    runtime_authority: str,
     requested: list[str] | None,
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], list[str]]:
     available = supported_surfaces(scope)
     if not requested:
+        skipped_authority = sorted(
+            surface
+            for surface in available
+            if scope == "workspace"
+            and runtime_authority == "user"
+            and surface in USER_OVERLAP_WORKSPACE_SURFACES
+        )
         skipped_native = sorted(
             surface
             for surface in available
             if scope == "workspace" and has_native_project_surface(target_root, surface)
         )
-        return [surface for surface in available if surface not in skipped_native], skipped_native
+        skipped = set(skipped_authority) | set(skipped_native)
+        return (
+            [surface for surface in available if surface not in skipped],
+            skipped_native,
+            skipped_authority,
+        )
 
     unsupported = sorted(surface for surface in requested if surface not in available)
     if unsupported:
         unsupported_list = ", ".join(unsupported)
         raise ValueError(f"Unsupported surfaces for {scope} scope: {unsupported_list}")
 
-    return requested, []
+    return requested, [], []
 
 
 def load_plugin_manifest(plugin_id: str) -> PluginManifest:
@@ -297,13 +326,19 @@ def collect_plugin_entries(
                 continue
 
             surface, source_path, relative_path = entry
-            if surface not in planned or not source_path.is_file():
+            if surface not in planned or not source_path.exists():
                 continue
             planned[surface][relative_path] = source_path
 
     return {
         surface: [
-            (source_path, relative_path) for relative_path, source_path in sorted(entries.items())
+            (source_path, relative_path)
+            for relative_path, source_path in sorted(entries.items())
+            if not any(
+                parent.as_posix() in entries and entries[parent.as_posix()].is_dir()
+                for parent in Path(relative_path).parents
+                if parent != Path(".")
+            )
         ]
         for surface, entries in planned.items()
     }
@@ -344,6 +379,24 @@ def remove_stale_path(target: Path, dry_run: bool) -> None:
     else:
         target.unlink()
     print(f"Removed stale synced path {target}")
+
+
+def paths_overlap(path_text: str, other_path_text: str) -> bool:
+    path = Path(path_text)
+    other_path = Path(other_path_text)
+    return path == other_path or path in other_path.parents or other_path in path.parents
+
+
+def stale_paths_to_remove(
+    previous_managed: list[str],
+    current_managed: list[str],
+) -> list[str]:
+    current_set = set(current_managed)
+    return sorted(
+        stale_path
+        for stale_path in set(previous_managed) - current_set
+        if not any(paths_overlap(stale_path, current_path) for current_path in current_managed)
+    )
 
 
 def resolve_git_dir(workspace_root: Path) -> Path | None:
@@ -393,7 +446,7 @@ def sync_surface(
             copy_directory(source_entry, target_path, dry_run)
 
     if delete_stale:
-        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        stale_paths = stale_paths_to_remove(previous_managed, current_managed)
         for stale_path in stale_paths:
             remove_stale_path(target_base / stale_path, dry_run)
 
@@ -419,19 +472,42 @@ def sync_plugin_surface(
     current_managed = [relative_path for _, relative_path in entries]
 
     for source_entry, relative_path in entries:
-        copy_file(source_entry, target_base / relative_path, dry_run)
+        if source_entry.is_dir():
+            copy_directory(source_entry, target_base / relative_path, dry_run)
+        else:
+            copy_file(source_entry, target_base / relative_path, dry_run)
 
     if delete_stale:
-        stale_paths = sorted(set(previous_managed) - set(current_managed))
+        stale_paths = stale_paths_to_remove(previous_managed, current_managed)
         for stale_path in stale_paths:
             remove_stale_path(target_base / stale_path, dry_run)
 
     if entries:
-        print(f"Prepared {len(entries)} plugin-managed {surface} file(s) -> {target_base}")
+        print(f"Prepared {len(entries)} plugin-managed {surface} item(s) -> {target_base}")
     else:
-        print(f"No plugin-managed {surface} files selected")
+        print(f"No plugin-managed {surface} entries selected")
 
     return current_managed
+
+
+def clear_skipped_surface(
+    scope: str,
+    target_root: Path,
+    surface: str,
+    spec: SurfaceSpec,
+    previous_managed: list[str],
+    dry_run: bool,
+    delete_stale: bool,
+) -> list[str]:
+    if delete_stale:
+        target_base = target_root / get_target_subdir(spec, scope)
+        for stale_path in sorted(set(previous_managed)):
+            remove_stale_path(target_base / stale_path, dry_run)
+        print(f"Skipped {surface}; removed previously managed target entries")
+        return []
+
+    print(f"Skipped {surface}; preserving previously managed target entries")
+    return previous_managed
 
 
 def git_exclude_block(surfaces: list[str]) -> str:
@@ -442,6 +518,14 @@ def git_exclude_block(surfaces: list[str]) -> str:
             lines.append(f"/{target}/")
     lines.append(EXCLUDE_END)
     return "\n".join(lines) + "\n"
+
+
+def surfaces_with_managed_workspace_entries(managed_files: dict[str, list[str]]) -> list[str]:
+    return sorted(
+        surface
+        for surface, entries in managed_files.items()
+        if entries and SURFACES.get(surface, {}).get("workspace_target") is not None
+    )
 
 
 def update_git_exclude(workspace_root: Path, surfaces: list[str], dry_run: bool) -> None:
@@ -514,10 +598,22 @@ def main() -> int:
     target_root = resolve_target_root(args)
 
     try:
-        surfaces, skipped_native = selected_surfaces(args.scope, target_root, args.surface)
+        surfaces, skipped_native, skipped_authority = selected_surfaces(
+            args.scope,
+            target_root,
+            args.runtime_authority,
+            args.surface,
+        )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
+
+    if skipped_authority:
+        skipped_list = ", ".join(skipped_authority)
+        print(
+            "Skipping overlapping workspace runtime surfaces because runtime authority defaults to "
+            f"user-level ~/.copilot: {skipped_list}"
+        )
 
     if skipped_native:
         skipped_list = ", ".join(skipped_native)
@@ -541,10 +637,24 @@ def main() -> int:
             return 1
 
     updated_state = sync_selected_surfaces(args, target_root, surfaces, plugin_entries, state)
+    for skipped_surface in sorted(set(skipped_native) | set(skipped_authority)):
+        updated_state[skipped_surface] = clear_skipped_surface(
+            args.scope,
+            target_root,
+            skipped_surface,
+            SURFACES[skipped_surface],
+            state["managed_files"].get(skipped_surface, []),
+            args.dry_run,
+            not args.no_delete_stale,
+        )
 
     if args.write_git_exclude:
         try:
-            update_git_exclude(target_root, surfaces, args.dry_run)
+            update_git_exclude(
+                target_root,
+                surfaces_with_managed_workspace_entries(updated_state),
+                args.dry_run,
+            )
         except FileNotFoundError as exc:
             print(str(exc), file=sys.stderr)
             return 1

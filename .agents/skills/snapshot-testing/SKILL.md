@@ -15,6 +15,7 @@ runner setup.
 - The user needs guidance for `.verified.*` and `.received.*` handling
 - The user needs help making snapshot output deterministic with scrubbers or normalization
 - The user needs CI behavior for snapshot failures that stays reviewable and non-interactive
+- The user needs approval coverage for generated OpenAPI or AsyncAPI files
 
 ## Prerequisites
 
@@ -27,6 +28,8 @@ runner setup.
 ### 1. Confirm snapshot testing is the right fit
 
 - Prefer snapshots for output contracts such as rendered content, API text surfaces, or generated files
+- Prefer snapshots for deterministic build-generated API contract artifacts over
+  mutable runtime output when the goal is drift detection
 - Prefer explicit assertions for calculations, branching behavior, and simple value checks
 
 ### 2. Keep approved files and review artifacts separate

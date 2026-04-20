@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import json
 import py_compile
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED_DIRS = {".git", "__pycache__", "tmp", "temp"}
+EXCLUDED_DIRS = {".git", "__pycache__", "node_modules", "tmp", "temp"}
 
 
 def should_skip(path: Path) -> bool:
@@ -46,11 +47,24 @@ def validate_python(errors: list[str]) -> None:
             errors.append(f"Python compile error in {path.relative_to(ROOT)}: {exc.msg}")
 
 
+def validate_markdown(errors: list[str]) -> None:
+    try:
+        subprocess.run(["npm", "run", "--silent", "lint:markdown"], cwd=ROOT, check=True)
+    except FileNotFoundError:
+        errors.append(
+            "Missing required tool: npm. Install Node.js/npm first, then run `make install-dev` "
+            "before repository validation."
+        )
+    except subprocess.CalledProcessError as exc:
+        errors.append(f"Markdown lint failed with exit code {exc.returncode}.")
+
+
 def main() -> int:
     errors: list[str] = []
     validate_toml(errors)
     validate_json(errors)
     validate_python(errors)
+    validate_markdown(errors)
 
     if errors:
         for error in errors:

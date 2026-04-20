@@ -11,6 +11,9 @@ The repository baseline is also enforced in GitHub Actions by the `Validate repo
 which runs the same `make check` command documented below for pull requests, pushes to `main`, and
 manual runs.
 
+Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
+lockfile changes for newly introduced vulnerable packages.
+
 It includes reusable assets such as:
 
 - agents
@@ -81,11 +84,16 @@ For this repository, the recommended packaging split is:
 - use **`pip`** only inside a project virtual environment when you are managing project-local Python
   dependencies
 
-Install the local Python tools once:
+Install the local developer tools once:
 
 ```bash
 make install-dev
 ```
+
+That command installs the Python tools with `pipx` and the Markdown linter dependency with `npm`.
+The Markdown tooling requires **Node.js 20 or newer**. Prefer the npm bundled with a current
+**Node.js LTS** release for this repository.
+If you use `nvm`, `nvm install --lts` is a good default before running `make install-dev`.
 
 On Debian/Ubuntu and other PEP 668 environments, install `pipx` first instead of using system `pip`
 for user installs:
@@ -127,6 +135,7 @@ make format
 Helpful maintenance commands:
 
 - `make validate-repo`
+- `make lint-markdown`
 - `make validate-plugins`
 - `make smoke-exports`
 - `make inspect-tool-files TARGET_ROOT=/path/to/repo`
@@ -142,6 +151,15 @@ make install-hooks
 ```
 
 The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
+
+Routine dependency maintenance is intentionally low-noise in this repository. Dependabot runs on a
+monthly schedule, groups minor and patch updates, and keeps action updates separate from package
+updates so review stays predictable.
+
+When reviewing Dependabot pull requests that change pinned GitHub Actions, check the release notes,
+confirm the updated pinned SHA matches the intended action release, and make sure the affected
+workflow still passes before merging. Treat major version bumps as a manual review point rather than
+routine churn.
 
 Optional future gates should stay additive and problem-driven. For this repository, the next
 reasonable candidates are:
@@ -239,11 +257,22 @@ This repository prefers **source-of-truth first, compatibility second**:
 - treat generated `.github/*` compatibility copies as non-canonical output, not tracked repo content
 - keep those generated `.github/*` copies ignored through global Git ignore policy rather than a
   repository `.gitignore` rule
+- export hook packs as directories so starter scripts and README guidance travel together instead of
+  only syncing JSON files
 
 For workspace syncs, the generic exporter skips surfaces the target repository already exposes
 natively from `.agents/`. In practice this mainly means skipping `.github/skills/` when the target
-repo already has `.agents/skills/`. It still syncs `.github/agents/`, because custom agents are
-documented for `.github/agents/`, not `.agents/agents/`.
+repo already has `.agents/skills/`.
+
+Workspace syncs now also default to **user-level runtime authority**, so plain `make sync-workspace`
+keeps overlapping runtime surfaces in `~/.copilot/*` and only mirrors workspace-specific surfaces
+unless you opt into repo-level overrides.
+
+To make `.github/*` the active runtime layer for a repository on purpose, use:
+
+```bash
+make sync-workspace TARGET_ROOT=../some-repo RUNTIME_AUTHORITY=workspace
+```
 
 Some downstream projects also contain **tool-provided agent assets** that are not part of this
 repository's curated capability inventory. In particular, Aspire can install its own broad `aspire`

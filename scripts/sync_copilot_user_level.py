@@ -48,8 +48,8 @@ SURFACES: dict[str, SurfaceSpec] = {
     "hooks": {
         "source": AGENTS_ROOT / "hooks",
         "target": DEFAULT_COPILOT_ROOT / "hooks",
-        "mode": "files",
-        "pattern": "**/*.json",
+        "mode": "directories",
+        "pattern": "*",
     },
 }
 
