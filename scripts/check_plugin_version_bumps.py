@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -244,6 +245,26 @@ def describe_paths(paths: set[str]) -> str:
     return ", ".join(sorted(paths))
 
 
+def is_surface_path_match(diff_path: str, surface_path: str) -> bool:
+    if diff_path == surface_path:
+        return True
+
+    diff_path_obj = Path(diff_path)
+    surface_path_obj = Path(surface_path)
+    return surface_path_obj in diff_path_obj.parents
+
+
+def collect_changed_surface_paths(
+    diff_paths: set[str], surface_paths: frozenset[str], changelog_paths: frozenset[str]
+) -> frozenset[str]:
+    return frozenset(
+        diff_path
+        for diff_path in diff_paths
+        if diff_path not in changelog_paths
+        and any(is_surface_path_match(diff_path, surface_path) for surface_path in surface_paths)
+    )
+
+
 def collect_surface_paths(
     base_state: PluginState | None, head_state: PluginState | None
 ) -> frozenset[str]:
@@ -299,7 +320,9 @@ def collect_plugin_diff_facts(
 ) -> PluginDiffFacts:
     surface_paths = collect_surface_paths(base_state, head_state)
     changelog_paths = collect_changelog_paths(base_state, head_state)
-    changed_non_changelog_paths = frozenset((diff_paths & surface_paths) - changelog_paths)
+    changed_non_changelog_paths = collect_changed_surface_paths(
+        diff_paths, surface_paths, changelog_paths
+    )
 
     version_before = base_state.version if base_state is not None else None
     version_after = head_state.version if head_state is not None else None
@@ -396,9 +419,9 @@ def main() -> int:
         errors.extend(check_plugin(plugin_id, base_state, head_state, diff_paths))
 
     if errors:
-        print("Plugin version bump guard failed:")
+        print("Plugin version bump guard failed:", file=sys.stderr)
         for error in errors:
-            print(f"- {error}")
+            print(f"- {error}", file=sys.stderr)
         return 1
 
     print(

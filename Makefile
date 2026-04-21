@@ -8,7 +8,7 @@ TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
 RUNTIME_AUTHORITY ?= user
 
-.PHONY: check format lint lint-markdown lint-workflows scan-secrets check-plugin-version-bumps typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp release-plugin install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown lint-workflows scan-secrets sync-readme-plugin-changelog check-plugin-version-bumps typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp release-plugin install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -27,6 +27,9 @@ lint-workflows:
 
 scan-secrets:
 	$(GITLEAKS) detect --source "$(CURDIR)" --no-git --redact
+
+sync-readme-plugin-changelog:
+	$(PYTHON) scripts/sync_readme_plugin_changelog.py
 
 check-plugin-version-bumps:
 	@if [ -z "$(BASE_REF)" ] || [ -z "$(HEAD_REF)" ]; then \

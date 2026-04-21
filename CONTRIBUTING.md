@@ -23,6 +23,9 @@ make check
 This is the required local baseline. The `Validate repository` workflow runs the same `make check`
 command plus a diff-aware plugin version-bump guard in CI.
 
+That baseline includes repository-local Markdown link validation through
+`scripts/validate_repo_files.py`, so dead relative docs links should fail before merge.
+
 Pull requests also run the `Dependency Review` workflow, which inspects manifest and lockfile diffs
 for newly introduced vulnerable dependencies.
 Workflow edits under `.github/workflows/**` or `.github/actions/**` also run the `Actionlint`
@@ -46,6 +49,7 @@ Helpful focused commands:
 
 - `make validate-repo`
 - `make lint-markdown`
+- `make sync-readme-plugin-changelog`
 - `make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD`
 - `make validate-plugins`
 - `make smoke-exports`
@@ -80,6 +84,12 @@ opening the PR:
 
 ```bash
 make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD
+```
+
+If plugin release metadata changes, refresh the narrow generated README release-summary section:
+
+```bash
+make sync-readme-plugin-changelog
 ```
 
 ## Contribution boundaries

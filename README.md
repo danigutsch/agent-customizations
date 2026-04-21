@@ -61,7 +61,8 @@ This repository keeps a small cross-file-type quality baseline:
 
 - **Python**: Ruff is the default linter and formatter baseline for `scripts/`, with Pyright settings
   defined alongside it in `pyproject.toml`.
-- **Markdown**: `.markdownlint.json` keeps markdownlint aligned with the repository's authoring rules.
+- **Markdown**: `.markdownlint.json` keeps markdownlint aligned with the repository's authoring rules,
+  and `validate_repo_files.py` also checks repository-local Markdown link targets.
 - **JSON and YAML**: `.editorconfig` sets UTF-8, LF endings, final newlines, and 2-space indentation.
 - **Text and binary files**: `.gitattributes` normalizes line endings and marks common binary asset
   types as non-text.
@@ -78,6 +79,9 @@ The lightweight repository validation command is:
 ```bash
 python3 scripts/validate_repo_files.py
 ```
+
+That validator covers TOML, JSON, Python compilation, Markdown linting, generated README drift, and
+repository-local Markdown link targets.
 
 ## Local maintenance workflow
 
@@ -159,6 +163,7 @@ Helpful maintenance commands:
 - `make validate-repo`
 - `make lint-markdown`
 - `make lint-workflows`
+- `make sync-readme-plugin-changelog`
 - `make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD`
 - `make release-plugin PLUGIN=source-generation BUMP=patch`
 - `make scan-secrets`
@@ -265,6 +270,23 @@ Plugins in this repository are **packaging metadata over existing `.agents` capa
 source of truth. The capability files still live under `.agents/agents/`, `.agents/instructions/`,
 `.agents/skills/`, and related folders. The plugin directory declares how those files travel
 together as one reusable pack.
+
+The README keeps one narrow generated release-summary section for plugin bundles so contributor-facing
+docs can reflect the current released bundle metadata without hand-editing the summary table.
+Refresh it with:
+
+```bash
+make sync-readme-plugin-changelog
+```
+
+### Current plugin bundle releases
+
+<!-- BEGIN GENERATED PLUGIN CHANGELOG -->
+| Plugin | Current version | Latest release | Highlights |
+| --- | --- | --- | --- |
+| Source Generation | `0.1.0` | 2026-04-18 | - Initial plugin bundle manifest for the source-generation capability pack.<br>- Bundle README and installation example. |
+| Vertical Slice Architecture | `0.1.0` | 2026-04-18 | - Initial plugin bundle manifest for the vertical-slice-architecture capability pack.<br>- Bundle README and domain-first installation example. |
+<!-- END GENERATED PLUGIN CHANGELOG -->
 
 ## Layout rule
 
