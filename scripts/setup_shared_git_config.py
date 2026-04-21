@@ -137,8 +137,8 @@ def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:
         raise RuntimeError(f"Pre-commit hook not found: {path}")
 
     current_mode = path.stat().st_mode
-    executable_bits = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-    if current_mode & executable_bits == executable_bits:
+    executable_bit = stat.S_IXUSR
+    if current_mode & executable_bit == executable_bit:
         print(f"Pre-commit hook already executable: {path}")
         return
 
@@ -146,7 +146,7 @@ def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:
         print(f"Would mark pre-commit hook executable: {path}")
         return
 
-    path.chmod(current_mode | executable_bits)
+    path.chmod(current_mode | executable_bit)
     print(f"Marked pre-commit hook executable: {path}")
 
 
@@ -164,16 +164,20 @@ def warn_for_untracked_git_config(repo_root: Path, shared_config: Path, dry_run:
 
 def main() -> int:
     args = parse_args()
-    repo_root = args.repo_root.resolve()
-    shared_config = repo_root / SHARED_CONFIG_NAME
-    if not shared_config.exists():
-        raise RuntimeError(f"Shared Git config not found: {shared_config}")
+    try:
+        repo_root = args.repo_root.resolve()
+        shared_config = repo_root / SHARED_CONFIG_NAME
+        if not shared_config.exists():
+            raise RuntimeError(f"Shared Git config not found: {shared_config}")
 
-    warn_for_untracked_git_config(repo_root, shared_config, args.dry_run)
-    ensure_global_defaults(args.dry_run, args.force)
-    ensure_local_include(repo_root, shared_config, args.dry_run)
-    ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)
-    return 0
+        warn_for_untracked_git_config(repo_root, shared_config, args.dry_run)
+        ensure_global_defaults(args.dry_run, args.force)
+        ensure_local_include(repo_root, shared_config, args.dry_run)
+        ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)
+        return 0
+    except (RuntimeError, OSError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
