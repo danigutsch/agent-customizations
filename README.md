@@ -194,8 +194,9 @@ make setup-git-config
 ```
 
 That command adds a local include for the tracked `.gitconfig.shared` file and makes sure the
-pre-commit hook stays executable. It also applies a small set of safe global Git defaults for
-rebase-friendly pulls, fetch pruning, and `zdiff3` conflict markers.
+pre-commit hook stays executable. It also fills in any unset safe global Git defaults for
+rebase-friendly pulls, fetch pruning, and `zdiff3` conflict markers. Pass `--force` to
+`scripts/setup_shared_git_config.py` if you intentionally want to overwrite existing global values.
 
 The tracked repository-specific Git config lives at
 [`./.gitconfig.shared`](./.gitconfig.shared). That file enables the `.githooks` path, LF-safe line

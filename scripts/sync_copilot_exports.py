@@ -701,7 +701,10 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    warn_for_git_tracking(args.scope, target_root, surfaces)
+    try:
+        warn_for_git_tracking(args.scope, target_root, surfaces)
+    except RuntimeError as exc:
+        print(f"Warning: unable to check Git tracking status: {exc}", file=sys.stderr)
 
     if skipped_authority:
         skipped_list = ", ".join(skipped_authority)

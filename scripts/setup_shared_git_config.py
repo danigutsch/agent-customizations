@@ -37,6 +37,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Show what would change without writing local Git config.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing global Git values when they differ from the recommended defaults.",
+    )
     return parser.parse_args()
 
 
@@ -104,12 +109,19 @@ def configured_include_paths(repo_root: Path, config_dir: Path) -> set[Path]:
     }
 
 
-def ensure_global_defaults(dry_run: bool) -> None:
+def ensure_global_defaults(dry_run: bool, force: bool) -> None:
     for key, desired_value in GLOBAL_DEFAULTS:
         completed = run_global_git_command(["config", "--global", "--get", key], check=False)
         current_value = completed.stdout.strip() if completed.returncode == 0 else None
         if current_value == desired_value:
             print(f"Global Git config already sets {key}={desired_value}")
+            continue
+
+        if current_value is not None and not force:
+            print(
+                "Leaving existing global Git config unchanged for "
+                f"{key}={current_value!r}; use --force to set {desired_value!r}"
+            )
             continue
 
         if dry_run:
@@ -172,7 +184,7 @@ def main() -> int:
         raise RuntimeError(f"Shared Git config not found: {shared_config}")
 
     warn_for_non_tracked_git_config(repo_root, shared_config)
-    ensure_global_defaults(args.dry_run)
+    ensure_global_defaults(args.dry_run, args.force)
     ensure_local_include(repo_root, shared_config, args.dry_run)
     ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)
     return 0

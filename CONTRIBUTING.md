@@ -63,8 +63,8 @@ global Git config, and global Git ignore files are normally not Git-tracked.
 Optional local convenience:
 
 - `make setup-git-config` to opt into the repository's tracked local Git defaults, including the
-  lightweight pre-commit hook path and `.git-blame-ignore-revs`, while also applying the shared
-  safe global Git defaults used in local docs
+  lightweight pre-commit hook path and `.git-blame-ignore-revs`, while also filling in any unset
+  shared safe global Git defaults used in local docs
 - `make install-hooks` if you only want the lightweight pre-commit hook path without the broader
   local Git defaults
 - the tracked repository-specific config lives in [`./.gitconfig.shared`](./.gitconfig.shared)
