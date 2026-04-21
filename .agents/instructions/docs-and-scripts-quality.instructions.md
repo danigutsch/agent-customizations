@@ -19,12 +19,16 @@ validation workflow that covers them.
 - Keep command examples aligned with real script or `make` entrypoints.
 - Prefer concise, non-duplicated maintenance guidance.
 - Keep Markdown aligned with the repository's configured lint rules and authoring conventions.
+- Prefer narrow generated README sections with explicit ownership markers when one small derived view
+  prevents documentation drift better than repeated manual edits.
 
 ## Script rules
 
 - Keep scripts explicit about inputs, behavior, and failure modes.
 - Prefer the repository's current Python quality tooling for Python scripts.
 - Keep hook scripts thin when a repository-local script already owns the real logic.
+- When a script owns a generated docs section, pair it with an existing repo validation path so drift
+  is caught automatically instead of relying on contributor memory.
 
 ## Validation rules
 

@@ -7,9 +7,9 @@ Reusable AI agent customization assets.
 This repository is intended to hold shared, tool-agnostic customization content under a single
 `.agents/` root.
 
-The repository baseline is also enforced in GitHub Actions by the `Validate repository` workflow,
-which runs the same `make check` command documented below for pull requests, pushes to `main`, and
-manual runs.
+The repository baseline is also enforced in GitHub Actions by the `Validate repository` workflow.
+It runs the same `make check` command documented below and a diff-aware plugin version-bump guard
+for pull requests, pushes to `main`, and manual runs.
 
 Pull requests also run a separate `Dependency Review` workflow that checks dependency manifest and
 lockfile changes for newly introduced vulnerable packages.
@@ -61,7 +61,8 @@ This repository keeps a small cross-file-type quality baseline:
 
 - **Python**: Ruff is the default linter and formatter baseline for `scripts/`, with Pyright settings
   defined alongside it in `pyproject.toml`.
-- **Markdown**: `.markdownlint.json` keeps markdownlint aligned with the repository's authoring rules.
+- **Markdown**: `.markdownlint.json` keeps markdownlint aligned with the repository's authoring rules,
+  and `validate_repo_files.py` also checks repository-local Markdown link targets.
 - **JSON and YAML**: `.editorconfig` sets UTF-8, LF endings, final newlines, and 2-space indentation.
 - **Text and binary files**: `.gitattributes` normalizes line endings and marks common binary asset
   types as non-text.
@@ -78,6 +79,9 @@ The lightweight repository validation command is:
 ```bash
 python3 scripts/validate_repo_files.py
 ```
+
+That validator covers TOML, JSON, Python compilation, Markdown linting, generated README drift, and
+repository-local Markdown link targets.
 
 ## Local maintenance workflow
 
@@ -125,8 +129,9 @@ Run the full repository baseline locally:
 make check
 ```
 
-This is the same command the `Validate repository` GitHub Actions workflow runs in CI, so local
-failures should map directly to pull request validation failures.
+This is the main local gate. In CI, the `Validate repository` workflow runs the same `make check`
+command plus the diff-aware plugin version-bump guard, so most local failures still map directly to
+pull request validation failures.
 
 Treat `make check` as the required repository quality gate. Use narrower gates only when the
 maintained surface clearly needs them.
@@ -158,6 +163,8 @@ Helpful maintenance commands:
 - `make validate-repo`
 - `make lint-markdown`
 - `make lint-workflows`
+- `make sync-readme-plugin-changelog`
+- `make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD`
 - `make release-plugin PLUGIN=source-generation BUMP=patch`
 - `make scan-secrets`
 - `make validate-plugins`
@@ -190,6 +197,17 @@ make release-plugin PLUGIN=source-generation BUMP=patch
 
 That helper prepares the plugin metadata locally, and the `Release plugin bundle` workflow provides
 the same flow through GitHub Actions when you want CI to create the commit and tag.
+
+When you change a shipped plugin surface, run the diff-aware guard against your base branch before
+opening a pull request:
+
+```bash
+make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD
+```
+
+That guard enforces the established dependency-free release discipline for plugin bundles:
+Semantic Versioning for versions, Keep a Changelog with `Unreleased` notes, and git tags for
+releases.
 
 When reviewing Dependabot pull requests that change pinned GitHub Actions, check the release notes,
 confirm the updated pinned SHA matches the intended action release, and make sure the affected
@@ -252,6 +270,23 @@ Plugins in this repository are **packaging metadata over existing `.agents` capa
 source of truth. The capability files still live under `.agents/agents/`, `.agents/instructions/`,
 `.agents/skills/`, and related folders. The plugin directory declares how those files travel
 together as one reusable pack.
+
+The README keeps one narrow generated release-summary section for plugin bundles so contributor-facing
+docs can reflect the current released bundle metadata without hand-editing the summary table.
+Refresh it with:
+
+```bash
+make sync-readme-plugin-changelog
+```
+
+### Current plugin bundle releases
+
+<!-- BEGIN GENERATED PLUGIN CHANGELOG -->
+| Plugin | Current version | Latest release | Highlights |
+| --- | --- | --- | --- |
+| Source Generation | `0.1.0` | 2026-04-18 | - Initial plugin bundle manifest for the source-generation capability pack.<br>- Bundle README and installation example. |
+| Vertical Slice Architecture | `0.1.0` | 2026-04-18 | - Initial plugin bundle manifest for the vertical-slice-architecture capability pack.<br>- Bundle README and domain-first installation example. |
+<!-- END GENERATED PLUGIN CHANGELOG -->
 
 ## Layout rule
 

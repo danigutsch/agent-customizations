@@ -65,6 +65,8 @@ aligned with the tools and checks that already exist here.
 - Keep Markdown aligned with the repository's lint and authoring rules.
 - Prefer concise, task-oriented maintenance docs over duplicated explanations across many files.
 - Keep command examples consistent with the actual `Makefile` and script entrypoints.
+- When a small derived README section prevents drift better than repeated manual edits, generate only
+  that section with explicit markers and keep the owning script obvious.
 
 ### Script quality
 
@@ -77,6 +79,8 @@ aligned with the tools and checks that already exist here.
 - Prefer the existing repository commands for validation and smoke checks.
 - Keep pre-commit behavior aligned with the real local quality path.
 - Treat repo validation files, maintenance docs, and helper scripts as one operating surface.
+- If a script owns a generated docs section, make the repository's existing validation path detect
+  drift instead of relying on manual review alone.
 
 ### Tooling boundaries
 

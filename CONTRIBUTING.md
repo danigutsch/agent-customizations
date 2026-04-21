@@ -20,8 +20,11 @@ Run the repository baseline before opening a pull request:
 make check
 ```
 
-This is the required merge gate for the repository and the same command the `Validate repository`
-workflow runs in CI.
+This is the required local baseline. The `Validate repository` workflow runs the same `make check`
+command plus a diff-aware plugin version-bump guard in CI.
+
+That baseline includes repository-local Markdown link validation through
+`scripts/validate_repo_files.py`, so dead relative docs links should fail before merge.
 
 Pull requests also run the `Dependency Review` workflow, which inspects manifest and lockfile diffs
 for newly introduced vulnerable dependencies.
@@ -46,6 +49,8 @@ Helpful focused commands:
 
 - `make validate-repo`
 - `make lint-markdown`
+- `make sync-readme-plugin-changelog`
+- `make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD`
 - `make validate-plugins`
 - `make smoke-exports`
 - `make sync-user`
@@ -73,6 +78,19 @@ make scan-secrets
 Those commands stay outside `make check` unless the repository intentionally promotes them into the
 required baseline.
 Run them when the corresponding local CLI is available on your `PATH`.
+
+When a pull request changes a shipped plugin bundle surface, run the diff-aware version guard before
+opening the PR:
+
+```bash
+make check-plugin-version-bumps BASE_REF=origin/main HEAD_REF=HEAD
+```
+
+If plugin release metadata changes, refresh the narrow generated README release-summary section:
+
+```bash
+make sync-readme-plugin-changelog
+```
 
 ## Contribution boundaries
 

@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -42,3 +44,24 @@ jobs:
 
       - name: Run make check
         run: make check
+
+      - name: Check plugin version bump discipline
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="origin/${{ github.base_ref }}"
+            head_ref="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            base_ref="${{ github.event.before }}"
+            head_ref="${{ github.sha }}"
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            base_ref="$(git rev-parse HEAD^)"
+            head_ref="HEAD"
+          else
+            echo "No prior commit is available for plugin version-bump comparison; skipping."
+            exit 0
+          fi
+
+          make check-plugin-version-bumps BASE_REF="$base_ref" HEAD_REF="$head_ref"

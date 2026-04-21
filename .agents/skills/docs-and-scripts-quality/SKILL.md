@@ -40,6 +40,8 @@ coherent.
 
 - Update command examples when script or make entrypoints change.
 - Keep hook behavior aligned with the documented local quality path.
+- If one narrow generated README section is the clearest way to avoid drift, keep the generation
+  scope explicit and validate it through the repository's existing check path.
 
 ### 4. Validate against the real workflow
 
@@ -59,6 +61,7 @@ coherent.
 - **Do not document commands the repo does not have**.
 - **Do not invent a parallel quality workflow**.
 - **Do not let hooks diverge from the documented local checks**.
+- **Do not auto-generate broad docs surfaces when one small owned section is enough**.
 - **Do not weaken existing checks to make one change easier**.
 - **Do not use this for first-time repo structure or baseline setup**; use `repository-setup` for
   that.
@@ -67,4 +70,4 @@ coherent.
 
 - [Docs and scripts quality guidance](../../instructions/docs-and-scripts-quality.instructions.md)
 - [Docs and scripts quality agent](../../agents/docs-and-scripts-quality.agent.md)
-- [Slice inventory](../../../docs/SLICES.md)
+- [Capability inventory](../../../docs/CAPABILITIES.md)
