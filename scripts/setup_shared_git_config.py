@@ -46,28 +46,12 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def run_git_command(
-    repo_root: Path, args: list[str], *, check: bool = True
+def run_git(
+    args: list[str], *, cwd: Path | None = None, check: bool = True
 ) -> subprocess.CompletedProcess[str]:
     completed = subprocess.run(
         ["git", *args],
-        cwd=repo_root,
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if check and completed.returncode != 0:
-        stderr = completed.stderr.strip()
-        command = " ".join(["git", *args])
-        raise RuntimeError(f"Command failed ({command}): {stderr}")
-    return completed
-
-
-def run_global_git_command(
-    args: list[str], *, check: bool = True
-) -> subprocess.CompletedProcess[str]:
-    completed = subprocess.run(
-        ["git", *args],
+        cwd=cwd,
         text=True,
         capture_output=True,
         check=False,
@@ -80,7 +64,7 @@ def run_global_git_command(
 
 
 def git_dir(repo_root: Path) -> Path:
-    completed = run_git_command(repo_root, ["rev-parse", "--git-dir"])
+    completed = run_git(["rev-parse", "--git-dir"], cwd=repo_root)
     git_dir_path = Path(completed.stdout.strip())
     if git_dir_path.is_absolute():
         return git_dir_path
@@ -95,10 +79,8 @@ def resolve_include_path(path_text: str, config_dir: Path) -> Path:
 
 
 def configured_include_paths(repo_root: Path, config_dir: Path) -> set[Path]:
-    completed = run_git_command(
-        repo_root,
-        ["config", "--local", "--get-all", "include.path"],
-        check=False,
+    completed = run_git(
+        ["config", "--local", "--get-all", "include.path"], cwd=repo_root, check=False
     )
     if completed.returncode != 0:
         return set()
@@ -112,7 +94,7 @@ def configured_include_paths(repo_root: Path, config_dir: Path) -> set[Path]:
 
 def ensure_global_defaults(dry_run: bool, force: bool) -> None:
     for key, desired_value in GLOBAL_DEFAULTS:
-        completed = run_global_git_command(["config", "--global", "--get", key], check=False)
+        completed = run_git(["config", "--global", "--get", key], check=False)
         current_value = completed.stdout.strip() if completed.returncode == 0 else None
         if current_value == desired_value:
             print(f"Global Git config already sets {key}={desired_value}")
@@ -129,7 +111,7 @@ def ensure_global_defaults(dry_run: bool, force: bool) -> None:
             print(f"Would set git config --global {key} {desired_value}")
             continue
 
-        run_global_git_command(["config", "--global", key, desired_value])
+        run_git(["config", "--global", key, desired_value])
         print(f"Set git config --global {key} {desired_value}")
 
 
@@ -146,7 +128,7 @@ def ensure_local_include(repo_root: Path, shared_config: Path, dry_run: bool) ->
         print(f"Would add local include.path {include_path_text}")
         return
 
-    run_git_command(repo_root, ["config", "--local", "--add", "include.path", include_path_text])
+    run_git(["config", "--local", "--add", "include.path", include_path_text], cwd=repo_root)
     print(f"Added local include.path {include_path_text}")
 
 
@@ -168,7 +150,7 @@ def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:
     print(f"Marked pre-commit hook executable: {path}")
 
 
-def warn_for_non_tracked_git_config(repo_root: Path, shared_config: Path) -> None:
+def warn_for_untracked_git_config(repo_root: Path, shared_config: Path) -> None:
     git_config_path = git_dir(repo_root) / "config"
     print(
         "Warning: this setup updates "
@@ -186,7 +168,7 @@ def main() -> int:
     if not shared_config.exists():
         raise RuntimeError(f"Shared Git config not found: {shared_config}")
 
-    warn_for_non_tracked_git_config(repo_root, shared_config)
+    warn_for_untracked_git_config(repo_root, shared_config)
     ensure_global_defaults(args.dry_run, args.force)
     ensure_local_include(repo_root, shared_config, args.dry_run)
     ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)
