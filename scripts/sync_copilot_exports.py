@@ -679,9 +679,10 @@ def sync_selected_surfaces(
     return updated_state
 
 
-def warn_for_user_scope(target_root: Path) -> None:
+def warn_for_user_scope(target_root: Path, dry_run: bool) -> None:
+    action = "would write under" if dry_run else "writes under"
     print(
-        "Warning: user scope writes under "
+        f"Warning: user scope {action} "
         f"{target_root}. The canonical tracked sources stay under {AGENTS_ROOT}, while these "
         "user-level copies live outside the repository and are normally not Git-tracked.",
         file=sys.stderr,
@@ -696,7 +697,7 @@ def warn_for_selected_surfaces(
     skipped_authority: list[str],
 ) -> None:
     if args.scope == "user":
-        warn_for_user_scope(target_root)
+        warn_for_user_scope(target_root, args.dry_run)
 
     try:
         warn_for_git_tracking(args.scope, target_root, surfaces)

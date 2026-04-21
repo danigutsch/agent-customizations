@@ -122,7 +122,7 @@ def ensure_local_include(repo_root: Path, shared_config: Path, dry_run: bool) ->
         print(f"Local Git config already includes {shared_config}")
         return
 
-    include_path_text = os.path.relpath(shared_config, config_dir)
+    include_path_text = Path(os.path.relpath(shared_config, config_dir)).as_posix()
 
     if dry_run:
         print(f"Would add local include.path {include_path_text}")
@@ -150,10 +150,11 @@ def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:
     print(f"Marked pre-commit hook executable: {path}")
 
 
-def warn_for_untracked_git_config(repo_root: Path, shared_config: Path) -> None:
+def warn_for_untracked_git_config(repo_root: Path, shared_config: Path, dry_run: bool) -> None:
     git_config_path = git_dir(repo_root) / "config"
+    action = "would update" if dry_run else "updates"
     print(
-        "Warning: this setup updates "
+        f"Warning: this setup {action} "
         f"{git_config_path} and global Git config. Those config files are outside normal repository "
         "tracking. The tracked repo-specific defaults live at "
         f"{shared_config}.",
@@ -168,7 +169,7 @@ def main() -> int:
     if not shared_config.exists():
         raise RuntimeError(f"Shared Git config not found: {shared_config}")
 
-    warn_for_untracked_git_config(repo_root, shared_config)
+    warn_for_untracked_git_config(repo_root, shared_config, args.dry_run)
     ensure_global_defaults(args.dry_run, args.force)
     ensure_local_include(repo_root, shared_config, args.dry_run)
     ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)
