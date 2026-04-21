@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import TypedDict, TypeGuard, cast
@@ -414,6 +415,69 @@ def resolve_git_dir(workspace_root: Path) -> Path | None:
     return (workspace_root / content[len(prefix) :]).resolve()
 
 
+def resolve_git_repo_root(path: Path) -> Path | None:
+    completed = subprocess.run(
+        ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return None
+    return Path(completed.stdout.strip()).resolve()
+
+
+def is_git_tracked(repo_root: Path, target_path: Path) -> bool:
+    try:
+        relative_path = target_path.resolve().relative_to(repo_root)
+    except ValueError:
+        return False
+
+    completed = subprocess.run(
+        ["git", "-C", str(repo_root), "ls-files", "--", relative_path.as_posix()],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return False
+    return any(line.strip() for line in completed.stdout.splitlines())
+
+
+def warn_for_git_tracking(scope: str, target_root: Path, surfaces: list[str]) -> None:
+    repo_root = resolve_git_repo_root(target_root)
+    if repo_root is None:
+        return
+
+    tracked_paths: list[str] = []
+    untracked_paths: list[str] = []
+    for surface in surfaces:
+        target_base = target_root / get_target_subdir(SURFACES[surface], scope)
+        try:
+            display_path = target_base.resolve().relative_to(repo_root).as_posix()
+        except ValueError:
+            continue
+
+        if is_git_tracked(repo_root, target_base):
+            tracked_paths.append(display_path)
+        else:
+            untracked_paths.append(display_path)
+
+    if tracked_paths:
+        print(
+            "Warning: export destination path(s) are already Git-tracked in "
+            f"{repo_root}: {', '.join(sorted(tracked_paths))}",
+            file=sys.stderr,
+        )
+
+    if untracked_paths:
+        print(
+            "Note: export destination path(s) are inside Git repository "
+            f"{repo_root} but are not currently Git-tracked: {', '.join(sorted(untracked_paths))}",
+            file=sys.stderr,
+        )
+
+
 def state_path_for(scope: str, target_root: Path) -> Path:
     if scope == "user":
         return target_root / STATE_FILE_NAME
@@ -593,9 +657,21 @@ def sync_selected_surfaces(
     return updated_state
 
 
+def warn_for_user_scope(target_root: Path) -> None:
+    print(
+        "Warning: user scope writes under "
+        f"{target_root}. The canonical tracked sources stay under {AGENTS_ROOT}, while these "
+        "user-level copies live outside the repository and are normally not Git-tracked.",
+        file=sys.stderr,
+    )
+
+
 def main() -> int:
     args = parse_args()
     target_root = resolve_target_root(args)
+
+    if args.scope == "user":
+        warn_for_user_scope(target_root)
 
     try:
         surfaces, skipped_native, skipped_authority = selected_surfaces(
@@ -607,6 +683,8 @@ def main() -> int:
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
+
+    warn_for_git_tracking(args.scope, target_root, surfaces)
 
     if skipped_authority:
         skipped_list = ", ".join(skipped_authority)

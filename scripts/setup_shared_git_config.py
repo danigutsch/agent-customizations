@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -152,6 +153,17 @@ def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:
     print(f"Marked pre-commit hook executable: {path}")
 
 
+def warn_for_non_tracked_git_config(repo_root: Path, shared_config: Path) -> None:
+    git_config_path = git_dir(repo_root) / "config"
+    print(
+        "Warning: this setup updates "
+        f"{git_config_path} and global Git config. Those config files are outside normal repository "
+        "tracking. The tracked repo-specific defaults live at "
+        f"{shared_config}.",
+        file=sys.stderr,
+    )
+
+
 def main() -> int:
     args = parse_args()
     repo_root = args.repo_root.resolve()
@@ -159,6 +171,7 @@ def main() -> int:
     if not shared_config.exists():
         raise RuntimeError(f"Shared Git config not found: {shared_config}")
 
+    warn_for_non_tracked_git_config(repo_root, shared_config)
     ensure_global_defaults(args.dry_run)
     ensure_local_include(repo_root, shared_config, args.dry_run)
     ensure_pre_commit_is_executable(repo_root / ".githooks" / "pre-commit", args.dry_run)

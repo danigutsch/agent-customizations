@@ -57,6 +57,9 @@ Helpful focused commands:
 - `make sync-workspace`
 - `make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json`
 
+User-level setup commands warn when they write outside the repository, because `~/.copilot/`,
+global Git config, and global Git ignore files are normally not Git-tracked.
+
 Optional local convenience:
 
 - `make setup-git-config` to opt into the repository's tracked local Git defaults, including the

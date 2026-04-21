@@ -232,9 +232,19 @@ def write_config(path: Path, config: dict[str, object], dry_run: bool) -> None:
     print(f"Updated Copilot MCP config at {path}")
 
 
+def warn_for_user_level_config(path: Path) -> None:
+    print(
+        "Warning: MCP setup writes to "
+        f"{path}. This is user-level configuration outside the repository and is normally not "
+        "Git-tracked.",
+        file=sys.stderr,
+    )
+
+
 def main() -> int:
     args = parse_args()
     config_path = args.copilot_root.expanduser().resolve() / CONFIG_FILE_NAME
+    warn_for_user_level_config(config_path)
 
     try:
         manifests = selected_manifests(args)

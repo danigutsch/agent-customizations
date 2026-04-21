@@ -175,6 +175,10 @@ Helpful maintenance commands:
 - `make configure-global-ignore`
 - `make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json`
 
+Commands that write to user-level locations such as `~/.copilot/`, global Git config, or global Git
+ignore files now warn when they do so, because those changes normally live outside the repository
+and are not Git-tracked. For Copilot exports, the canonical tracked source remains under `.agents/`.
+
 To enable the lightweight pre-commit hook for this repository:
 
 ```bash
@@ -196,6 +200,9 @@ rebase-friendly pulls, fetch pruning, and `zdiff3` conflict markers.
 The tracked repository-specific Git config lives at
 [`./.gitconfig.shared`](./.gitconfig.shared). That file enables the `.githooks` path, LF-safe line
 ending handling, and `.git-blame-ignore-revs` for this repository.
+
+The script also warns that the actual edited Git config files are user-level/local-clone state and
+normally not Git-tracked.
 
 If you only want the hook path without the broader local Git defaults, keep using
 `make install-hooks`.
