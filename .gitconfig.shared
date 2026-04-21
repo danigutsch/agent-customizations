@@ -9,7 +9,7 @@
 [fetch]
 	prune = true
 [merge]
-	conflictstyle = zdiff3
+	conflictStyle = zdiff3
 [core]
 	autocrlf = false
 	safecrlf = warn

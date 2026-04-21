@@ -416,12 +416,15 @@ def resolve_git_dir(workspace_root: Path) -> Path | None:
 
 
 def resolve_git_repo_root(path: Path) -> Path | None:
-    completed = subprocess.run(
-        ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError as exc:
+        raise RuntimeError(f"Failed to inspect Git repository for {path}: {exc}") from exc
     if completed.returncode != 0:
         return None
     return Path(completed.stdout.strip()).resolve()
@@ -436,8 +439,8 @@ def git_ls_files(repo_root: Path, relative_path: Path) -> list[str]:
             capture_output=True,
             check=False,
         )
-    except OSError:
-        return []
+    except OSError as exc:
+        raise RuntimeError(f"Failed to inspect Git-tracked paths under {repo_root}: {exc}") from exc
 
     if completed.returncode != 0:
         return []
@@ -657,17 +660,16 @@ def sync_selected_surfaces(
                 args.dry_run,
                 not args.no_delete_stale,
             )
-            continue
-
-        updated_state[surface] = sync_surface(
-            args.scope,
-            target_root,
-            surface,
-            SURFACES[surface],
-            state["managed_files"].get(surface, []),
-            args.dry_run,
-            not args.no_delete_stale,
-        )
+        else:
+            updated_state[surface] = sync_surface(
+                args.scope,
+                target_root,
+                surface,
+                SURFACES[surface],
+                state["managed_files"].get(surface, []),
+                args.dry_run,
+                not args.no_delete_stale,
+            )
 
     return updated_state
 

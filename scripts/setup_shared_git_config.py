@@ -15,7 +15,7 @@ GLOBAL_DEFAULTS: tuple[tuple[str, str], ...] = (
     ("rebase.autoStash", "true"),
     ("rebase.updateRefs", "true"),
     ("fetch.prune", "true"),
-    ("merge.conflictstyle", "zdiff3"),
+    ("merge.conflictStyle", "zdiff3"),
 )
 
 
