@@ -42,6 +42,8 @@ coherent.
 - Keep hook behavior aligned with the documented local quality path.
 - If one narrow generated README section is the clearest way to avoid drift, keep the generation
   scope explicit and validate it through the repository's existing check path.
+- If the repository wants shareable local Git guidance, prefer a tracked opt-in config file plus one
+  setup command over duplicating long manual `git config` sequences in docs.
 
 ### 4. Validate against the real workflow
 

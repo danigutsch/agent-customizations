@@ -1,0 +1,18 @@
+# Opt-in repository-local Git defaults for agent-customizations.
+# Enable this file via `make setup-git-config`.
+
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+	updateRefs = true
+[fetch]
+	prune = true
+[merge]
+	conflictstyle = zdiff3
+[core]
+	autocrlf = false
+	safecrlf = warn
+	hooksPath = .githooks
+[blame]
+	ignoreRevsFile = .git-blame-ignore-revs

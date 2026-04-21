@@ -55,6 +55,8 @@ slow, or more authoritative than the repository's documented validation commands
 - Prefer `pre-commit` for fast checks such as lint, syntax, or focused validation.
 - Use `commit-msg` only when message policy actually matters to the repository.
 - Document bypass behavior and the shared local command that mirrors the hook logic.
+- If the repository uses a tracked opt-in local Git config include, it can bootstrap the hook path,
+  but keep that installation step explicit and easy to inspect.
 
 ## Pairing guidance
 

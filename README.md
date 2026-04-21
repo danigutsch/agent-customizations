@@ -183,6 +183,23 @@ make install-hooks
 
 The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
 
+To opt into the repository's broader local Git defaults:
+
+```bash
+make setup-git-config
+```
+
+That command adds a local include for the tracked `.gitconfig.shared` file and makes sure the
+pre-commit hook stays executable. It also applies a small set of safe global Git defaults for
+rebase-friendly pulls, fetch pruning, and `zdiff3` conflict markers.
+
+The tracked repository-specific Git config lives at
+[`./.gitconfig.shared`](./.gitconfig.shared). That file enables the `.githooks` path, LF-safe line
+ending handling, and `.git-blame-ignore-revs` for this repository.
+
+If you only want the hook path without the broader local Git defaults, keep using
+`make install-hooks`.
+
 Routine dependency maintenance is intentionally low-noise in this repository. Dependabot runs on a
 monthly schedule, groups minor and patch updates, and keeps action updates separate from package
 updates so review stays predictable.

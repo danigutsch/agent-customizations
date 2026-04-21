@@ -59,7 +59,12 @@ Helpful focused commands:
 
 Optional local convenience:
 
-- `make install-hooks` to enable the lightweight pre-commit hook path
+- `make setup-git-config` to opt into the repository's tracked local Git defaults, including the
+  lightweight pre-commit hook path and `.git-blame-ignore-revs`, while also applying the shared
+  safe global Git defaults used in local docs
+- `make install-hooks` if you only want the lightweight pre-commit hook path without the broader
+  local Git defaults
+- the tracked repository-specific config lives in [`./.gitconfig.shared`](./.gitconfig.shared)
 
 Do not add narrower quality gates unless they solve a real recurring problem in the maintained
 surface. For this repository, likely future additions are `slopwatch`, `license-checking`, and

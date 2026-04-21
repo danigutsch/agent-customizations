@@ -24,6 +24,8 @@ Use these rules when the task is about designing or refining repository Git hook
 - Make hook installation and opt-in behavior explicit in repository docs.
 - Keep hook scripts portable and easy to inspect.
 - Align hooks with the same commands CI uses where practical.
+- When the repository wants one documented local setup step, a tracked opt-in Git config include may
+  bootstrap `core.hooksPath`, but keep that setup explicit and reviewable.
 
 ## Verification
 
