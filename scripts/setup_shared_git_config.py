@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import stat
 import subprocess
 import sys
@@ -139,12 +140,14 @@ def ensure_local_include(repo_root: Path, shared_config: Path, dry_run: bool) ->
         print(f"Local Git config already includes {shared_config}")
         return
 
+    include_path_text = os.path.relpath(shared_config, config_dir)
+
     if dry_run:
-        print(f"Would add local include.path {shared_config}")
+        print(f"Would add local include.path {include_path_text}")
         return
 
-    run_git_command(repo_root, ["config", "--local", "--add", "include.path", str(shared_config)])
-    print(f"Added local include.path {shared_config}")
+    run_git_command(repo_root, ["config", "--local", "--add", "include.path", include_path_text])
+    print(f"Added local include.path {include_path_text}")
 
 
 def ensure_pre_commit_is_executable(path: Path, dry_run: bool) -> None:

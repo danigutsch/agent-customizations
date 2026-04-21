@@ -443,7 +443,12 @@ def git_ls_files(repo_root: Path, relative_path: Path) -> list[str]:
         raise RuntimeError(f"Failed to inspect Git-tracked paths under {repo_root}: {exc}") from exc
 
     if completed.returncode != 0:
-        return []
+        stderr = completed.stderr.strip()
+        details = f": {stderr}" if stderr else ""
+        raise RuntimeError(
+            f"Failed to inspect Git-tracked paths under {repo_root} for {pathspec} "
+            f"(exit code {completed.returncode}){details}"
+        )
 
     return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
 
@@ -683,23 +688,15 @@ def warn_for_user_scope(target_root: Path) -> None:
     )
 
 
-def main() -> int:
-    args = parse_args()
-    target_root = resolve_target_root(args)
-
+def warn_for_selected_surfaces(
+    args: argparse.Namespace,
+    target_root: Path,
+    surfaces: list[str],
+    skipped_native: list[str],
+    skipped_authority: list[str],
+) -> None:
     if args.scope == "user":
         warn_for_user_scope(target_root)
-
-    try:
-        surfaces, skipped_native, skipped_authority = selected_surfaces(
-            args.scope,
-            target_root,
-            args.runtime_authority,
-            args.surface,
-        )
-    except ValueError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
 
     try:
         warn_for_git_tracking(args.scope, target_root, surfaces)
@@ -719,20 +716,65 @@ def main() -> int:
             f"Skipping native project surfaces already readable from .agents in {target_root}: {skipped_list}"
         )
 
+
+def load_plugin_entries_or_exit(
+    plugin_ids: list[str], scope: str, surfaces: list[str]
+) -> dict[str, list[tuple[Path, str]]] | None:
+    if not plugin_ids:
+        return {}
+
+    try:
+        return collect_plugin_entries(plugin_ids, scope, surfaces)
+    except (FileNotFoundError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return None
+
+
+def update_git_exclude_or_exit(
+    args: argparse.Namespace, target_root: Path, updated_state: dict[str, list[str]]
+) -> bool:
+    if not args.write_git_exclude:
+        return True
+
+    try:
+        update_git_exclude(
+            target_root,
+            surfaces_with_managed_workspace_entries(updated_state),
+            args.dry_run,
+        )
+    except FileNotFoundError as exc:
+        print(str(exc), file=sys.stderr)
+        return False
+
+    return True
+
+
+def main() -> int:
+    args = parse_args()
+    target_root = resolve_target_root(args)
+
+    try:
+        surfaces, skipped_native, skipped_authority = selected_surfaces(
+            args.scope,
+            target_root,
+            args.runtime_authority,
+            args.surface,
+        )
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+    warn_for_selected_surfaces(args, target_root, surfaces, skipped_native, skipped_authority)
+
     if args.write_git_exclude and args.scope != "workspace":
         print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
         return 1
 
     state_path = state_path_for(args.scope, target_root)
     state = load_state(state_path)
-
-    plugin_entries: dict[str, list[tuple[Path, str]]] = {}
-    if args.plugin:
-        try:
-            plugin_entries = collect_plugin_entries(args.plugin, args.scope, surfaces)
-        except (FileNotFoundError, ValueError) as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
+    plugin_entries = load_plugin_entries_or_exit(args.plugin, args.scope, surfaces)
+    if plugin_entries is None:
+        return 1
 
     updated_state = sync_selected_surfaces(args, target_root, surfaces, plugin_entries, state)
     for skipped_surface in sorted(set(skipped_native) | set(skipped_authority)):
@@ -746,16 +788,8 @@ def main() -> int:
             not args.no_delete_stale,
         )
 
-    if args.write_git_exclude:
-        try:
-            update_git_exclude(
-                target_root,
-                surfaces_with_managed_workspace_entries(updated_state),
-                args.dry_run,
-            )
-        except FileNotFoundError as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
+    if not update_git_exclude_or_exit(args, target_root, updated_state):
+        return 1
 
     write_state(state_path, {"managed_files": updated_state}, args.dry_run)
 

@@ -54,11 +54,11 @@ The repository now supports two export modes:
    - warning: the canonical tracked source remains under `.agents/`; these user-level files live
      outside the repository and are normally not Git-tracked
 2. **Workspace scope**
-     - target root: a repository root
-     - best for: `.github/` exports needed by workspace-only features such as prompts or explicit
-       project-level override scenarios
-     - default behavior: keep user-level `~/.copilot/*` as the active runtime for overlapping
-       surfaces and skip surfaces that the target repository already exposes natively from `.agents/`
+   - target root: a repository root
+   - best for: `.github/` exports needed by workspace-only features such as prompts or explicit
+     project-level override scenarios
+   - default behavior: keep user-level `~/.copilot/*` as the active runtime for overlapping
+     surfaces and skip surfaces that the target repository already exposes natively from `.agents/`
 
 The generic export script is:
 
