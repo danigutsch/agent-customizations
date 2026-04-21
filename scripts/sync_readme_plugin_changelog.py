@@ -57,6 +57,29 @@ def load_json(path: Path) -> dict[str, object]:
     return data
 
 
+def resolve_repo_file(path_text: str, *, label: str) -> Path:
+    candidate = Path(path_text)
+    if candidate.is_absolute():
+        raise RuntimeError(f"{label} must stay inside the repository root: {path_text}")
+
+    resolved = (ROOT / candidate).resolve()
+    try:
+        resolved.relative_to(ROOT)
+    except ValueError as exc:
+        raise RuntimeError(f"{label} must stay inside the repository root: {path_text}") from exc
+
+    if not resolved.is_file():
+        raise RuntimeError(f"{label} must resolve to an existing file: {path_text}")
+    return resolved
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def load_plugin_summaries() -> list[PluginReleaseSummary]:
     summaries: list[PluginReleaseSummary] = []
     for manifest_path in sorted(PLUGINS_DIR.glob("*/plugin.json")):
@@ -65,7 +88,7 @@ def load_plugin_summaries() -> list[PluginReleaseSummary]:
         display_name = require_string(manifest, "displayName", manifest_path)
         version = require_string(manifest, "version", manifest_path)
         changelog_value = require_string(manifest, "changelog", manifest_path)
-        changelog_path = (ROOT / changelog_value).resolve()
+        changelog_path = resolve_repo_file(changelog_value, label="Plugin changelog path")
         summaries.append(
             PluginReleaseSummary(
                 display_name=display_name,
@@ -182,10 +205,10 @@ def main() -> int:
 
     if updated_readme != readme_text:
         readme_path.write_text(updated_readme, encoding="utf-8")
-        print(f"Updated {readme_path.relative_to(ROOT)}")
+        print(f"Updated {display_path(readme_path)}")
         return 0
 
-    print(f"No changes needed for {readme_path.relative_to(ROOT)}")
+    print(f"No changes needed for {display_path(readme_path)}")
     return 0
 
 

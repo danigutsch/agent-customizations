@@ -121,10 +121,14 @@ def markdown_link_errors(path: Path, line_number: int, raw_line: str) -> list[st
 
 def validate_markdown_links(errors: list[str]) -> None:
     for path in iter_files("*.md"):
+        try:
+            contents = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"Could not read Markdown file {path.relative_to(ROOT)}: {exc}")
+            continue
+
         in_fence = False
-        for line_number, raw_line in enumerate(
-            path.read_text(encoding="utf-8").splitlines(), start=1
-        ):
+        for line_number, raw_line in enumerate(contents.splitlines(), start=1):
             if toggles_fenced_code_block(raw_line):
                 in_fence = not in_fence
                 continue
