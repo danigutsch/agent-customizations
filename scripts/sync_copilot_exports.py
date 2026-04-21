@@ -427,21 +427,36 @@ def resolve_git_repo_root(path: Path) -> Path | None:
     return Path(completed.stdout.strip()).resolve()
 
 
+def git_ls_files(repo_root: Path, relative_path: Path) -> list[str]:
+    pathspec = relative_path.as_posix().rstrip("/")
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(repo_root), "ls-files", "--", pathspec],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return []
+
+    if completed.returncode != 0:
+        return []
+
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
 def is_git_tracked(repo_root: Path, target_path: Path) -> bool:
     try:
         relative_path = target_path.resolve().relative_to(repo_root)
     except ValueError:
         return False
 
-    completed = subprocess.run(
-        ["git", "-C", str(repo_root), "ls-files", "--", relative_path.as_posix()],
-        text=True,
-        capture_output=True,
-        check=False,
+    pathspec = relative_path.as_posix().rstrip("/")
+    tracked_paths = git_ls_files(repo_root, relative_path)
+    return any(
+        tracked_path == pathspec or tracked_path.startswith(f"{pathspec}/")
+        for tracked_path in tracked_paths
     )
-    if completed.returncode != 0:
-        return False
-    return any(line.strip() for line in completed.stdout.splitlines())
 
 
 def warn_for_git_tracking(scope: str, target_root: Path, surfaces: list[str]) -> None:
