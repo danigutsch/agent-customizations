@@ -765,11 +765,11 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    warn_for_selected_surfaces(args, target_root, surfaces, skipped_native, skipped_authority)
-
     if args.write_git_exclude and args.scope != "workspace":
         print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
         return 1
+
+    warn_for_selected_surfaces(args, target_root, surfaces, skipped_native, skipped_authority)
 
     state_path = state_path_for(args.scope, target_root)
     state = load_state(state_path)
