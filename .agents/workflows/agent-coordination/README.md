@@ -14,3 +14,6 @@ Reusable workflow assets for the `agent-coordination` capability live here.
 - Keep lanes, handoffs, and escalation rules explicit.
 - Keep examples reusable and easy to adapt across repositories.
 - Treat model picks as a policy snapshot that repositories can tune locally.
+- When adapting OpenRouter lane picks to GitHub Copilot CLI BYOK, treat the listed OpenRouter model
+  IDs as provider wire models and document a separate Copilot `MODEL_ID` versus `WIRE_MODEL`
+  mapping.

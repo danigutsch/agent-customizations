@@ -64,6 +64,9 @@ specialist agent working alone.
 - Start from the packaged routing policy example in
   [references/openrouter-routing-policy.example.yaml](./references/openrouter-routing-policy.example.yaml)
   when a repository needs concrete lane defaults and escalation caps.
+- When adapting OpenRouter lane examples to GitHub Copilot CLI BYOK, prefer
+  `COPILOT_PROVIDER_MODEL_ID` plus `COPILOT_PROVIDER_WIRE_MODEL` over using a raw OpenRouter model
+  ID as the only `COPILOT_MODEL` value.
 
 ## Related guidance
 
@@ -82,6 +85,8 @@ specialist agent working alone.
 - **Do not use a free scouting model as the final security or release reviewer.**
 - **Do not keep repo-local and user-local Copilot assets equally authoritative for one project.**
 - **Do not hide escalation rules inside vague prose.**
+- **Do not assume an OpenRouter wire model with suffixes such as `:free` is a safe internal
+  Copilot model key for BYOK configuration.**
 
 ## References
 

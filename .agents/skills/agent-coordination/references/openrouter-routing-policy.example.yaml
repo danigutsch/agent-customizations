@@ -13,15 +13,15 @@ lanes:
 
   scout:
     runtime: openrouter
-    default_model: google/gemini-2.5-flash-lite
+    default_model: qwen/qwen3-coder:free
     code_fallbacks:
-      - qwen/qwen3-coder-30b-a3b-instruct
-      - qwen/qwen3-coder:free
+      - nvidia/nemotron-3-super-120b-a12b:free
+      - openai/gpt-oss-120b:free
     synthesis_fallbacks:
-      - deepseek/deepseek-v3.2
-      - google/gemini-2.5-flash
+      - z-ai/glm-4.5-air:free
+      - google/gemma-4-31b-it:free
     free_models_allowed: true
-    escalation_cap: google/gemini-2.5-flash
+    escalation_cap: nvidia/nemotron-3-super-120b-a12b:free
 
   implementer:
     runtime: copilot
@@ -52,12 +52,12 @@ lanes:
 
   documentation:
     runtime: mixed
-    default_model: google/gemini-2.5-flash
+    default_model: google/gemma-4-31b-it:free
     fallbacks:
-      - gpt-4.1-mini
-      - claude-sonnet-4.6
+      - z-ai/glm-4.5-air:free
+      - openrouter/free
     free_models_allowed: true
-    escalation_cap: claude-sonnet-4.6
+    escalation_cap: openai/gpt-oss-120b:free
 
 escalation_rules:
   retry_limit_before_escalation: 2
