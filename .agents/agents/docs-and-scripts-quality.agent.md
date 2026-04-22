@@ -67,6 +67,8 @@ aligned with the tools and checks that already exist here.
 - Keep command examples consistent with the actual `Makefile` and script entrypoints.
 - When a small derived README section prevents drift better than repeated manual edits, generate only
   that section with explicit markers and keep the owning script obvious.
+- When the repository wants shareable local Git guidance, prefer one tracked opt-in config file and a
+  setup command over long repeated manual `git config` blocks.
 
 ### Script quality
 

@@ -36,6 +36,8 @@ Use this skill when the task is about repository-local Git hooks rather than ser
 - Document installation and bypass behavior.
 - Treat hooks as a convenience layer, not the only required validation.
 - Align hook commands with CI when possible.
+- If the repository already uses a tracked opt-in local Git config include, it may bootstrap the
+  hook path, but the setup step should stay explicit in docs.
 
 ## Related guidance
 

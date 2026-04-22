@@ -175,6 +175,10 @@ Helpful maintenance commands:
 - `make configure-global-ignore`
 - `make setup-mcp MANIFEST=.agents/mcp/mcp-servers/my-server.json`
 
+Commands that write to user-level locations such as `~/.copilot/`, global Git config, or global Git
+ignore files now warn when they do so, because those changes normally live outside the repository
+and are not Git-tracked. For Copilot exports, the canonical tracked source remains under `.agents/`.
+
 To enable the lightweight pre-commit hook for this repository:
 
 ```bash
@@ -182,6 +186,27 @@ make install-hooks
 ```
 
 The hook runs focused staged-file checks only. CI remains the authoritative full validation path.
+
+To opt into the repository's broader local Git defaults:
+
+```bash
+make setup-git-config
+```
+
+That command adds a local include for the tracked `.gitconfig.shared` file and makes sure the
+pre-commit hook stays executable. It also fills in any unset safe global Git defaults for
+rebase-friendly pulls, fetch pruning, and `zdiff3` conflict markers. Pass `--force` to
+`scripts/setup_shared_git_config.py` if you intentionally want to overwrite existing global values.
+
+The tracked repository-specific Git config lives at
+[`./.gitconfig.shared`](./.gitconfig.shared). That file enables the `.githooks` path, LF-safe line
+ending handling, and `.git-blame-ignore-revs` for this repository.
+
+The script also warns that the actual edited Git config files are user-level/local-clone state and
+normally not Git-tracked.
+
+If you only want the hook path without the broader local Git defaults, keep using
+`make install-hooks`.
 
 Routine dependency maintenance is intentionally low-noise in this repository. Dependabot runs on a
 monthly schedule, groups minor and patch updates, and keeps action updates separate from package

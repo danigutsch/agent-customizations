@@ -8,7 +8,7 @@ TARGET_ROOT ?= $(CURDIR)
 MANIFEST ?=
 RUNTIME_AUTHORITY ?= user
 
-.PHONY: check format lint lint-markdown lint-workflows scan-secrets sync-readme-plugin-changelog check-plugin-version-bumps typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp release-plugin install-dev install-hooks hook-pre-commit
+.PHONY: check format lint lint-markdown lint-workflows scan-secrets sync-readme-plugin-changelog check-plugin-version-bumps typecheck validate-repo validate-plugins smoke-exports inspect-tool-files sync-user sync-workspace configure-global-ignore setup-mcp setup-git-config release-plugin install-dev install-hooks hook-pre-commit
 
 check: validate-repo validate-plugins smoke-exports lint typecheck
 
@@ -68,6 +68,9 @@ setup-mcp:
 	else \
 		$(PYTHON) scripts/setup_copilot_mcp.py; \
 	fi
+
+setup-git-config:
+	$(PYTHON) scripts/setup_shared_git_config.py
 
 release-plugin:
 	@if [ -z "$(PLUGIN)" ] || [ -z "$(BUMP)" ]; then \

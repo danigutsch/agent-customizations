@@ -226,10 +226,20 @@ def warn_for_repo(path: Path, surfaces: list[str]) -> None:
             print(f"    ... and {len(files) - 10} more", file=sys.stderr)
 
 
+def warn_for_global_ignore(path: Path, dry_run: bool) -> None:
+    action = "would write to" if dry_run else "writes to"
+    print(
+        f"Warning: global ignore configuration {action} "
+        f"{path}. This lives outside the repository and is normally not Git-tracked.",
+        file=sys.stderr,
+    )
+
+
 def main() -> int:
     args = parse_args()
     surfaces = selected_surfaces(args.surface)
     excludes_file = configured_excludes_file() or default_excludes_file()
+    warn_for_global_ignore(excludes_file, args.dry_run)
 
     try:
         ensure_git_config(excludes_file, args.dry_run)

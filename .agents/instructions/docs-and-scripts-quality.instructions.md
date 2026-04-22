@@ -21,6 +21,8 @@ validation workflow that covers them.
 - Keep Markdown aligned with the repository's configured lint rules and authoring conventions.
 - Prefer narrow generated README sections with explicit ownership markers when one small derived view
   prevents documentation drift better than repeated manual edits.
+- Prefer one tracked opt-in repo config file plus a setup command over long repeated local
+  `git config` command lists when the repository wants shareable local Git guidance.
 
 ## Script rules
 

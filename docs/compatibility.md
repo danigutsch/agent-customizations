@@ -51,12 +51,14 @@ The repository now supports two export modes:
 1. **User scope**
    - target root: `~/.copilot/`
    - best for: personal agents, personal skills, and VS Code-specific user instructions/hooks
+   - warning: the canonical tracked source remains under `.agents/`; these user-level files live
+     outside the repository and are normally not Git-tracked
 2. **Workspace scope**
-    - target root: a repository root
-    - best for: `.github/` exports needed by workspace-only features such as prompts or explicit
-      project-level override scenarios
-    - default behavior: keep user-level `~/.copilot/*` as the active runtime for overlapping
-      surfaces and skip surfaces that the target repository already exposes natively from `.agents/`
+   - target root: a repository root
+   - best for: `.github/` exports needed by workspace-only features such as prompts or explicit
+     project-level override scenarios
+   - default behavior: keep user-level `~/.copilot/*` as the active runtime for overlapping
+     surfaces and skip surfaces that the target repository already exposes natively from `.agents/`
 
 The generic export script is:
 
@@ -118,6 +120,11 @@ Run the generic export script for user-level sync:
 python3 scripts/sync_copilot_exports.py --scope user
 ```
 
+The script warns before writing user-level files because the canonical tracked source remains under
+`.agents/`, while `~/.copilot/*` is normally outside the repository and not Git-tracked.
+If you point user scope at a custom target inside a Git repository, it also checks whether the
+destination export paths are already Git-tracked there.
+
 Run the generic export script for workspace sync:
 
 ```bash
@@ -126,6 +133,8 @@ python3 scripts/sync_copilot_exports.py --scope workspace --target-root /path/to
 
 This keeps user-level `~/.copilot/*` as the default active runtime and exports only non-overlapping
 workspace surfaces by default.
+The exporter also checks whether the destination `.github/*` paths are already Git-tracked in the
+target repository and reports that before writing.
 
 When a repository needs repo-level overrides or a pinned local runtime layer, opt into workspace
 authority:

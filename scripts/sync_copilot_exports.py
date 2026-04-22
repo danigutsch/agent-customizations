@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import TypedDict, TypeGuard, cast
@@ -414,6 +415,92 @@ def resolve_git_dir(workspace_root: Path) -> Path | None:
     return (workspace_root / content[len(prefix) :]).resolve()
 
 
+def resolve_git_repo_root(path: Path) -> Path | None:
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError as exc:
+        raise RuntimeError(f"Failed to inspect Git repository for {path}: {exc}") from exc
+    if completed.returncode != 0:
+        return None
+    return Path(completed.stdout.strip()).resolve()
+
+
+def git_ls_files(repo_root: Path, relative_path: Path) -> list[str]:
+    pathspec = relative_path.as_posix().rstrip("/")
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(repo_root), "ls-files", "--", pathspec],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError as exc:
+        raise RuntimeError(f"Failed to inspect Git-tracked paths under {repo_root}: {exc}") from exc
+
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip()
+        details = f": {stderr}" if stderr else ""
+        raise RuntimeError(
+            f"Failed to inspect Git-tracked paths under {repo_root} for {pathspec} "
+            f"(exit code {completed.returncode}){details}"
+        )
+
+    return [line.strip() for line in completed.stdout.splitlines() if line.strip()]
+
+
+def is_git_tracked(repo_root: Path, target_path: Path) -> bool:
+    try:
+        relative_path = target_path.resolve().relative_to(repo_root)
+    except ValueError:
+        return False
+
+    pathspec = relative_path.as_posix().rstrip("/")
+    tracked_paths = git_ls_files(repo_root, relative_path)
+    return any(
+        tracked_path == pathspec or tracked_path.startswith(f"{pathspec}/")
+        for tracked_path in tracked_paths
+    )
+
+
+def warn_for_git_tracking(scope: str, target_root: Path, surfaces: list[str]) -> None:
+    repo_root = resolve_git_repo_root(target_root)
+    if repo_root is None:
+        return
+
+    tracked_paths: list[str] = []
+    untracked_paths: list[str] = []
+    for surface in surfaces:
+        target_base = target_root / get_target_subdir(SURFACES[surface], scope)
+        try:
+            display_path = target_base.resolve().relative_to(repo_root).as_posix()
+        except ValueError:
+            continue
+
+        if is_git_tracked(repo_root, target_base):
+            tracked_paths.append(display_path)
+        else:
+            untracked_paths.append(display_path)
+
+    if tracked_paths:
+        print(
+            "Warning: export destination path(s) are already Git-tracked in "
+            f"{repo_root}: {', '.join(sorted(tracked_paths))}",
+            file=sys.stderr,
+        )
+
+    if untracked_paths:
+        print(
+            "Note: export destination path(s) are inside Git repository "
+            f"{repo_root} but are not currently Git-tracked: {', '.join(sorted(untracked_paths))}",
+            file=sys.stderr,
+        )
+
+
 def state_path_for(scope: str, target_root: Path) -> Path:
     if scope == "user":
         return target_root / STATE_FILE_NAME
@@ -578,19 +665,89 @@ def sync_selected_surfaces(
                 args.dry_run,
                 not args.no_delete_stale,
             )
-            continue
-
-        updated_state[surface] = sync_surface(
-            args.scope,
-            target_root,
-            surface,
-            SURFACES[surface],
-            state["managed_files"].get(surface, []),
-            args.dry_run,
-            not args.no_delete_stale,
-        )
+        else:
+            updated_state[surface] = sync_surface(
+                args.scope,
+                target_root,
+                surface,
+                SURFACES[surface],
+                state["managed_files"].get(surface, []),
+                args.dry_run,
+                not args.no_delete_stale,
+            )
 
     return updated_state
+
+
+def warn_for_user_scope(target_root: Path, dry_run: bool) -> None:
+    action = "would write under" if dry_run else "writes under"
+    print(
+        f"Warning: user scope {action} "
+        f"{target_root}. The canonical tracked sources stay under {AGENTS_ROOT}, while these "
+        "user-level copies live outside the repository and are normally not Git-tracked.",
+        file=sys.stderr,
+    )
+
+
+def warn_for_selected_surfaces(
+    args: argparse.Namespace,
+    target_root: Path,
+    surfaces: list[str],
+    skipped_native: list[str],
+    skipped_authority: list[str],
+) -> None:
+    if args.scope == "user":
+        warn_for_user_scope(target_root, args.dry_run)
+
+    try:
+        warn_for_git_tracking(args.scope, target_root, surfaces)
+    except RuntimeError as exc:
+        print(f"Warning: unable to check Git tracking status: {exc}", file=sys.stderr)
+
+    if skipped_authority:
+        skipped_list = ", ".join(skipped_authority)
+        print(
+            "Skipping overlapping workspace runtime surfaces because runtime authority defaults to "
+            f"user-level ~/.copilot: {skipped_list}"
+        )
+
+    if skipped_native:
+        skipped_list = ", ".join(skipped_native)
+        print(
+            f"Skipping native project surfaces already readable from .agents in {target_root}: {skipped_list}"
+        )
+
+
+def load_plugin_entries_or_exit(
+    plugin_ids: list[str], scope: str, surfaces: list[str]
+) -> dict[str, list[tuple[Path, str]]] | None:
+    if not plugin_ids:
+        return {}
+
+    try:
+        return collect_plugin_entries(plugin_ids, scope, surfaces)
+    except (FileNotFoundError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return None
+
+
+def update_git_exclude_or_exit(
+    args: argparse.Namespace, target_root: Path, updated_state: dict[str, list[str]]
+) -> bool:
+    if not args.write_git_exclude:
+        return True
+
+    try:
+        update_git_exclude(
+            target_root,
+            surfaces_with_managed_workspace_entries(updated_state),
+            args.dry_run,
+        )
+    except FileNotFoundError as exc:
+        print(str(exc), file=sys.stderr)
+        return False
+
+    return True
 
 
 def main() -> int:
@@ -608,33 +765,17 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 1
 
-    if skipped_authority:
-        skipped_list = ", ".join(skipped_authority)
-        print(
-            "Skipping overlapping workspace runtime surfaces because runtime authority defaults to "
-            f"user-level ~/.copilot: {skipped_list}"
-        )
-
-    if skipped_native:
-        skipped_list = ", ".join(skipped_native)
-        print(
-            f"Skipping native project surfaces already readable from .agents in {target_root}: {skipped_list}"
-        )
-
     if args.write_git_exclude and args.scope != "workspace":
         print("--write-git-exclude is only supported for workspace scope.", file=sys.stderr)
         return 1
 
+    warn_for_selected_surfaces(args, target_root, surfaces, skipped_native, skipped_authority)
+
     state_path = state_path_for(args.scope, target_root)
     state = load_state(state_path)
-
-    plugin_entries: dict[str, list[tuple[Path, str]]] = {}
-    if args.plugin:
-        try:
-            plugin_entries = collect_plugin_entries(args.plugin, args.scope, surfaces)
-        except (FileNotFoundError, ValueError) as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
+    plugin_entries = load_plugin_entries_or_exit(args.plugin, args.scope, surfaces)
+    if plugin_entries is None:
+        return 1
 
     updated_state = sync_selected_surfaces(args, target_root, surfaces, plugin_entries, state)
     for skipped_surface in sorted(set(skipped_native) | set(skipped_authority)):
@@ -648,16 +789,8 @@ def main() -> int:
             not args.no_delete_stale,
         )
 
-    if args.write_git_exclude:
-        try:
-            update_git_exclude(
-                target_root,
-                surfaces_with_managed_workspace_entries(updated_state),
-                args.dry_run,
-            )
-        except FileNotFoundError as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
+    if not update_git_exclude_or_exit(args, target_root, updated_state):
+        return 1
 
     write_state(state_path, {"managed_files": updated_state}, args.dry_run)
 
