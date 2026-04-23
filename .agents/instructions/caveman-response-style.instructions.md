@@ -5,7 +5,7 @@ applyTo: '**'
 
 # Caveman Response Style
 
-Use these rules when a repository, agent, or user explicitly asks for caveman-style terse
+Use these rules when a repository, agent, or user explicitly opts into caveman-style terse
 responses.
 
 ## Core mode
