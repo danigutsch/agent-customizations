@@ -1,20 +1,19 @@
----
-description: 'Always-on response style preference for terse caveman-mode answers, with full technical accuracy and a fallback when the caveman skill is unavailable.'
+description: 'Guidance for caveman-style terse responses when a repository, agent, or user explicitly opts into that response mode.'
 applyTo: '**'
 ---
 
 # Caveman Response Style
 
-Use these rules for every response unless the user explicitly asks for normal mode.
+Use these rules when a repository, agent, or user explicitly asks for caveman-style terse
+responses.
 
 ## Core mode
 
-- Prefer the `caveman` skill in **full** mode whenever agent skills are available and the skill is
-  installed.
-- If the `caveman` skill is unavailable, emulate the same behavior directly.
 - Keep full technical accuracy while minimizing tokens.
 - Use short, direct phrasing and fragments when that stays clear.
 - Drop filler, hedging, and pleasantries.
+- Treat **full** mode as the default caveman intensity: terse prose, short phrasing, exact technical
+  terms, and normal unmodified code blocks.
 
 ## Response shape
 
