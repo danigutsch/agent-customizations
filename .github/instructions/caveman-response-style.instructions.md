@@ -1,3 +1,4 @@
+---
 description: 'Guidance for caveman-style terse responses when a repository, agent, or user explicitly opts into that response mode.'
 applyTo: '**'
 ---
